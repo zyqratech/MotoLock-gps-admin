@@ -1,0 +1,2696 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MotoLock GPS | لوحة تحكم ومراقبة الأجهزة</title>
+    
+    <!-- Meta for Mobile & SEO -->
+    <meta name="description" content="لوحة تحكم ذكية ومباشرة لمراقبة وتتبع دراجات وأجهزة MotoLock GPS لحظياً عبر Firebase">
+    <meta name="theme-color" content="#090e17">
+    <link rel="icon" type="image/png" href="../app_icon.png">
+
+    <!-- Fonts: Cairo & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <style>
+        :root {
+            --bg-dark: #090e17;
+            --bg-card: #111a2e;
+            --bg-card-hover: #16223b;
+            --bg-input: #0b121e;
+            --border-color: #1e2c45;
+            --border-focus: #00d2ff;
+            
+            --accent-cyan: #00d2ff;
+            --accent-blue: #3a86ff;
+            --accent-green: #10b981;
+            --accent-green-glow: rgba(16, 185, 129, 0.35);
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-red-glow: rgba(239, 68, 68, 0.35);
+            --accent-purple: #a855f7;
+            
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            
+            --header-h: 68px;
+            --kpi-h: 90px;
+            --radius-md: 14px;
+            --radius-sm: 8px;
+            --shadow-glow: 0 0 25px rgba(0, 210, 255, 0.15);
+            --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.4);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100%;
+            height: 100vh;
+            height: 100dvh;
+            width: 100%;
+            max-width: 100vw;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* --- Header --- */
+        header {
+            height: var(--header-h);
+            background: linear-gradient(180deg, #111a2e 0%, #0c1424 100%);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.25rem;
+            z-index: 1000;
+            flex-shrink: 0;
+            width: 100%;
+            max-width: 100vw;
+            min-width: 0;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-cyan) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.35rem;
+            box-shadow: 0 0 18px rgba(0, 210, 255, 0.35);
+        }
+
+        .brand-text h1 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .brand-text span {
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        /* Firebase Status Indicator */
+        .conn-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--accent-green);
+            padding: 0.4rem 0.85rem;
+            border-radius: 50px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .conn-pill.disconnected {
+            background: rgba(239, 68, 68, 0.12);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--accent-red);
+        }
+
+        .conn-pill.connecting {
+            background: rgba(245, 158, 11, 0.12);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: var(--accent-amber);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: currentColor;
+            animation: pulseAnim 1.8s infinite;
+        }
+
+        @keyframes pulseAnim {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            50% { transform: scale(1.3); opacity: 1; filter: drop-shadow(0 0 6px currentColor); }
+            100% { transform: scale(0.9); opacity: 0.7; }
+        }
+
+        .timeout-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 0.35rem 0.65rem;
+            border-radius: 50px;
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .timeout-pill:hover {
+            border-color: var(--accent-cyan);
+        }
+
+        .timeout-select {
+            background: transparent;
+            border: none;
+            color: var(--accent-cyan);
+            font-family: inherit;
+            font-size: 0.76rem;
+            font-weight: 700;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .timeout-select option {
+            background: #0c1424;
+            color: #fff;
+        }
+
+        .btn-icon {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .btn-icon:hover {
+            color: var(--text-main);
+            border-color: var(--accent-cyan);
+            background: var(--bg-card-hover);
+        }
+
+        .mobile-close-btn {
+            display: none;
+        }
+
+        .sheet-drag-handle {
+            display: none;
+        }
+
+        /* --- KPI Summary Bar --- */
+        .kpi-container {
+            background: #0d1524;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.65rem 1.25rem;
+            display: flex;
+            gap: 0.85rem;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            flex-shrink: 0;
+            width: 100%;
+            max-width: 100vw;
+            min-width: 0;
+        }
+
+        .kpi-container::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .kpi-container::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.6rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            min-width: 145px;
+            flex: 1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .kpi-card:hover, .kpi-card.active {
+            border-color: var(--card-accent, var(--accent-cyan));
+            transform: translateY(-1px);
+        }
+
+        .kpi-card.active {
+            background: rgba(0, 210, 255, 0.08);
+        }
+
+        .kpi-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--card-accent, var(--accent-cyan));
+        }
+
+        .kpi-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kpi-title {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 1.25rem;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+
+        /* --- Main Layout: Map & Sidebar --- */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            max-width: 100vw;
+            min-width: 0;
+            min-height: 0;
+        }
+
+        /* Map Container */
+        #map-container {
+            flex: 1;
+            height: 100%;
+            position: relative;
+            background: #090e17;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+
+        /* Map Overlay Controls */
+        .map-floating-controls {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 500;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .floating-btn {
+            background: rgba(17, 26, 46, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.55rem 0.9rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-card);
+            transition: var(--transition);
+        }
+
+        .floating-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        /* Sidebar Container (Desktop Side, Mobile Bottom Sheet or Drawer) */
+        .sidebar {
+            width: 420px;
+            height: 100%;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 600;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            background: #0d1524;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .search-input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 0.6rem 2.4rem 0.6rem 0.85rem;
+            border-radius: 10px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+        }
+
+        .filter-chips {
+            display: flex;
+            gap: 0.4rem;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .chip {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.25rem 0.65rem;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+
+        .chip:hover, .chip.active {
+            background: var(--accent-blue);
+            color: #fff;
+            border-color: var(--accent-blue);
+        }
+
+        /* Devices List */
+        .devices-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .devices-list::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .devices-list::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 5px;
+        }
+
+        /* Device Card */
+        .device-card {
+            background: #0d1525;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .device-card:hover {
+            border-color: var(--accent-cyan);
+            background: #101b30;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+
+        .device-card.selected {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 210, 255, 0.06);
+            box-shadow: 0 0 16px rgba(0, 210, 255, 0.25);
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .device-title-area {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .device-icon-box {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+            color: var(--accent-cyan);
+        }
+
+        .device-names {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .device-custom-name {
+            font-weight: 700;
+            font-size: 0.92rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-rename {
+            color: var(--text-dim);
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-rename:hover {
+            color: var(--accent-cyan);
+        }
+
+        .device-mac {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.55rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            white-space: nowrap;
+        }
+
+        .status-badge.online-moving {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-badge.online-parked {
+            background: rgba(58, 134, 255, 0.15);
+            color: var(--accent-blue);
+            border: 1px solid rgba(58, 134, 255, 0.3);
+        }
+
+        .status-badge.offline {
+            background: rgba(100, 116, 139, 0.15);
+            color: var(--text-dim);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+
+        /* Card Metrics Grid */
+        .card-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.45rem;
+            background: rgba(0, 0, 0, 0.22);
+            padding: 0.5rem 0.65rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .metric-cell {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-label {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+        }
+
+        .metric-val {
+            font-size: 0.78rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding-top: 0.45rem;
+        }
+
+        .card-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .mini-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .mini-btn:hover {
+            color: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 2.5rem 1rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            color: var(--text-dim);
+        }
+
+        /* --- Mobile Bottom Nav Switcher --- */
+        .mobile-bottom-nav {
+            display: none;
+            height: 56px;
+            background: #0d1525;
+            border-top: 1px solid var(--border-color);
+            z-index: 1000;
+            flex-shrink: 0;
+        }
+
+        .mobile-nav-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.2rem;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        .mobile-nav-btn.active {
+            color: var(--accent-cyan);
+        }
+
+        .mobile-nav-btn i {
+            font-size: 1.1rem;
+        }
+
+        /* --- Modals (Rename & Add Device & Config) --- */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: #111a2e;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(20px);
+            transition: transform 0.25s ease;
+        }
+
+        .modal-backdrop.open .modal-box {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 1rem 1.25rem;
+            background: #0c1424;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-header h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--accent-red);
+        }
+
+        .modal-body {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .form-control {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 0.65rem 0.85rem;
+            border-radius: 8px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+        }
+
+        .modal-footer {
+            padding: 0.85rem 1.25rem;
+            background: #0c1424;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.65rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-cyan) 100%);
+            border: none;
+            color: #fff;
+            padding: 0.55rem 1.25rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.15);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.55rem 1rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* --- Leaflet Custom Markers & Popups --- */
+        .leaflet-popup-content-wrapper {
+            background: #111a2e !important;
+            color: var(--text-main) !important;
+            border: 1px solid var(--border-color);
+            border-radius: 12px !important;
+            box-shadow: var(--shadow-card) !important;
+            padding: 0.2rem !important;
+        }
+
+        .leaflet-popup-tip {
+            background: #111a2e !important;
+            border: 1px solid var(--border-color);
+        }
+
+        .marker-pin {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--marker-color, var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1rem;
+            box-shadow: 0 0 15px var(--marker-color, var(--accent-blue));
+            border: 2px solid #ffffff;
+            position: relative;
+        }
+
+        .marker-pin.pulsing::after {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 2px solid var(--marker-color, var(--accent-green));
+            animation: radarPulse 1.8s infinite;
+        }
+
+        @keyframes radarPulse {
+            0% { transform: scale(0.9); opacity: 1; }
+            100% { transform: scale(1.8); opacity: 0; }
+        }
+
+        .map-popup-card {
+            font-family: 'Cairo', sans-serif;
+            min-width: 220px;
+            padding: 0.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+            direction: rtl;
+        }
+
+        .popup-title {
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.35rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .popup-info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .popup-info-row span:last-child {
+            font-weight: 700;
+            color: var(--text-main);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .popup-btn {
+            background: var(--accent-blue);
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            padding: 0.4rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            margin-top: 0.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+        }
+
+        .popup-btn:hover {
+            background: var(--accent-cyan);
+        }
+
+        /* --- Responsive Queries --- */
+
+        /* Tablets & Small Laptops */
+        @media (max-width: 960px) {
+            .sidebar {
+                width: 350px;
+            }
+        }
+
+        /* Mobile Phones (< 768px) */
+        @media (max-width: 768px) {
+            :root {
+                --header-h: 54px;
+            }
+
+            /* Single-row compact header: NO wrapping, NO overflow */
+            header {
+                height: 54px;
+                padding: 0 0.65rem;
+                gap: 0.35rem;
+                flex-wrap: nowrap;
+                justify-content: space-between;
+                width: 100%;
+                max-width: 100vw;
+                min-width: 0;
+            }
+
+            .header-brand {
+                gap: 0.45rem;
+                flex-shrink: 0;
+            }
+
+            .logo-icon {
+                width: 34px;
+                height: 34px;
+                border-radius: 9px;
+                font-size: 1rem;
+            }
+
+            .brand-text h1 {
+                font-size: 0.95rem;
+                white-space: nowrap;
+            }
+
+            .brand-text h1 span {
+                font-size: 0.68rem;
+            }
+
+            /* Hide verbose subtitle on mobile to fit nicely */
+            .brand-text span#version-label {
+                display: none;
+            }
+
+            .header-actions {
+                gap: 0.3rem;
+                flex-shrink: 0;
+                flex-wrap: nowrap;
+            }
+
+            .conn-pill {
+                padding: 0.22rem 0.45rem;
+                font-size: 0.68rem;
+                gap: 0.3rem;
+                white-space: nowrap;
+            }
+
+            .conn-pill .pulse-dot {
+                width: 6px;
+                height: 6px;
+            }
+
+            .timeout-pill {
+                padding: 0.2rem 0.35rem;
+                font-size: 0.68rem;
+                gap: 0.2rem;
+            }
+
+            .timeout-select {
+                font-size: 0.68rem;
+                max-width: 70px;
+            }
+
+            .btn-icon {
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                font-size: 0.8rem;
+                flex-shrink: 0;
+            }
+
+            .mobile-close-btn {
+                display: flex;
+            }
+
+            /* KPI Bar: horizontal scroll with touch momentum, compact cards */
+            .kpi-container {
+                padding: 0.35rem 0.5rem;
+                gap: 0.4rem;
+                width: 100%;
+                max-width: 100vw;
+                min-width: 0;
+                overflow-x: auto;
+                overflow-y: hidden;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+
+            .kpi-container::-webkit-scrollbar {
+                display: none;
+            }
+
+            .kpi-card {
+                min-width: 100px;
+                max-width: 115px;
+                padding: 0.35rem 0.5rem;
+                gap: 0.4rem;
+                border-radius: 10px;
+                flex: 0 0 auto;
+            }
+
+            .kpi-icon {
+                width: 28px;
+                height: 28px;
+                border-radius: 7px;
+                font-size: 0.85rem;
+            }
+
+            .kpi-title {
+                font-size: 0.58rem;
+                white-space: nowrap;
+            }
+
+            .kpi-value {
+                font-size: 1rem;
+            }
+
+            /* Main Workspace */
+            .main-wrapper {
+                flex: 1;
+                min-height: 0;
+                width: 100%;
+                max-width: 100vw;
+                min-width: 0;
+                position: relative;
+                overflow: hidden;
+                padding-bottom: 56px; /* Leave space for bottom nav */
+            }
+
+            #map-container {
+                width: 100%;
+                height: 100%;
+            }
+
+            /* Sidebar acts as sleek bottom sheet drawer */
+            .sidebar {
+                width: 100%;
+                max-width: 100vw;
+                height: calc(80vh - 56px);
+                position: fixed;
+                left: 0;
+                right: 0;
+                bottom: 56px;
+                top: auto;
+                z-index: 900;
+                border-right: none;
+                border-top: 1px solid var(--border-color);
+                border-radius: 20px 20px 0 0;
+                box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.7);
+                background: #0d1525;
+                transform: translateY(100%);
+                transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+                display: flex;
+                flex-direction: column;
+            }
+
+            .sidebar.active-mobile {
+                transform: translateY(0);
+            }
+
+            /* Interactive Drawer Drag Handle bar */
+            .sheet-drag-handle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 28px;
+                cursor: pointer;
+                touch-action: none;
+                flex-shrink: 0;
+                padding: 6px 0;
+            }
+
+            .sheet-drag-pill {
+                width: 48px;
+                height: 5px;
+                background: var(--text-dim);
+                border-radius: 4px;
+                opacity: 0.65;
+                transition: var(--transition);
+                pointer-events: none;
+            }
+
+            .sheet-drag-handle:active .sheet-drag-pill {
+                opacity: 1;
+                background: var(--accent-cyan);
+                transform: scaleX(1.2);
+            }
+
+            .sidebar-header {
+                padding: 0.55rem 0.75rem;
+                gap: 0.45rem;
+            }
+
+            .search-input {
+                padding: 0.5rem 2rem 0.5rem 0.75rem;
+                font-size: 0.8rem;
+            }
+
+            .filter-chips {
+                gap: 0.25rem;
+            }
+
+            .chip {
+                padding: 0.2rem 0.5rem;
+                font-size: 0.66rem;
+            }
+
+            /* Device cards inside list */
+            .devices-list {
+                padding: 0.5rem;
+                gap: 0.45rem;
+            }
+
+            .device-card {
+                padding: 0.65rem;
+                gap: 0.45rem;
+                border-radius: 10px;
+            }
+
+            .device-icon-box {
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                font-size: 0.88rem;
+            }
+
+            .device-custom-name {
+                font-size: 0.82rem;
+            }
+
+            .device-mac {
+                font-size: 0.64rem;
+            }
+
+            .status-badge {
+                font-size: 0.62rem;
+                padding: 0.18rem 0.4rem;
+            }
+
+            .card-metrics {
+                grid-template-columns: repeat(4, 1fr) !important;
+                padding: 0.35rem 0.45rem;
+                gap: 0.25rem;
+            }
+
+            .metric-label {
+                font-size: 0.58rem;
+            }
+
+            .metric-val {
+                font-size: 0.7rem;
+            }
+
+            .card-footer {
+                font-size: 0.65rem;
+            }
+
+            .mini-btn {
+                font-size: 0.65rem;
+                padding: 0.2rem 0.45rem;
+            }
+
+            /* Mobile Bottom Navigation Bar */
+            .mobile-bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 56px;
+                background: #090e17;
+                border-top: 1px solid var(--border-color);
+                z-index: 1000;
+                width: 100%;
+                max-width: 100vw;
+            }
+
+            .mobile-nav-btn {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 0.2rem;
+                color: var(--text-muted);
+                font-size: 0.72rem;
+                font-weight: 700;
+                background: transparent;
+                border: none;
+                cursor: pointer;
+                transition: var(--transition);
+            }
+
+            .mobile-nav-btn.active {
+                color: var(--accent-cyan);
+                background: rgba(0, 210, 255, 0.06);
+            }
+
+            .mobile-nav-btn i {
+                font-size: 1.15rem;
+            }
+
+            /* Map floating controls on mobile */
+            .map-floating-controls {
+                top: 0.55rem;
+                right: 0.55rem;
+                gap: 0.4rem;
+            }
+
+            .floating-btn {
+                padding: 0.4rem 0.65rem;
+                font-size: 0.72rem;
+                border-radius: 8px;
+            }
+
+            .floating-btn span {
+                display: none;
+            }
+
+            /* Map Popup on mobile */
+            .map-popup-card {
+                min-width: 185px;
+                font-size: 0.8rem;
+            }
+
+            .popup-title {
+                font-size: 0.82rem;
+            }
+
+            .popup-info-row {
+                font-size: 0.7rem;
+            }
+
+            /* Modals on mobile */
+            .modal-box {
+                max-width: 94vw;
+            }
+
+            .modal-header {
+                padding: 0.75rem 1rem;
+            }
+
+            .modal-body {
+                padding: 0.9rem;
+            }
+        }
+
+        /* Extra small phones (< 380px) */
+        @media (max-width: 380px) {
+            header {
+                padding: 0 0.45rem;
+            }
+
+            .brand-text h1 {
+                font-size: 0.88rem;
+            }
+
+            .conn-pill span#firebase-conn-text {
+                display: none; /* Only show pulsing dot on super small screens */
+            }
+
+            .kpi-card {
+                min-width: 88px;
+                padding: 0.3rem 0.4rem;
+            }
+
+            .card-metrics {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-brand">
+            <div class="logo-icon">
+                <i class="fa-solid fa-motorcycle"></i>
+            </div>
+            <div class="brand-text">
+                <h1>MotoLock <span>Admin</span></h1>
+                <span id="version-label">مراقبة الأجهزة الحية v2.0</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="conn-pill connecting" id="firebase-conn-pill">
+                <span class="pulse-dot"></span>
+                <span id="firebase-conn-text">جارِ الاتصال...</span>
+            </div>
+
+            <div class="timeout-pill" title="مهلة اعتبار الجهاز متصل أونلاين بعد آخر إشارة حية">
+                <i class="fa-solid fa-stopwatch" style="color: var(--accent-cyan);"></i>
+                <select id="sel-timeout" class="timeout-select">
+                    <option value="60000">مهلة: 1 دقيقة</option>
+                    <option value="90000" selected>مهلة: 1.5 دقيقة</option>
+                    <option value="180000">مهلة: 3 دقائق</option>
+                    <option value="300000">مهلة: 5 دقائق</option>
+                </select>
+            </div>
+
+            <button class="btn-icon" id="btn-add-device" title="إضافة معرف جهاز">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+
+            <button class="btn-icon" id="btn-config" title="إعدادات الاتصال">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- KPI Summary Bar -->
+    <div class="kpi-container">
+        <div class="kpi-card active" data-filter="all" style="--card-accent: var(--accent-cyan);">
+            <div class="kpi-icon"><i class="fa-solid fa-server"></i></div>
+            <div class="kpi-content">
+                <span class="kpi-title">إجمالي الأجهزة</span>
+                <span class="kpi-value" id="kpi-total">0</span>
+            </div>
+        </div>
+
+        <div class="kpi-card" data-filter="online" style="--card-accent: var(--accent-green);">
+            <div class="kpi-icon"><i class="fa-solid fa-wifi"></i></div>
+            <div class="kpi-content">
+                <span class="kpi-title">متصلة الآن</span>
+                <span class="kpi-value" id="kpi-online">0</span>
+            </div>
+        </div>
+
+        <div class="kpi-card" data-filter="moving" style="--card-accent: #00d2ff;">
+            <div class="kpi-icon"><i class="fa-solid fa-gauge-high"></i></div>
+            <div class="kpi-content">
+                <span class="kpi-title">تتحرك حالياً</span>
+                <span class="kpi-value" id="kpi-moving">0</span>
+            </div>
+        </div>
+
+        <div class="kpi-card" data-filter="parked" style="--card-accent: var(--accent-blue);">
+            <div class="kpi-icon"><i class="fa-solid fa-square-parking"></i></div>
+            <div class="kpi-content">
+                <span class="kpi-title">متوقفة / مركونة</span>
+                <span class="kpi-value" id="kpi-parked">0</span>
+            </div>
+        </div>
+
+        <div class="kpi-card" data-filter="powersaving" style="--card-accent: var(--accent-amber);">
+            <div class="kpi-icon"><i class="fa-solid fa-leaf"></i></div>
+            <div class="kpi-content">
+                <span class="kpi-title">توفير الطاقة</span>
+                <span class="kpi-value" id="kpi-powersaving">0</span>
+            </div>
+        </div>
+
+        <div class="kpi-card" data-filter="offline" style="--card-accent: var(--accent-red);">
+            <div class="kpi-icon"><i class="fa-solid fa-power-off"></i></div>
+            <div class="kpi-content">
+                <span class="kpi-title">غير متصلة</span>
+                <span class="kpi-value" id="kpi-offline">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="main-wrapper">
+        
+        <!-- Sidebar Devices Directory -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sheet-drag-handle" id="sheet-drag-handle" title="اسحب أو اضغط للنزول إلى الخريطة">
+                <div class="sheet-drag-pill"></div>
+            </div>
+            <div class="sidebar-header">
+                <div style="display: flex; align-items: center; gap: 0.5rem; width: 100%;">
+                    <div class="search-box" style="flex: 1;">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" class="search-input" id="device-search" placeholder="بحث بالاسم أو الماك MAC...">
+                    </div>
+                    <button class="btn-icon mobile-close-btn" onclick="showMobileTab('map')" title="العودة للخريطة">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+
+                <div class="filter-chips">
+                    <span class="chip active" data-filter="all">الكل</span>
+                    <span class="chip" data-filter="online">متصلة (أونلاين)</span>
+                    <span class="chip" data-filter="moving">متحركة</span>
+                    <span class="chip" data-filter="parked">متوقفة</span>
+                    <span class="chip" data-filter="offline">غير متصلة</span>
+                </div>
+            </div>
+
+            <!-- Devices List -->
+            <div class="devices-list" id="devices-list-container">
+                <div class="empty-state">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i>
+                    <p>جارِ استعلام الأجهزة من Firebase...</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Live Map Area -->
+        <main id="map-container">
+            <div id="map"></div>
+
+            <div class="map-floating-controls">
+                <button class="floating-btn" id="btn-fit-bounds">
+                    <i class="fa-solid fa-arrows-to-dot"></i>
+                    <span>إظهار الكل</span>
+                </button>
+                <button class="floating-btn" id="btn-toggle-map-style">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span id="map-style-name">أقمار صناعية</span>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Navigation Bar -->
+    <nav class="mobile-bottom-nav">
+        <button class="mobile-nav-btn active" id="nav-map">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <span>الخريطة</span>
+        </button>
+        <button class="mobile-nav-btn" id="nav-devices">
+            <i class="fa-solid fa-motorcycle"></i>
+            <span>الأجهزة (<span id="mobile-dev-count">0</span>)</span>
+        </button>
+    </nav>
+
+    <!-- Modal: Rename Device -->
+    <div class="modal-backdrop" id="modal-rename">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-pen-to-square"></i> تعديل اسم الجهاز</h3>
+                <button class="modal-close" onclick="closeModal('modal-rename')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>معرف الجهاز (MAC / ID):</label>
+                    <input type="text" class="form-control" id="rename-device-id" readonly style="color: var(--text-dim);">
+                </div>
+                <div class="form-group">
+                    <label>الاسم المخصص (مثال: دراجة محمد، هوندا 150):</label>
+                    <input type="text" class="form-control" id="rename-device-name" placeholder="اكتب اسماً يسهل تذكره...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-rename')">إلغاء</button>
+                <button class="btn-primary" id="btn-save-rename">حفظ ومزامنة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add Device Identifier -->
+    <div class="modal-backdrop" id="modal-add-device">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-plus-circle"></i> إضافة أجهزة للتتبع</h3>
+                <button class="modal-close" onclick="closeModal('modal-add-device')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="background: rgba(0, 210, 255, 0.08); border: 1px solid rgba(0, 210, 255, 0.25); padding: 0.75rem; border-radius: 8px; font-size: 0.78rem; color: var(--accent-cyan); line-height: 1.5;">
+                    <i class="fa-solid fa-circle-info"></i>
+                    يمكنك إدخال معرف ماك واحد أو عدة معرفات مفصولة بفواصل أو مسافات، وسيتم بدء مراقبتها فورياً!
+                </div>
+                <div class="form-group">
+                    <label>معرفات الماك (MAC IDs):</label>
+                    <textarea class="form-control" id="add-mac-input" rows="3" placeholder="مثال: 6CC84044E15A, CCDBA7979B46"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>اسم الدراجة (اختياري - في حال إدخال جهاز واحد):</label>
+                    <input type="text" class="form-control" id="add-name-input" placeholder="مثال: دراجة أحمد">
+                </div>
+                <button type="button" class="mini-btn" onclick="openModal('modal-rules-help')" style="color: #fbbf24; border-color: rgba(245, 158, 11, 0.4); padding: 0.4rem 0.65rem;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> كيف أجعل كل الأجهزة تظهر تلقائياً دون إدخالها يدوياً؟
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-add-device')">إلغاء</button>
+                <button class="btn-primary" id="btn-confirm-add-device">إضافة ومراقبة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Rules Help Guide -->
+    <div class="modal-backdrop" id="modal-rules-help">
+        <div class="modal-box" style="max-width: 520px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-shield-halved" style="color: #fbbf24;"></i> تفعيل إظهار جميع الأجهزة تلقائياً</h3>
+                <button class="modal-close" onclick="closeModal('modal-rules-help')">&times;</button>
+            </div>
+            <div class="modal-body" style="font-size: 0.82rem; line-height: 1.6; gap: 0.85rem;">
+                <p>
+                    حالياً، قواعد الفايربيس تسمح فقط بقراءة الجهاز إذا كنت تعرف الماك بتاعه، لكنها تمنع طلب قائمة بجميع الأجهزة دفعة واحدة.
+                </p>
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 0.75rem;">
+                    <strong>الحل في 3 خطوات بسيطة:</strong>
+                    <ol style="padding-right: 1.25rem; margin-top: 0.4rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                        <li>افتح صفحة قواعد الفايربيس: <a href="https://console.firebase.google.com/u/6/project/motolock-gps/database/motolock-gps-default-rtdb/rules" target="_blank" style="color: var(--accent-cyan); font-weight: 700;">اضغط هنا لفتح قواعد الفايربيس</a></li>
+                        <li>استبدل القواعد بالكود أدناه ثم اضغط <strong>Publish</strong>.</li>
+                        <li>قم بعمل ريفريش لصفحة الأدمن وستظهر كل الأجهزة المسجلة تلقائياً!</li>
+                    </ol>
+                </div>
+                <div style="position: relative;">
+                    <pre id="rules-code-block" style="background: #070c14; border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; overflow-x: auto; color: #38bdf8;">{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "devices": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$deviceId": {
+        "commandQueue": { ".indexOn": ["timestamp"] },
+        "trips": { ".indexOn": ["startTime", "endTime"] },
+        "temp_trip": { ".indexOn": ["timestamp", "receivedAt"] }
+      }
+    }
+  }
+}</pre>
+                    <button class="mini-btn" onclick="copyRulesCode()" style="position: absolute; top: 0.5rem; left: 0.5rem;">
+                        <i class="fa-regular fa-copy"></i> <span id="copy-btn-text">نسخ الكود</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="closeModal('modal-rules-help')">فهمت، حسناً</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Firebase Config & Rules Helper -->
+    <div class="modal-backdrop" id="modal-config">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-gear"></i> إعدادات الاتصال والفايربيس</h3>
+                <button class="modal-close" onclick="closeModal('modal-config')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>رابط قاعدة بيانات Firebase (RTDB URL):</label>
+                    <input type="text" class="form-control" id="cfg-rtdb-url">
+                </div>
+                <div class="form-group">
+                    <label>معرف المشروع (Project ID):</label>
+                    <input type="text" class="form-control" id="cfg-project-id">
+                </div>
+                <div class="form-group">
+                    <label>مفتاح API Key:</label>
+                    <input type="text" class="form-control" id="cfg-api-key">
+                </div>
+                <div style="background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 8px; font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;">
+                    <i class="fa-solid fa-shield-halved" style="color: var(--accent-cyan);"></i>
+                    <strong>حل بطء Firebase Console:</strong>
+                    هذه الصفحة صُممت للاستماع المباشر لحالة الأجهزة دون تحميل آلاف نقاط الرحلات دفعة واحدة، مما يمنحك سرعة فائقة ولا يستهلك ذاكرة المتصفح.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-config')">إغلاق</button>
+                <button class="btn-primary" id="btn-save-config">حفظ وإعادة الاتصال</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK (v10.8.0) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        /**
+         * MotoLock Admin Dashboard Core Application
+         */
+        const DEFAULT_CONFIG = {
+            apiKey: "AIzaSyBNVRLoljfQSD2fj46cq_EE-Z3ud_w6Yrk",
+            authDomain: "motolock-gps.firebaseapp.com",
+            databaseURL: "https://motolock-gps-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "motolock-gps",
+            storageBucket: "motolock-gps.firebasestorage.app",
+            messagingSenderId: "585012166262",
+            appId: "1:585012166262:android:af560c09c7cd17abbbe957"
+        };
+
+        const KNOWN_DEFAULT_DEVICES = ['6CC84044E15A', 'CCDBA7979B46'];
+
+        // App State
+        const App = {
+            config: {},
+            firebaseApp: null,
+            db: null,
+            auth: null,
+            devices: new Map(), // key: deviceId, value: { id, name, status: {}, meta: {}, marker: null }
+            trackedIds: new Set(KNOWN_DEFAULT_DEVICES),
+            activeDeviceListeners: new Set(),
+            customNames: {},
+            map: null,
+            mapLayers: {},
+            currentMapStyle: 'satellite',
+            selectedDeviceId: null,
+            currentFilter: 'all',
+            searchQuery: '',
+            onlineThresholdMs: 90000, // 1.5 minutes - device is offline if no fresh data received
+            hasPermissionNotice: false,
+            initialCentered: false
+        };
+
+        // --- Init Function ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadConfigAndLocalData();
+            initLeafletMap();
+            initFirebaseConnection();
+            setupEventListeners();
+            startRelativeTimeTicker();
+        });
+
+        // --- Load Saved Config & Cache ---
+        function loadConfigAndLocalData() {
+            try {
+                const savedCfg = localStorage.getItem('motolock_admin_cfg');
+                App.config = savedCfg ? JSON.parse(savedCfg) : { ...DEFAULT_CONFIG };
+
+                const savedNames = localStorage.getItem('motolock_custom_names');
+                App.customNames = savedNames ? JSON.parse(savedNames) : {};
+
+                // Pre-populate custom names for known devices if not set
+                if (!App.customNames['6CC84044E15A']) App.customNames['6CC84044E15A'] = 'دراجة 6CC8 (نشطة)';
+                if (!App.customNames['CCDBA7979B46']) App.customNames['CCDBA7979B46'] = 'دراجة CCDB';
+
+                const savedTracked = localStorage.getItem('motolock_tracked_ids');
+                if (savedTracked) {
+                    JSON.parse(savedTracked).forEach(id => App.trackedIds.add(normalizeId(id)));
+                }
+                // Ensure default devices are always included
+                KNOWN_DEFAULT_DEVICES.forEach(id => App.trackedIds.add(id));
+            } catch (e) {
+                console.error('Failed to parse local storage:', e);
+                App.config = { ...DEFAULT_CONFIG };
+            }
+
+            // Fill config fields
+            document.getElementById('cfg-rtdb-url').value = App.config.databaseURL || '';
+            document.getElementById('cfg-project-id').value = App.config.projectId || '';
+            document.getElementById('cfg-api-key').value = App.config.apiKey || '';
+        }
+
+        // --- Leaflet Map Setup ---
+        function initLeafletMap() {
+            // Default center: Cairo, Egypt [30.18, 31.21]
+            App.map = L.map('map', {
+                center: [30.18, 31.21],
+                zoom: 13,
+                zoomControl: false
+            });
+
+            // Add Zoom Control to Bottom Right
+            L.control.zoom({ position: 'bottomright' }).addTo(App.map);
+
+            // Tile layers
+            App.mapLayers.dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            });
+
+            App.mapLayers.osm = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+                attribution: '&copy; Google Maps',
+                maxZoom: 20
+            });
+
+            App.mapLayers.satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '&copy; Esri World Imagery',
+                maxZoom: 19
+            });
+
+            // Default layer: satellite
+            App.mapLayers.satellite.addTo(App.map);
+        }
+
+        // --- Firebase Connection ---
+        function initFirebaseConnection() {
+            updateConnStatus('connecting', 'جارِ الاتصال...');
+
+            try {
+                if (firebase.apps.length === 0) {
+                    App.firebaseApp = firebase.initializeApp(App.config);
+                } else {
+                    App.firebaseApp = firebase.app();
+                }
+
+                App.auth = firebase.auth();
+                App.db = firebase.database();
+
+                // Anonymous sign in with fallback to in-memory persistence (for sandboxed mobile file:/// environments)
+                const tryAuth = () => {
+                    return App.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+                        .catch(() => App.auth.setPersistence(firebase.auth.Auth.Persistence.NONE))
+                        .then(() => App.auth.signInAnonymously())
+                        .then((cred) => {
+                            console.log('Signed in anonymously:', cred.user?.uid);
+                            updateConnStatus('connected', 'متصل بالفايربيس');
+                            startDeviceSync();
+                        })
+                        .catch((err) => {
+                            console.warn('Anonymous auth note:', err.message);
+                            updateConnStatus('connected', 'متصل (وضع مباشر)');
+                            startDeviceSync();
+                        });
+                };
+                tryAuth();
+
+                // Monitor RTDB .info/connected (only show disconnected after a successful connection is lost)
+                let hasConnectedOnce = false;
+                App.db.ref('.info/connected').on('value', (snap) => {
+                    if (snap.val() === true) {
+                        hasConnectedOnce = true;
+                        updateConnStatus('connected', 'متصل بالفايربيس');
+                    } else if (hasConnectedOnce) {
+                        updateConnStatus('disconnected', 'انقطع الاتصال');
+                    }
+                });
+
+            } catch (error) {
+                console.error('Firebase init error:', error);
+                updateConnStatus('connected', 'متصل (وضع REST)');
+                startDeviceSync();
+            }
+        }
+
+        function updateConnStatus(state, text) {
+            const pill = document.getElementById('firebase-conn-pill');
+            const label = document.getElementById('firebase-conn-text');
+            if (pill && label) {
+                pill.className = 'conn-pill ' + state;
+                label.textContent = text;
+            }
+        }
+
+        // --- Realtime Devices Sync ---
+        function startDeviceSync() {
+            // 1. Start listening to all known/tracked devices immediately via status & meta listeners
+            App.trackedIds.forEach(deviceId => {
+                listenToSingleDevice(deviceId);
+                fetchDeviceRestFallback(deviceId);
+            });
+
+            // 2. Try to listen to /devices root to discover any other new devices automatically
+            try {
+                const devicesRef = App.db.ref('devices');
+
+                devicesRef.on('child_added', (snapshot) => {
+                    const deviceId = normalizeId(snapshot.key);
+                    if (deviceId) {
+                        App.trackedIds.add(deviceId);
+                        listenToSingleDevice(deviceId);
+                    }
+                }, (error) => {
+                    console.warn('Cannot list /devices root directly:', error.message);
+                    showRulesPermissionNotice();
+                });
+            } catch (e) {
+                console.warn('Error initiating /devices root listener:', e);
+            }
+
+            // 3. Fallback REST sync for sandboxed mobile browsers where WebSockets may be blocked
+            setInterval(() => {
+                App.trackedIds.forEach(id => fetchDeviceRestFallback(id));
+            }, 12000);
+        }
+
+        // Direct HTTP REST fallback query
+        async function fetchDeviceRestFallback(deviceId) {
+            try {
+                let token = '';
+                if (App.auth && App.auth.currentUser) {
+                    token = await App.auth.currentUser.getIdToken().catch(() => '');
+                }
+
+                const authParam = token ? `?auth=${token}` : '';
+                const url = `${App.config.databaseURL}/devices/${deviceId}.json${authParam}`;
+
+                const res = await fetch(url);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data) {
+                        handleDeviceSnapshot(deviceId, data);
+                        updateConnStatus('connected', 'متصل بالفايربيس');
+                    }
+                }
+            } catch (e) {
+                // Silently ignore fallback network errors
+            }
+        }
+
+        function showRulesPermissionNotice() {
+            App.hasPermissionNotice = true;
+            renderDevicesList();
+        }
+
+        // Listen to a single device with ULTRA-LIGHTWEIGHT listeners (status and meta only, NO temp_trip)
+        function listenToSingleDevice(rawId) {
+            const deviceId = normalizeId(rawId);
+            if (!deviceId || App.activeDeviceListeners.has(deviceId)) return;
+
+            App.activeDeviceListeners.add(deviceId);
+
+            // Ensure device object exists
+            let dev = App.devices.get(deviceId);
+            if (!dev) {
+                const customName = App.customNames[deviceId] || `دراجة ${deviceId.slice(-4)}`;
+                dev = {
+                    id: deviceId,
+                    name: customName,
+                    status: {},
+                    meta: {},
+                    marker: null
+                };
+                App.devices.set(deviceId, dev);
+                renderDevicesList();
+                updateKpiCounters();
+            }
+
+            // 1. Listen to status
+            App.db.ref(`devices/${deviceId}/status`).on('value', (snap) => {
+                if (snap.exists() && snap.val()) {
+                    const status = snap.val();
+                    const currentDev = App.devices.get(deviceId);
+                    if (currentDev) {
+                        currentDev.status = status;
+                        updateDeviceMarker(currentDev);
+                        renderDevicesList();
+                        updateKpiCounters();
+
+                        // Auto-center map on first valid GPS coordinates
+                        if (!App.initialCentered) {
+                            const lat = Number(status.lat || 0);
+                            const lng = Number(status.lng || 0);
+                            if (lat !== 0 && lng !== 0) {
+                                App.initialCentered = true;
+                                App.map.setView([lat, lng], 14);
+                            }
+                        }
+                    }
+                }
+            }, (err) => {
+                console.warn(`Error reading status for ${deviceId}:`, err.message);
+            });
+
+            // 2. Listen to meta
+            App.db.ref(`devices/${deviceId}/meta`).on('value', (snap) => {
+                if (snap.exists() && snap.val()) {
+                    const meta = snap.val();
+                    const currentDev = App.devices.get(deviceId);
+                    if (currentDev) {
+                        currentDev.meta = meta;
+                        if (meta.customName || meta.name) {
+                            currentDev.name = meta.customName || meta.name;
+                            App.customNames[deviceId] = currentDev.name;
+                        }
+                        updateDeviceMarker(currentDev);
+                        renderDevicesList();
+                        updateKpiCounters();
+                    }
+                }
+            }, (err) => {
+                console.warn(`Error reading meta for ${deviceId}:`, err.message);
+            });
+        }
+
+        // Normalize device ID (e.g. 6C:C8:40:44:E1:5A -> 6CC84044E15A)
+        function normalizeId(id) {
+            return (id || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        }
+
+        // Process device snapshot data
+        function handleDeviceSnapshot(rawId, data) {
+            const deviceId = normalizeId(rawId);
+            if (!deviceId) return;
+
+            App.trackedIds.add(deviceId);
+
+            // Extract status & meta
+            const status = data.status || {};
+            const meta = data.meta || {};
+
+            // Name resolution: Firebase meta > LocalStorage cache > Default ID
+            const customName = meta.customName || meta.name || App.customNames[deviceId] || `دراجة ${deviceId.slice(-4)}`;
+            if (meta.customName || meta.name) {
+                App.customNames[deviceId] = meta.customName || meta.name;
+            }
+
+            let deviceObj = App.devices.get(deviceId);
+            if (!deviceObj) {
+                deviceObj = {
+                    id: deviceId,
+                    name: customName,
+                    status: status,
+                    meta: meta,
+                    marker: null
+                };
+                App.devices.set(deviceId, deviceObj);
+            } else {
+                deviceObj.name = customName;
+                deviceObj.status = status;
+                deviceObj.meta = meta;
+            }
+
+            // Update Leaflet marker
+            updateDeviceMarker(deviceObj);
+
+            // Refresh UI
+            renderDevicesList();
+            updateKpiCounters();
+        }
+
+        function removeDevice(rawId) {
+            const deviceId = normalizeId(rawId);
+            const dev = App.devices.get(deviceId);
+            if (dev && dev.marker) {
+                App.map.removeLayer(dev.marker);
+            }
+            App.devices.delete(deviceId);
+            renderDevicesList();
+            updateKpiCounters();
+        }
+
+        // Calculate device connection state
+        // CRITICAL: We ONLY trust receivedAt timestamp freshness.
+        // mqttOnline in Firebase is unreliable because it's set to true when
+        // the device connects but is NOT reliably set to false on disconnect.
+        // Many devices show mqttOnline:true but haven't sent data in days/weeks.
+        function getDeviceConnectionState(dev) {
+            const receivedAt = dev.status?.receivedAt || 0;
+            const lastSeenAt = dev.meta?.lastSeenAt || 0;
+            const lastSeen = Math.max(receivedAt, lastSeenAt);
+            const timeDiff = Date.now() - lastSeen;
+            const isOnline = lastSeen > 0 && timeDiff < App.onlineThresholdMs;
+
+            const isMoving = isOnline && (dev.status?.motionState === 'moving' || (Number(dev.status?.speed || 0) > 1.5));
+            const isParked = isOnline && !isMoving;
+
+            return {
+                isOnline,
+                isMoving,
+                isParked,
+                lastSeen,
+                timeDiff
+            };
+        }
+
+        // --- Map Marker Update ---
+        function updateDeviceMarker(dev) {
+            const lat = Number(dev.status?.lat || dev.status?.a || 0);
+            const lng = Number(dev.status?.lng || dev.status?.o || 0);
+
+            // Skip invalid GPS coordinates
+            if (isNaN(lat) || isNaN(lng) || (lat === 0 && lng === 0) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+                if (dev.marker) {
+                    App.map.removeLayer(dev.marker);
+                    dev.marker = null;
+                }
+                return;
+            }
+
+            const state = getDeviceConnectionState(dev);
+            let markerColor = 'var(--text-dim)';
+            let isPulsing = false;
+            let iconClass = 'fa-motorcycle';
+
+            if (state.isMoving) {
+                markerColor = 'var(--accent-green)';
+                isPulsing = true;
+            } else if (state.isParked) {
+                markerColor = 'var(--accent-blue)';
+            } else {
+                markerColor = 'var(--accent-red)';
+            }
+
+            const customIcon = L.divIcon({
+                className: 'custom-leaflet-pin',
+                html: `
+                    <div class="marker-pin ${isPulsing ? 'pulsing' : ''}" style="--marker-color: ${markerColor}">
+                        <i class="fa-solid ${iconClass}"></i>
+                    </div>
+                `,
+                iconSize: [36, 36],
+                iconAnchor: [18, 18],
+                popupAnchor: [0, -20]
+            });
+
+            const popupContent = createPopupHtml(dev, state, lat, lng);
+
+            if (!dev.marker) {
+                dev.marker = L.marker([lat, lng], { icon: customIcon }).addTo(App.map);
+                dev.marker.bindPopup(popupContent);
+                dev.marker.on('click', () => {
+                    selectDevice(dev.id, false);
+                });
+            } else {
+                dev.marker.setLatLng([lat, lng]);
+                dev.marker.setIcon(customIcon);
+                dev.marker.setPopupContent(popupContent);
+            }
+        }
+
+        function createPopupHtml(dev, state, lat, lng) {
+            const speed = Number(dev.status?.speed || 0).toFixed(1);
+            const sats = dev.status?.sats ?? '0';
+            const isLocked = dev.status?.lock === true;
+            const timeAgo = formatTimeAgo(state.lastSeen);
+
+            return `
+                <div class="map-popup-card">
+                    <div class="popup-title">
+                        <span>${escapeHtml(dev.name)}</span>
+                        <span style="font-size: 0.72rem; color: ${state.isOnline ? 'var(--accent-green)' : 'var(--accent-red)'}">
+                            ${state.isMoving ? '🟢 متحرك' : (state.isOnline ? '🔵 متوقف' : '🔴 غير متصل')}
+                        </span>
+                    </div>
+                    <div class="popup-info-row">
+                        <span>المعرف (MAC):</span>
+                        <span>${dev.id}</span>
+                    </div>
+                    <div class="popup-info-row">
+                        <span>السرعة الحالية:</span>
+                        <span>${speed} كم/س</span>
+                    </div>
+                    <div class="popup-info-row">
+                        <span>أقمار GPS:</span>
+                        <span>🛰️ ${sats}</span>
+                    </div>
+                    <div class="popup-info-row">
+                        <span>حالة القفل:</span>
+                        <span>${isLocked ? '🔒 مقفول' : '🔓 مفتوح'}</span>
+                    </div>
+                    <div class="popup-info-row">
+                        <span>آخر اتصال:</span>
+                        <span>${timeAgo}</span>
+                    </div>
+                    <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" class="popup-btn">
+                        <i class="fa-solid fa-diamond-turn-right"></i> فتح في خرائط Google
+                    </a>
+                </div>
+            `;
+        }
+
+        // --- Render KPI Counters ---
+        function updateKpiCounters() {
+            let total = App.devices.size;
+            let online = 0;
+            let moving = 0;
+            let parked = 0;
+            let powersaving = 0;
+            let offline = 0;
+
+            App.devices.forEach(dev => {
+                const state = getDeviceConnectionState(dev);
+                if (state.isOnline) {
+                    online++;
+                    if (state.isMoving) moving++;
+                    if (state.isParked) parked++;
+                } else {
+                    offline++;
+                }
+
+                if (dev.status?.powerSavingActive === true) {
+                    powersaving++;
+                }
+            });
+
+            document.getElementById('kpi-total').textContent = total;
+            document.getElementById('kpi-online').textContent = online;
+            document.getElementById('kpi-moving').textContent = moving;
+            document.getElementById('kpi-parked').textContent = parked;
+            document.getElementById('kpi-powersaving').textContent = powersaving;
+            document.getElementById('kpi-offline').textContent = offline;
+            document.getElementById('mobile-dev-count').textContent = total;
+        }
+
+        // --- Render Devices List ---
+        function renderDevicesList() {
+            const container = document.getElementById('devices-list-container');
+            if (App.devices.size === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-solid fa-motorcycle"></i>
+                        <p>لم يتم العثور على أجهزة مسجلة بعد في الفايربيس.</p>
+                        <button class="mini-btn" onclick="openModal('modal-add-device')" style="margin-top: 0.5rem;">
+                            <i class="fa-solid fa-plus"></i> إضافة معرف جهاز يدوياً
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const query = App.searchQuery.trim().toLowerCase();
+            const filtered = [];
+
+            App.devices.forEach(dev => {
+                const state = getDeviceConnectionState(dev);
+                const matchesSearch = !query || 
+                    dev.name.toLowerCase().includes(query) || 
+                    dev.id.toLowerCase().includes(query);
+
+                if (!matchesSearch) return;
+
+                if (App.currentFilter === 'online' && !state.isOnline) return;
+                if (App.currentFilter === 'offline' && state.isOnline) return;
+                if (App.currentFilter === 'moving' && !state.isMoving) return;
+                if (App.currentFilter === 'parked' && !state.isParked) return;
+                if (App.currentFilter === 'powersaving' && !dev.status?.powerSavingActive) return;
+
+                filtered.push({ dev, state });
+            });
+
+            // Sort: Online moving first, then online parked, then offline
+            filtered.sort((a, b) => {
+                if (a.state.isMoving && !b.state.isMoving) return -1;
+                if (!a.state.isMoving && b.state.isMoving) return 1;
+                if (a.state.isOnline && !b.state.isOnline) return -1;
+                if (!a.state.isOnline && b.state.isOnline) return 1;
+                return (b.state.lastSeen || 0) - (a.state.lastSeen || 0);
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-solid fa-filter"></i>
+                        <p>لا توجد أجهزة تطابق الفلتر الحالي.</p>
+                        <button class="mini-btn" onclick="resetFilterToAll()" style="margin-top: 0.65rem; padding: 0.45rem 1rem; font-size: 0.8rem; background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); border-radius: 8px;">
+                            <i class="fa-solid fa-list-ul"></i> عرض جميع الأجهزة (${App.devices.size})
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+
+            if (App.hasPermissionNotice) {
+                html += `
+                    <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; padding: 0.65rem 0.85rem; font-size: 0.74rem; color: #fde047; margin-bottom: 0.5rem; line-height: 1.5;">
+                        <i class="fa-solid fa-lightbulb" style="color: #f59e0b;"></i>
+                        <strong>تلميح:</strong> يتم الآن تتبع الأجهزة المضافة فورياً. لتفعيل السحب التلقائي لأي أجهزة جديدة دون إدخالها، تأكد من تعديل Rules في Firebase Console.
+                    </div>
+                `;
+            }
+
+            filtered.forEach(({ dev, state }) => {
+                const isSelected = dev.id === App.selectedDeviceId;
+                const speed = Number(dev.status?.speed || 0).toFixed(1);
+                const sats = dev.status?.sats ?? '0';
+                const isLocked = dev.status?.lock === true;
+                const isPowerSaving = dev.status?.powerSavingActive === true;
+                const battery = dev.status?.battery ? Number(dev.status.battery).toFixed(1) + 'V' : '--';
+                const isEngineOn = dev.status?.engine === true;
+                const timeAgo = formatTimeAgo(state.lastSeen);
+                const lat = Number(dev.status?.lat || 0);
+                const lng = Number(dev.status?.lng || 0);
+                const hasGps = lat !== 0 && lng !== 0;
+
+                let badgeHtml = '';
+                if (state.isMoving) {
+                    badgeHtml = `<span class="status-badge online-moving"><span class="pulse-dot"></span> متحرك (${speed} كم/س)</span>`;
+                } else if (state.isOnline) {
+                    badgeHtml = `<span class="status-badge online-parked"><i class="fa-solid fa-square-parking"></i> متوقف</span>`;
+                } else {
+                    badgeHtml = `<span class="status-badge offline"><i class="fa-solid fa-circle-xmark"></i> غير متصل</span>`;
+                }
+
+                html += `
+                    <div class="device-card ${isSelected ? 'selected' : ''}" onclick="selectDevice('${dev.id}', true)">
+                        <div class="card-top">
+                            <div class="device-title-area">
+                                <div class="device-icon-box" style="color: ${state.isMoving ? 'var(--accent-green)' : (state.isOnline ? 'var(--accent-blue)' : 'var(--text-dim)')}">
+                                    <i class="fa-solid fa-motorcycle"></i>
+                                </div>
+                                <div class="device-names">
+                                    <span class="device-custom-name">
+                                        ${escapeHtml(dev.name)}
+                                        <i class="fa-solid fa-pen-to-square btn-rename" onclick="event.stopPropagation(); promptRename('${dev.id}')" title="تعديل الاسم"></i>
+                                    </span>
+                                    <span class="device-mac">${dev.id}</span>
+                                </div>
+                            </div>
+                            ${badgeHtml}
+                        </div>
+
+                        <div class="card-metrics" style="grid-template-columns: repeat(4, 1fr);">
+                            <div class="metric-cell">
+                                <span class="metric-label">القفل</span>
+                                <span class="metric-val" style="color: ${isLocked ? 'var(--accent-red)' : 'var(--accent-green)'}">
+                                    <i class="fa-solid ${isLocked ? 'fa-lock' : 'fa-lock-open'}"></i>
+                                    ${isLocked ? 'مقفول' : 'مفتوح'}
+                                </span>
+                            </div>
+
+                            <div class="metric-cell">
+                                <span class="metric-label">البطارية</span>
+                                <span class="metric-val" style="color: ${dev.status?.battery > 12.0 ? 'var(--accent-green)' : 'var(--accent-amber)'}">
+                                    <i class="fa-solid fa-car-battery"></i>
+                                    ${battery}
+                                </span>
+                            </div>
+
+                            <div class="metric-cell">
+                                <span class="metric-label">الأقمار</span>
+                                <span class="metric-val">
+                                    <i class="fa-solid fa-satellite" style="color: var(--accent-cyan)"></i>
+                                    ${sats}
+                                </span>
+                            </div>
+
+                            <div class="metric-cell">
+                                <span class="metric-label">المحرك</span>
+                                <span class="metric-val" style="color: ${isEngineOn ? 'var(--accent-green)' : 'var(--text-muted)'}">
+                                    <i class="fa-solid ${isEngineOn ? 'fa-bolt' : 'fa-power-off'}"></i>
+                                    ${isEngineOn ? 'شغال' : 'مطفأ'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="card-footer">
+                            <span><i class="fa-regular fa-clock"></i> ${timeAgo}</span>
+                            <div class="card-actions">
+                                ${hasGps ? `
+                                    <button class="mini-btn" onclick="event.stopPropagation(); centerDeviceOnMap('${dev.id}')" title="تركيز على الخريطة">
+                                        <i class="fa-solid fa-crosshairs"></i> تركيز
+                                    </button>
+                                    <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" class="mini-btn" onclick="event.stopPropagation()" title="خرائط جوجل">
+                                        <i class="fa-solid fa-diamond-turn-right"></i> خرائط
+                                    </a>
+                                ` : `
+                                    <span style="color: var(--accent-amber); font-size: 0.68rem;">لا يوجد GPS</span>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // --- Interaction Handlers ---
+        function selectDevice(deviceId, panMap) {
+            App.selectedDeviceId = deviceId;
+            renderDevicesList();
+
+            if (panMap) {
+                centerDeviceOnMap(deviceId);
+            }
+        }
+
+        function centerDeviceOnMap(deviceId) {
+            const dev = App.devices.get(deviceId);
+            if (!dev) return;
+
+            const lat = Number(dev.status?.lat || 0);
+            const lng = Number(dev.status?.lng || 0);
+
+            if (lat !== 0 && lng !== 0) {
+                App.map.flyTo([lat, lng], 16, { animate: true, duration: 1.2 });
+                if (dev.marker) {
+                    dev.marker.openPopup();
+                }
+
+                // If on mobile, switch to map view
+                if (window.innerWidth <= 860) {
+                    showMobileTab('map');
+                }
+            } else {
+                alert(`الجهاز ${dev.name} لم يرسل إحداثيات GPS صالحة حتى الآن.`);
+            }
+        }
+
+        function fitAllDevicesOnMap() {
+            const points = [];
+            App.devices.forEach(dev => {
+                const lat = Number(dev.status?.lat || 0);
+                const lng = Number(dev.status?.lng || 0);
+                if (lat !== 0 && lng !== 0 && !isNaN(lat) && !isNaN(lng)) {
+                    points.push([lat, lng]);
+                }
+            });
+
+            if (points.length > 0) {
+                const bounds = L.latLngBounds(points);
+                App.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+            } else {
+                alert('لا توجد أجهزة ذات مواقع GPS صالحة لعرضها على الخريطة.');
+            }
+        }
+
+        // --- Device Naming Functionality ---
+        function promptRename(deviceId) {
+            const dev = App.devices.get(deviceId);
+            if (!dev) return;
+
+            document.getElementById('rename-device-id').value = deviceId;
+            document.getElementById('rename-device-name').value = dev.name;
+            openModal('modal-rename');
+        }
+
+        document.getElementById('btn-save-rename').addEventListener('click', () => {
+            const deviceId = document.getElementById('rename-device-id').value.trim();
+            const newName = document.getElementById('rename-device-name').value.trim();
+
+            if (!deviceId || !newName) return;
+
+            // 1. Save to LocalStorage
+            App.customNames[deviceId] = newName;
+            localStorage.setItem('motolock_custom_names', JSON.stringify(App.customNames));
+
+            // 2. Update memory state
+            const dev = App.devices.get(deviceId);
+            if (dev) {
+                dev.name = newName;
+                updateDeviceMarker(dev);
+                renderDevicesList();
+            }
+
+            // 3. Try to save to Firebase meta/customName
+            if (App.db) {
+                App.db.ref(`devices/${deviceId}/meta`).update({
+                    customName: newName,
+                    name: newName
+                }).catch(err => {
+                    console.warn('Firebase sync of customName not permitted or failed, saved locally:', err.message);
+                });
+            }
+
+            closeModal('modal-rename');
+        });
+
+        // --- Add Device Identifier Manually (Single or Multiple) ---
+        document.getElementById('btn-confirm-add-device').addEventListener('click', () => {
+            const rawInput = document.getElementById('add-mac-input').value.trim();
+            const singleName = document.getElementById('add-name-input').value.trim();
+
+            if (!rawInput) {
+                alert('يرجى إدخال معرف الماك للجهاز');
+                return;
+            }
+
+            // Split by comma, space, newline or tab
+            const rawTokens = rawInput.split(/[\s,;\n]+/);
+            let addedCount = 0;
+
+            rawTokens.forEach(token => {
+                const mac = normalizeId(token);
+                if (mac && mac.length >= 6) {
+                    App.trackedIds.add(mac);
+                    if (singleName && rawTokens.length === 1) {
+                        App.customNames[mac] = singleName;
+                    }
+                    listenToSingleDevice(mac);
+                    addedCount++;
+                }
+            });
+
+            if (addedCount > 0) {
+                localStorage.setItem('motolock_tracked_ids', JSON.stringify(Array.from(App.trackedIds)));
+                localStorage.setItem('motolock_custom_names', JSON.stringify(App.customNames));
+            }
+
+            // Close and reset modal
+            closeModal('modal-add-device');
+            document.getElementById('add-mac-input').value = '';
+            document.getElementById('add-name-input').value = '';
+
+            renderDevicesList();
+            updateKpiCounters();
+        });
+
+        // --- Copy Rules Code Helper ---
+        function copyRulesCode() {
+            const code = document.getElementById('rules-code-block').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const btnText = document.getElementById('copy-btn-text');
+                btnText.textContent = 'تم النسخ بنجاح! ✓';
+                setTimeout(() => { btnText.textContent = 'نسخ الكود'; }, 2500);
+            }).catch(() => {
+                alert('فشل النسخ التلقائي، يمكنك تحديد النص ونسخه يدوياً.');
+            });
+        }
+
+        // --- Map Style Toggle ---
+        document.getElementById('btn-toggle-map-style').addEventListener('click', () => {
+            const label = document.getElementById('map-style-name');
+            if (App.currentMapStyle === 'satellite') {
+                App.map.removeLayer(App.mapLayers.satellite);
+                App.mapLayers.dark.addTo(App.map);
+                App.currentMapStyle = 'dark';
+                label.textContent = 'خريطة داكنة';
+            } else if (App.currentMapStyle === 'dark') {
+                App.map.removeLayer(App.mapLayers.dark);
+                App.mapLayers.osm.addTo(App.map);
+                App.currentMapStyle = 'osm';
+                label.textContent = 'خريطة الشوارع (Google)';
+            } else {
+                App.map.removeLayer(App.mapLayers.osm);
+                App.mapLayers.satellite.addTo(App.map);
+                App.currentMapStyle = 'satellite';
+                label.textContent = 'أقمار صناعية';
+            }
+        });
+
+        // --- Event Listeners Setup ---
+        function setupEventListeners() {
+            // Timeout selector
+            document.getElementById('sel-timeout').addEventListener('change', (e) => {
+                App.onlineThresholdMs = parseInt(e.target.value, 10);
+                renderDevicesList();
+                updateKpiCounters();
+                // Re-update all markers with new online state
+                App.devices.forEach(dev => updateDeviceMarker(dev));
+            });
+
+            // Fit bounds button
+            document.getElementById('btn-fit-bounds').addEventListener('click', fitAllDevicesOnMap);
+
+            // Add device button
+            document.getElementById('btn-add-device').addEventListener('click', () => openModal('modal-add-device'));
+
+            // Config button
+            document.getElementById('btn-config').addEventListener('click', () => openModal('modal-config'));
+
+            // Save Config button
+            document.getElementById('btn-save-config').addEventListener('click', () => {
+                App.config.databaseURL = document.getElementById('cfg-rtdb-url').value.trim();
+                App.config.projectId = document.getElementById('cfg-project-id').value.trim();
+                App.config.apiKey = document.getElementById('cfg-api-key').value.trim();
+                localStorage.setItem('motolock_admin_cfg', JSON.stringify(App.config));
+                closeModal('modal-config');
+                location.reload();
+            });
+
+            // Search input
+            document.getElementById('device-search').addEventListener('input', (e) => {
+                App.searchQuery = e.target.value;
+                renderDevicesList();
+            });
+
+            // Filter chips
+            document.querySelectorAll('.chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    App.currentFilter = chip.getAttribute('data-filter');
+                    renderDevicesList();
+                });
+            });
+
+            // KPI Cards click to filter
+            document.querySelectorAll('.kpi-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    const filter = card.getAttribute('data-filter');
+                    App.currentFilter = filter;
+
+                    // sync chips
+                    document.querySelectorAll('.chip').forEach(c => {
+                        c.classList.toggle('active', c.getAttribute('data-filter') === filter);
+                    });
+
+                    renderDevicesList();
+
+                    // On mobile, if clicked, switch to devices list
+                    if (window.innerWidth <= 860) {
+                        showMobileTab('devices');
+                    }
+                });
+            });
+
+            // Mobile Tab Switchers
+            document.getElementById('nav-map').addEventListener('click', () => showMobileTab('map'));
+            document.getElementById('nav-devices').addEventListener('click', () => showMobileTab('devices'));
+
+            // Mobile Sheet Drag / Swipe Down Gestures
+            setupSheetGestures();
+        }
+
+        // Reset filter to show all devices
+        function resetFilterToAll() {
+            App.currentFilter = 'all';
+            App.searchQuery = '';
+            const searchInput = document.getElementById('device-search');
+            if (searchInput) searchInput.value = '';
+            document.querySelectorAll('.chip').forEach(c => {
+                c.classList.toggle('active', c.getAttribute('data-filter') === 'all');
+            });
+            document.querySelectorAll('.kpi-card').forEach(c => {
+                c.classList.toggle('active', c.getAttribute('data-filter') === 'all');
+            });
+            renderDevicesList();
+        }
+
+        // Setup touch drag and click on the drawer handle
+        function setupSheetGestures() {
+            const handle = document.getElementById('sheet-drag-handle');
+            const sidebar = document.getElementById('sidebar');
+            if (!handle || !sidebar) return;
+
+            // Clicking or tapping directly on the handle closes the drawer
+            handle.addEventListener('click', () => {
+                showMobileTab('map');
+            });
+
+            // Touch swipe down
+            let startY = 0;
+            let currentY = 0;
+            let isDragging = false;
+
+            handle.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    startY = e.touches[0].clientY;
+                    currentY = startY;
+                    isDragging = true;
+                    sidebar.style.transition = 'none';
+                }
+            }, { passive: true });
+
+            handle.addEventListener('touchmove', (e) => {
+                if (!isDragging || e.touches.length !== 1) return;
+                currentY = e.touches[0].clientY;
+                const deltaY = currentY - startY;
+                if (deltaY > 0) {
+                    sidebar.style.transform = `translateY(${deltaY}px)`;
+                }
+            }, { passive: true });
+
+            const handleTouchEnd = () => {
+                if (!isDragging) return;
+                isDragging = false;
+                sidebar.style.transition = 'transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)';
+                const deltaY = currentY - startY;
+                if (deltaY > 50) {
+                    showMobileTab('map');
+                } else {
+                    sidebar.style.transform = 'translateY(0)';
+                }
+                setTimeout(() => { sidebar.style.transform = ''; }, 350);
+                startY = 0;
+                currentY = 0;
+            };
+
+            handle.addEventListener('touchend', handleTouchEnd);
+            handle.addEventListener('touchcancel', handleTouchEnd);
+        }
+
+        function showMobileTab(tab) {
+            const sidebar = document.getElementById('sidebar');
+            const navMap = document.getElementById('nav-map');
+            const navDev = document.getElementById('nav-devices');
+
+            if (tab === 'devices') {
+                sidebar.style.transform = '';
+                sidebar.classList.add('active-mobile');
+                navDev.classList.add('active');
+                navMap.classList.remove('active');
+            } else {
+                sidebar.style.transform = '';
+                sidebar.classList.remove('active-mobile');
+                navMap.classList.add('active');
+                navDev.classList.remove('active');
+                if (App.map) {
+                    setTimeout(() => App.map.invalidateSize(), 300);
+                }
+            }
+        }
+
+        // --- Relative Time Formatter ---
+        function formatTimeAgo(ts) {
+            if (!ts || ts === 0) return 'غير متوفر';
+            const diffSec = Math.floor((Date.now() - ts) / 1000);
+            if (diffSec < 10) return 'الآن';
+            if (diffSec < 60) return `منذ ${diffSec} ثانية`;
+            const diffMin = Math.floor(diffSec / 60);
+            if (diffMin < 60) return `منذ ${diffMin} دقيقة`;
+            const diffHours = Math.floor(diffMin / 60);
+            if (diffHours < 24) return `منذ ${diffHours} ساعة`;
+            const diffDays = Math.floor(diffHours / 24);
+            return `منذ ${diffDays} يوم`;
+        }
+
+        function startRelativeTimeTicker() {
+            setInterval(() => {
+                renderDevicesList();
+                updateKpiCounters();
+            }, 10000); // refresh relative times and KPIs every 10 seconds
+        }
+
+        // --- Modal Helpers ---
+        function openModal(id) {
+            document.getElementById(id).classList.add('open');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
+        }
+
+        // Helper: Escape HTML
+        function escapeHtml(str) {
+            return (str || '').replace(/[&<>"']/g, (m) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[m]);
+        }
+    </script>
+</body>
+</html>
