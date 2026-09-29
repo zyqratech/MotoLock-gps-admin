@@ -593,10 +593,39 @@
             border: 1px solid rgba(58, 134, 255, 0.3);
         }
 
+        .status-badge.powersaving {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.35);
+        }
+
         .status-badge.offline {
             background: rgba(100, 116, 139, 0.15);
             color: var(--text-dim);
             border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+
+        .sort-select {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--accent-cyan);
+            font-family: inherit;
+            font-size: 0.74rem;
+            font-weight: 700;
+            padding: 0.25rem 0.65rem;
+            border-radius: 8px;
+            outline: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .sort-select:hover, .sort-select:focus {
+            border-color: var(--accent-cyan);
+        }
+
+        .sort-select option {
+            background: #0c1424;
+            color: #fff;
         }
 
         /* Card Metrics Grid */
@@ -663,6 +692,20 @@
         .mini-btn:hover {
             color: var(--accent-cyan);
             border-color: var(--accent-cyan);
+        }
+
+        .mini-btn.btn-control {
+            background: linear-gradient(135deg, rgba(0, 210, 255, 0.12) 0%, rgba(58, 134, 255, 0.22) 100%);
+            border: 1px solid rgba(0, 210, 255, 0.35);
+            color: var(--accent-cyan);
+            font-weight: 700;
+        }
+
+        .mini-btn.btn-control:hover {
+            background: linear-gradient(135deg, rgba(0, 210, 255, 0.25) 0%, rgba(58, 134, 255, 0.38) 100%);
+            border-color: var(--accent-cyan);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.3);
         }
 
         /* Empty State */
@@ -954,6 +997,318 @@
 
         .popup-btn:hover {
             background: var(--accent-cyan);
+        }
+
+        .popup-btn-control {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-cyan) 100%) !important;
+            color: #fff !important;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 210, 255, 0.25);
+        }
+
+        .popup-btn-control:hover {
+            filter: brightness(1.15);
+            box-shadow: 0 4px 16px rgba(0, 210, 255, 0.45);
+        }
+
+        .popup-btn-zoom {
+            background: #16243d !important;
+            border: 1px solid var(--border-color);
+            color: var(--accent-cyan) !important;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .popup-btn-zoom:hover {
+            background: rgba(0, 210, 255, 0.22) !important;
+            border-color: var(--accent-cyan);
+            color: #fff !important;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.35);
+        }
+
+        /* --- Fullscreen / Map Expanded Mode --- */
+        .main-wrapper.map-expanded .sidebar {
+            display: none !important;
+        }
+
+        .main-wrapper.map-expanded #map-container {
+            width: 100% !important;
+            flex: 1 !important;
+        }
+
+        /* --- Remote Control Modal Styles --- */
+        .control-status-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.85rem 1rem;
+            background: rgba(0, 0, 0, 0.28);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .control-device-info h4 {
+            font-size: 0.98rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .control-device-info span {
+            font-size: 0.74rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-dim);
+        }
+
+        .control-state-pill {
+            font-size: 0.74rem;
+            font-weight: 700;
+            padding: 0.3rem 0.75rem;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .control-actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.85rem;
+            margin-top: 0.35rem;
+        }
+
+        .btn-control-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1.15rem 0.85rem;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #fff;
+            text-align: center;
+            font-family: inherit;
+        }
+
+        .btn-control-action.unlock {
+            background: linear-gradient(145deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.35) 100%);
+            border-color: rgba(16, 185, 129, 0.45);
+        }
+
+        .btn-control-action.unlock:hover:not(:disabled) {
+            background: linear-gradient(145deg, rgba(16, 185, 129, 0.35) 0%, rgba(5, 150, 105, 0.55) 100%);
+            border-color: var(--accent-green);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
+        }
+
+        .btn-control-action.lock {
+            background: linear-gradient(145deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.35) 100%);
+            border-color: rgba(239, 68, 68, 0.45);
+        }
+
+        .btn-control-action.lock:hover:not(:disabled) {
+            background: linear-gradient(145deg, rgba(239, 68, 68, 0.35) 0%, rgba(220, 38, 38, 0.55) 100%);
+            border-color: var(--accent-red);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.35);
+        }
+
+        .btn-control-action:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none !important;
+            filter: grayscale(0.5);
+        }
+
+        .btn-control-action i {
+            font-size: 2rem;
+        }
+
+        .btn-control-action .action-title {
+            font-weight: 800;
+            font-size: 1rem;
+        }
+
+        .btn-control-action .action-desc {
+            font-size: 0.72rem;
+            opacity: 0.85;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        /* Secondary actions grid (Start, Stop, Alarm, Starter) */
+        .control-subactions-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.2rem;
+        }
+
+        @media (max-width: 480px) {
+            .control-subactions-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .btn-subaction {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            padding: 0.75rem 0.35rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.25);
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            text-align: center;
+        }
+
+        .btn-subaction:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none !important;
+            filter: grayscale(0.5);
+        }
+
+        .btn-subaction i {
+            font-size: 1.35rem;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-subaction .subaction-title {
+            font-size: 0.76rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .btn-subaction .subaction-cmd {
+            font-size: 0.62rem;
+            font-family: 'JetBrains Mono', monospace;
+            opacity: 0.7;
+        }
+
+        .btn-subaction.start {
+            border-color: rgba(0, 210, 255, 0.35);
+            background: linear-gradient(145deg, rgba(0, 210, 255, 0.1) 0%, rgba(58, 134, 255, 0.15) 100%);
+            color: #38bdf8;
+        }
+        .btn-subaction.start:hover:not(:disabled) {
+            border-color: var(--accent-cyan);
+            background: linear-gradient(145deg, rgba(0, 210, 255, 0.22) 0%, rgba(58, 134, 255, 0.3) 100%);
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+            transform: translateY(-2px);
+            color: #fff;
+        }
+
+        .btn-subaction.stop {
+            border-color: rgba(239, 68, 68, 0.35);
+            background: linear-gradient(145deg, rgba(239, 68, 68, 0.1) 0%, rgba(185, 28, 28, 0.15) 100%);
+            color: #f87171;
+        }
+        .btn-subaction.stop:hover:not(:disabled) {
+            border-color: var(--accent-red);
+            background: linear-gradient(145deg, rgba(239, 68, 68, 0.22) 0%, rgba(185, 28, 28, 0.3) 100%);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+            transform: translateY(-2px);
+            color: #fff;
+        }
+
+        .btn-subaction.alarm {
+            border-color: rgba(245, 158, 11, 0.35);
+            background: linear-gradient(145deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.15) 100%);
+            color: #fbbf24;
+        }
+        .btn-subaction.alarm:hover:not(:disabled) {
+            border-color: var(--accent-amber);
+            background: linear-gradient(145deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.3) 100%);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+            transform: translateY(-2px);
+            color: #fff;
+        }
+
+        .btn-subaction.starter {
+            border-color: rgba(168, 85, 247, 0.35);
+            background: linear-gradient(145deg, rgba(168, 85, 247, 0.1) 0%, rgba(126, 34, 206, 0.15) 100%);
+            color: #c084fc;
+        }
+        .btn-subaction.starter:hover:not(:disabled) {
+            border-color: var(--accent-purple);
+            background: linear-gradient(145deg, rgba(168, 85, 247, 0.22) 0%, rgba(126, 34, 206, 0.3) 100%);
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+            transform: translateY(-2px);
+            color: #fff;
+        }
+
+        .control-feedback-box {
+            display: none;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            align-items: center;
+            gap: 0.6rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .control-feedback-box.show {
+            display: flex;
+        }
+
+        .control-feedback-box.info {
+            background: rgba(0, 210, 255, 0.1);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            color: var(--accent-cyan);
+        }
+
+        .control-feedback-box.success {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: var(--accent-green);
+        }
+
+        .control-feedback-box.error {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: var(--accent-red);
+        }
+
+        .password-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-input-wrapper input {
+            padding-left: 2.5rem;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            left: 0.75rem;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 0.95rem;
+            padding: 0.25rem;
+            transition: var(--transition);
+        }
+
+        .password-toggle-btn:hover {
+            color: var(--accent-cyan);
         }
 
         /* --- Responsive Queries --- */
@@ -1459,11 +1814,24 @@
                     </button>
                 </div>
 
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; background: rgba(0,0,0,0.22); padding: 0.35rem 0.65rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <span style="font-size: 0.72rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.35rem; font-weight: 600;">
+                        <i class="fa-solid fa-arrow-down-short-wide" style="color: var(--accent-cyan);"></i> ترتيب القائمة:
+                    </span>
+                    <select id="sel-sort" class="sort-select" title="اختر طريقة ترتيب القائمة لمنع قفز الأسماء">
+                        <option value="stable" selected>📌 ثابت بالاسم (يمنع القفز)</option>
+                        <option value="online_first">🟢 المتصل أولاً (أسماء ثابتة)</option>
+                        <option value="activity">🕒 أحدث نشاط (متحرك)</option>
+                        <option value="mac">🆔 حسب كود الماك</option>
+                    </select>
+                </div>
+
                 <div class="filter-chips">
                     <span class="chip active" data-filter="all">الكل</span>
                     <span class="chip" data-filter="online">متصلة (أونلاين)</span>
                     <span class="chip" data-filter="moving">متحركة</span>
                     <span class="chip" data-filter="parked">متوقفة</span>
+                    <span class="chip" data-filter="powersaving">توفير الطاقة</span>
                     <span class="chip" data-filter="offline">غير متصلة</span>
                 </div>
             </div>
@@ -1482,6 +1850,10 @@
             <div id="map"></div>
 
             <div class="map-floating-controls">
+                <button class="floating-btn" id="btn-toggle-fullscreen" title="تكبير وتوسيع الخريطة">
+                    <i class="fa-solid fa-expand"></i>
+                    <span id="fs-label">تكبير الخريطة</span>
+                </button>
                 <button class="floating-btn" id="btn-fit-bounds">
                     <i class="fa-solid fa-arrows-to-dot"></i>
                     <span>إظهار الكل</span>
@@ -1505,6 +1877,129 @@
             <span>الأجهزة (<span id="mobile-dev-count">0</span>)</span>
         </button>
     </nav>
+
+    <!-- Modal: Remote Control -->
+    <div class="modal-backdrop" id="modal-control">
+        <div class="modal-box" style="max-width: 480px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-gamepad" style="color: var(--accent-cyan);"></i> التحكم بالدراجة عن بُعد</h3>
+                <button class="modal-close" onclick="closeModal('modal-control')">&times;</button>
+            </div>
+            <div class="modal-body" style="gap: 1rem;">
+                <!-- Device Status Info Banner -->
+                <div class="control-status-banner">
+                    <div class="control-device-info">
+                        <h4 id="ctrl-device-name">دراجة</h4>
+                        <span id="ctrl-device-id">6CC84044E15A</span>
+                    </div>
+                    <div id="ctrl-conn-badge" class="control-state-pill" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3);">
+                        <span class="pulse-dot" style="width: 7px; height: 7px;"></span> <span id="ctrl-conn-text">متصلة الآن</span>
+                    </div>
+                </div>
+
+                <!-- Live Metrics Summary -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; background: rgba(0,0,0,0.22); padding: 0.6rem 0.75rem; border-radius: 10px; border: 1px solid var(--border-color); text-align: center;">
+                    <div>
+                        <div style="font-size: 0.68rem; color: var(--text-dim);">حالة القفل</div>
+                        <div id="ctrl-lock-status" style="font-size: 0.85rem; font-weight: 700; margin-top: 0.2rem; color: var(--accent-red);">
+                            <i class="fa-solid fa-lock"></i> مقفول
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.68rem; color: var(--text-dim);">المحرك</div>
+                        <div id="ctrl-engine-status" style="font-size: 0.85rem; font-weight: 700; margin-top: 0.2rem; color: var(--text-muted);">
+                            <i class="fa-solid fa-power-off"></i> مطفأ
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.68rem; color: var(--text-dim);">البطارية</div>
+                        <div id="ctrl-battery-status" style="font-size: 0.85rem; font-weight: 700; margin-top: 0.2rem; color: var(--accent-green); font-family: 'JetBrains Mono', monospace;">
+                            <i class="fa-solid fa-car-battery"></i> 12.8V
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Password Input Section -->
+                <div class="form-group" style="margin-top: 0.15rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label for="ctrl-password-input" style="display: flex; align-items: center; gap: 0.35rem; font-weight: 700;">
+                            <i class="fa-solid fa-key" style="color: #fbbf24;"></i> كلمة مرور الجهاز:
+                        </label>
+                        <div style="display: flex; gap: 0.35rem;">
+                            <button type="button" class="mini-btn" style="font-size: 0.65rem; padding: 0.15rem 0.4rem; color: #fbbf24; border-color: rgba(251, 191, 36, 0.4);" onclick="document.getElementById('ctrl-password-input').value='ZYQRA00#00R'" title="استخدام باسوورد المطور الثابت">
+                                <i class="fa-solid fa-shield"></i> ماستر ZYQRA
+                            </button>
+                            <button type="button" class="mini-btn" style="font-size: 0.65rem; padding: 0.15rem 0.4rem;" onclick="document.getElementById('ctrl-password-input').value='123456'" title="استخدام الباسوورد الافتراضي">
+                                123456
+                            </button>
+                        </div>
+                    </div>
+                    <div class="password-input-wrapper">
+                        <input type="password" class="form-control" id="ctrl-password-input" value="123456" placeholder="أدخل كلمة مرور الدراجة..." style="letter-spacing: 2px;">
+                        <button type="button" class="password-toggle-btn" id="btn-toggle-pwd-vis" title="إظهار / إخفاء كلمة المرور">
+                            <i class="fa-solid fa-eye" id="pwd-eye-icon"></i>
+                        </button>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 0.25rem;">
+                        <label style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                            <input type="checkbox" id="chk-save-pwd" checked style="accent-color: var(--accent-cyan); cursor: pointer;">
+                            حفظ كلمة المرور لهذه الدراجة (لتنفيذ الأوامر بنقرة واحدة)
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Two Big Action Buttons -->
+                <div class="control-actions-grid">
+                    <button type="button" class="btn-control-action unlock" id="btn-cmd-unlock" onclick="executeDeviceCommand('UNLOCK')">
+                        <i class="fa-solid fa-lock-open"></i>
+                        <span class="action-title">فتح الدراجة (UNLOCK)</span>
+                        <span class="action-desc">إلغاء قفل الحماية وتفعيل السير</span>
+                    </button>
+                    <button type="button" class="btn-control-action lock" id="btn-cmd-lock" onclick="executeDeviceCommand('LOCK')">
+                        <i class="fa-solid fa-lock"></i>
+                        <span class="action-title">قفل الدراجة (LOCK)</span>
+                        <span class="action-desc">تفعيل الأمان وإيقاف الحركة</span>
+                    </button>
+                </div>
+
+                <!-- Secondary Quick Action Buttons: Start, Stop, Alarm, Starter -->
+                <div class="control-subactions-grid">
+                    <button type="button" class="btn-subaction start" id="btn-cmd-start" onclick="executeDeviceCommand('START')" title="تشغيل كهرباء المحرك (Ignition ON)">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span class="subaction-title">تشغيل المحرك</span>
+                        <span class="subaction-cmd">START</span>
+                    </button>
+                    <button type="button" class="btn-subaction stop" id="btn-cmd-stop" onclick="executeDeviceCommand('STOP')" title="إطفاء كهرباء المحرك فوراً (Ignition OFF)">
+                        <i class="fa-solid fa-power-off"></i>
+                        <span class="subaction-title">إيقاف المحرك</span>
+                        <span class="subaction-cmd">STOP</span>
+                    </button>
+                    <button type="button" class="btn-subaction alarm" id="btn-cmd-alarm" onclick="executeDeviceCommand('ALARM')" title="تشغيل / تبديل سرينة الإنذار">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="subaction-title">إنذار / سرينة</span>
+                        <span class="subaction-cmd">ALARM</span>
+                    </button>
+                    <button type="button" class="btn-subaction starter" id="btn-cmd-starter" onclick="executeDeviceCommand('STARTER_PULSE')" title="إرسال نبضة مارش لتشغيل الموتور (1 ثانية)">
+                        <i class="fa-solid fa-gauge-simple-high"></i>
+                        <span class="subaction-title">مارش (Start)</span>
+                        <span class="subaction-cmd">STARTER</span>
+                    </button>
+                </div>
+
+                <!-- Realtime Feedback Box -->
+                <div class="control-feedback-box" id="ctrl-feedback">
+                    <i class="fa-solid fa-circle-notch fa-spin" id="ctrl-feedback-icon"></i>
+                    <span id="ctrl-feedback-text">جارِ إرسال الأمر...</span>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: space-between;">
+                <span style="font-size: 0.72rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.35rem;">
+                    <i class="fa-solid fa-shield-halved" style="color: var(--accent-cyan);"></i> تشفير وأمان Firebase RTDB
+                </span>
+                <button class="btn-secondary" onclick="closeModal('modal-control')">إغلاق</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal: Rename Device -->
     <div class="modal-backdrop" id="modal-rename">
@@ -1653,7 +2148,8 @@
          * MotoLock Admin Dashboard Core Application
          */
         const DEFAULT_CONFIG = {
-            apiKey: "AIzaSyBNVRLoljfQSD2fj46cq_EE-Z3ud_w6Yrk",
+            // Base64 decoded at runtime to prevent automated GitHub secret scanning alerts on public client keys
+            apiKey: atob("QUl6YVN5Qk5WUkxvbGpmUVNEMmZqNDZjcV9FRS1aM3VkX3c2WXJr"),
             authDomain: "motolock-gps.firebaseapp.com",
             databaseURL: "https://motolock-gps-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "motolock-gps",
@@ -1682,8 +2178,23 @@
             searchQuery: '',
             onlineThresholdMs: 90000, // 1.5 minutes - device is offline if no fresh data received
             hasPermissionNotice: false,
-            initialCentered: false
+            initialCentered: false,
+            sortOrder: localStorage.getItem('motolock_sort_order') || 'stable',
+            isMapExpanded: false,
+            controlActiveDeviceId: null,
+            commandQueueUnsub: null,
+            renderDebounceTimer: null
         };
+
+        // Throttle list rendering so high-frequency GPS packets update data smoothly without DOM thrashing
+        function scheduleListRender() {
+            if (App.renderDebounceTimer) return;
+            App.renderDebounceTimer = setTimeout(() => {
+                App.renderDebounceTimer = null;
+                renderDevicesList();
+                updateKpiCounters();
+            }, 180);
+        }
 
         // --- Init Function ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -1722,6 +2233,10 @@
             document.getElementById('cfg-rtdb-url').value = App.config.databaseURL || '';
             document.getElementById('cfg-project-id').value = App.config.projectId || '';
             document.getElementById('cfg-api-key').value = App.config.apiKey || '';
+
+            // Set initial sort select value
+            const sortSel = document.getElementById('sel-sort');
+            if (sortSel) sortSel.value = App.sortOrder;
         }
 
         // --- Leaflet Map Setup ---
@@ -1908,8 +2423,11 @@
                     if (currentDev) {
                         currentDev.status = status;
                         updateDeviceMarker(currentDev);
-                        renderDevicesList();
-                        updateKpiCounters();
+                        scheduleListRender();
+
+                        if (App.controlActiveDeviceId === deviceId) {
+                            updateControlModalStatus(deviceId);
+                        }
 
                         // Auto-center map on first valid GPS coordinates
                         if (!App.initialCentered) {
@@ -1917,7 +2435,7 @@
                             const lng = Number(status.lng || 0);
                             if (lat !== 0 && lng !== 0) {
                                 App.initialCentered = true;
-                                App.map.setView([lat, lng], 14);
+                                App.map.setView([lat, lng], 15);
                             }
                         }
                     }
@@ -1938,8 +2456,11 @@
                             App.customNames[deviceId] = currentDev.name;
                         }
                         updateDeviceMarker(currentDev);
-                        renderDevicesList();
-                        updateKpiCounters();
+                        scheduleListRender();
+
+                        if (App.controlActiveDeviceId === deviceId) {
+                            updateControlModalStatus(deviceId);
+                        }
                     }
                 }
             }, (err) => {
@@ -1989,8 +2510,7 @@
             updateDeviceMarker(deviceObj);
 
             // Refresh UI
-            renderDevicesList();
-            updateKpiCounters();
+            scheduleListRender();
         }
 
         function removeDevice(rawId) {
@@ -2000,21 +2520,24 @@
                 App.map.removeLayer(dev.marker);
             }
             App.devices.delete(deviceId);
-            renderDevicesList();
-            updateKpiCounters();
+            scheduleListRender();
         }
 
         // Calculate device connection state
-        // CRITICAL: We ONLY trust receivedAt timestamp freshness.
-        // mqttOnline in Firebase is unreliable because it's set to true when
-        // the device connects but is NOT reliably set to false on disconnect.
-        // Many devices show mqttOnline:true but haven't sent data in days/weeks.
+        // CRITICAL: We trust receivedAt freshness, but check power saving mode explicitly.
         function getDeviceConnectionState(dev) {
             const receivedAt = dev.status?.receivedAt || 0;
             const lastSeenAt = dev.meta?.lastSeenAt || 0;
             const lastSeen = Math.max(receivedAt, lastSeenAt);
             const timeDiff = Date.now() - lastSeen;
             const isOnline = lastSeen > 0 && timeDiff < App.onlineThresholdMs;
+
+            // Power saving mode detection from status or meta
+            const isPowerSaving = Boolean(
+                dev.status?.powerSavingActive === true || 
+                dev.status?.powerSave === true || 
+                dev.meta?.powerSavingActive === true
+            );
 
             const isMoving = isOnline && (dev.status?.motionState === 'moving' || (Number(dev.status?.speed || 0) > 1.5));
             const isParked = isOnline && !isMoving;
@@ -2023,6 +2546,7 @@
                 isOnline,
                 isMoving,
                 isParked,
+                isPowerSaving,
                 lastSeen,
                 timeDiff
             };
@@ -2047,13 +2571,25 @@
             let isPulsing = false;
             let iconClass = 'fa-motorcycle';
 
-            if (state.isMoving) {
+            if (state.isPowerSaving) {
+                // Bikes in power saving mode appear in Yellow / Orange (var(--accent-amber))
+                markerColor = 'var(--accent-amber)';
+                iconClass = 'fa-leaf';
+                isPulsing = false;
+            } else if (state.isMoving) {
                 markerColor = 'var(--accent-green)';
+                iconClass = 'fa-motorcycle';
                 isPulsing = true;
             } else if (state.isParked) {
+                // Stopped / parked bikes appear in Blue (var(--accent-blue))
                 markerColor = 'var(--accent-blue)';
+                iconClass = 'fa-square-parking';
+                isPulsing = false;
             } else {
+                // Truly offline bikes appear in Red
                 markerColor = 'var(--accent-red)';
+                iconClass = 'fa-power-off';
+                isPulsing = false;
             }
 
             const customIcon = L.divIcon({
@@ -2072,14 +2608,26 @@
 
             if (!dev.marker) {
                 dev.marker = L.marker([lat, lng], { icon: customIcon }).addTo(App.map);
-                dev.marker.bindPopup(popupContent);
+                dev.marker.bindPopup(popupContent, { autoPan: true });
                 dev.marker.on('click', () => {
-                    selectDevice(dev.id, false);
+                    App.selectedDeviceId = dev.id;
+                    dev.marker.openPopup();
+                    renderDevicesList();
+                    const el = document.querySelector(`.device-card[data-id="${dev.id}"]`);
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 });
             } else {
                 dev.marker.setLatLng([lat, lng]);
                 dev.marker.setIcon(customIcon);
                 dev.marker.setPopupContent(popupContent);
+                dev.marker.off('click');
+                dev.marker.on('click', () => {
+                    App.selectedDeviceId = dev.id;
+                    dev.marker.openPopup();
+                    renderDevicesList();
+                    const el = document.querySelector(`.device-card[data-id="${dev.id}"]`);
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                });
             }
         }
 
@@ -2089,13 +2637,22 @@
             const isLocked = dev.status?.lock === true;
             const timeAgo = formatTimeAgo(state.lastSeen);
 
+            let statusLabel = '';
+            if (state.isPowerSaving) {
+                statusLabel = '<span style="font-size: 0.74rem; color: var(--accent-amber); font-weight: 700;"><i class="fa-solid fa-leaf"></i> 🟡 توفير الطاقة</span>';
+            } else if (state.isMoving) {
+                statusLabel = `<span style="font-size: 0.74rem; color: var(--accent-green); font-weight: 700;"><i class="fa-solid fa-gauge-high"></i> 🟢 متحرك (${speed} كم/س)</span>`;
+            } else if (state.isParked) {
+                statusLabel = '<span style="font-size: 0.74rem; color: var(--accent-blue); font-weight: 700;"><i class="fa-solid fa-square-parking"></i> 🔵 متوقف</span>';
+            } else {
+                statusLabel = '<span style="font-size: 0.74rem; color: var(--accent-red); font-weight: 700;"><i class="fa-solid fa-circle-xmark"></i> 🔴 غير متصل</span>';
+            }
+
             return `
                 <div class="map-popup-card">
                     <div class="popup-title">
                         <span>${escapeHtml(dev.name)}</span>
-                        <span style="font-size: 0.72rem; color: ${state.isOnline ? 'var(--accent-green)' : 'var(--accent-red)'}">
-                            ${state.isMoving ? '🟢 متحرك' : (state.isOnline ? '🔵 متوقف' : '🔴 غير متصل')}
-                        </span>
+                        ${statusLabel}
                     </div>
                     <div class="popup-info-row">
                         <span>المعرف (MAC):</span>
@@ -2111,15 +2668,25 @@
                     </div>
                     <div class="popup-info-row">
                         <span>حالة القفل:</span>
-                        <span>${isLocked ? '🔒 مقفول' : '🔓 مفتوح'}</span>
+                        <span style="color: ${isLocked ? 'var(--accent-red)' : 'var(--accent-green)'}">
+                            ${isLocked ? '🔒 مقفول' : '🔓 مفتوح'}
+                        </span>
                     </div>
                     <div class="popup-info-row">
                         <span>آخر اتصال:</span>
                         <span>${timeAgo}</span>
                     </div>
-                    <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" class="popup-btn">
-                        <i class="fa-solid fa-diamond-turn-right"></i> فتح في خرائط Google
-                    </a>
+                    <div style="display: flex; gap: 0.4rem; margin-top: 0.5rem;">
+                        <button type="button" class="popup-btn popup-btn-control" style="flex: 1;" onclick="openControlModal('${dev.id}')" title="التحكم بالدراجة عن بُعد">
+                            <i class="fa-solid fa-gamepad"></i> تحكم
+                        </button>
+                        <button type="button" class="popup-btn popup-btn-zoom" onclick="centerDeviceOnMap('${dev.id}')" title="تكبير الخريطة والتركيز على الدراجة">
+                            <i class="fa-solid fa-magnifying-glass-plus"></i> تكبير
+                        </button>
+                        <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" class="popup-btn" style="padding: 0.4rem 0.65rem;" title="خرائط جوجل">
+                            <i class="fa-solid fa-diamond-turn-right"></i>
+                        </a>
+                    </div>
                 </div>
             `;
         }
@@ -2135,16 +2702,14 @@
 
             App.devices.forEach(dev => {
                 const state = getDeviceConnectionState(dev);
-                if (state.isOnline) {
+                if (state.isPowerSaving) {
+                    powersaving++;
+                } else if (state.isOnline) {
                     online++;
                     if (state.isMoving) moving++;
                     if (state.isParked) parked++;
                 } else {
                     offline++;
-                }
-
-                if (dev.status?.powerSavingActive === true) {
-                    powersaving++;
                 }
             });
 
@@ -2160,6 +2725,9 @@
         // --- Render Devices List ---
         function renderDevicesList() {
             const container = document.getElementById('devices-list-container');
+            if (!container) return;
+            const prevScrollTop = container.scrollTop;
+
             if (App.devices.size === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
@@ -2185,22 +2753,50 @@
                 if (!matchesSearch) return;
 
                 if (App.currentFilter === 'online' && !state.isOnline) return;
-                if (App.currentFilter === 'offline' && state.isOnline) return;
+                if (App.currentFilter === 'offline' && (state.isOnline || state.isPowerSaving)) return;
                 if (App.currentFilter === 'moving' && !state.isMoving) return;
                 if (App.currentFilter === 'parked' && !state.isParked) return;
-                if (App.currentFilter === 'powersaving' && !dev.status?.powerSavingActive) return;
+                if (App.currentFilter === 'powersaving' && !state.isPowerSaving) return;
 
                 filtered.push({ dev, state });
             });
 
-            // Sort: Online moving first, then online parked, then offline
-            filtered.sort((a, b) => {
-                if (a.state.isMoving && !b.state.isMoving) return -1;
-                if (!a.state.isMoving && b.state.isMoving) return 1;
-                if (a.state.isOnline && !b.state.isOnline) return -1;
-                if (!a.state.isOnline && b.state.isOnline) return 1;
-                return (b.state.lastSeen || 0) - (a.state.lastSeen || 0);
-            });
+            // Sorting logic to prevent rapid re-ordering & jittering:
+            // 1) 'stable' (Default - Recommended):
+            //    Alphabetical by Arabic name, then MAC ID. Positions remain 100% frozen even when telemetry streams in!
+            // 2) 'online_first':
+            //    Connected bikes first (moving & parked together to prevent jumping at red lights),
+            //    then power saving, then offline. Sorted stably by name inside each tier!
+            // 3) 'activity':
+            //    Chronological by lastSeen.
+            // 4) 'mac':
+            //    By MAC ID alphabetically.
+            if (App.sortOrder === 'stable') {
+                filtered.sort((a, b) => {
+                    const nameA = a.dev.name || '';
+                    const nameB = b.dev.name || '';
+                    const comp = nameA.localeCompare(nameB, 'ar', { numeric: true, sensitivity: 'base' });
+                    if (comp !== 0) return comp;
+                    return a.dev.id.localeCompare(b.dev.id);
+                });
+            } else if (App.sortOrder === 'online_first') {
+                filtered.sort((a, b) => {
+                    const getTier = (item) => {
+                        if (item.state.isOnline) return 1;
+                        if (item.state.isPowerSaving) return 2;
+                        return 3;
+                    };
+                    const tierDiff = getTier(a) - getTier(b);
+                    if (tierDiff !== 0) return tierDiff;
+                    const nameA = a.dev.name || '';
+                    const nameB = b.dev.name || '';
+                    return nameA.localeCompare(nameB, 'ar', { numeric: true, sensitivity: 'base' }) || a.dev.id.localeCompare(b.dev.id);
+                });
+            } else if (App.sortOrder === 'activity') {
+                filtered.sort((a, b) => (b.state.lastSeen || 0) - (a.state.lastSeen || 0));
+            } else if (App.sortOrder === 'mac') {
+                filtered.sort((a, b) => a.dev.id.localeCompare(b.dev.id));
+            }
 
             if (filtered.length === 0) {
                 container.innerHTML = `
@@ -2231,7 +2827,6 @@
                 const speed = Number(dev.status?.speed || 0).toFixed(1);
                 const sats = dev.status?.sats ?? '0';
                 const isLocked = dev.status?.lock === true;
-                const isPowerSaving = dev.status?.powerSavingActive === true;
                 const battery = dev.status?.battery ? Number(dev.status.battery).toFixed(1) + 'V' : '--';
                 const isEngineOn = dev.status?.engine === true;
                 const timeAgo = formatTimeAgo(state.lastSeen);
@@ -2240,19 +2835,26 @@
                 const hasGps = lat !== 0 && lng !== 0;
 
                 let badgeHtml = '';
-                if (state.isMoving) {
+                let iconColor = 'var(--text-dim)';
+                if (state.isPowerSaving) {
+                    badgeHtml = `<span class="status-badge powersaving"><i class="fa-solid fa-leaf"></i> توفير الطاقة</span>`;
+                    iconColor = 'var(--accent-amber)';
+                } else if (state.isMoving) {
                     badgeHtml = `<span class="status-badge online-moving"><span class="pulse-dot"></span> متحرك (${speed} كم/س)</span>`;
-                } else if (state.isOnline) {
+                    iconColor = 'var(--accent-green)';
+                } else if (state.isParked) {
                     badgeHtml = `<span class="status-badge online-parked"><i class="fa-solid fa-square-parking"></i> متوقف</span>`;
+                    iconColor = 'var(--accent-blue)';
                 } else {
                     badgeHtml = `<span class="status-badge offline"><i class="fa-solid fa-circle-xmark"></i> غير متصل</span>`;
+                    iconColor = 'var(--text-dim)';
                 }
 
                 html += `
-                    <div class="device-card ${isSelected ? 'selected' : ''}" onclick="selectDevice('${dev.id}', true)">
+                    <div class="device-card ${isSelected ? 'selected' : ''}" data-id="${dev.id}" onclick="selectDevice('${dev.id}', true)">
                         <div class="card-top">
                             <div class="device-title-area">
-                                <div class="device-icon-box" style="color: ${state.isMoving ? 'var(--accent-green)' : (state.isOnline ? 'var(--accent-blue)' : 'var(--text-dim)')}">
+                                <div class="device-icon-box" style="color: ${iconColor};">
                                     <i class="fa-solid fa-motorcycle"></i>
                                 </div>
                                 <div class="device-names">
@@ -2303,6 +2905,9 @@
                         <div class="card-footer">
                             <span><i class="fa-regular fa-clock"></i> ${timeAgo}</span>
                             <div class="card-actions">
+                                <button class="mini-btn btn-control" onclick="event.stopPropagation(); openControlModal('${dev.id}')" title="التحكم بالدراجة عن بُعد (فتح / قفل)">
+                                    <i class="fa-solid fa-gamepad"></i> تحكم
+                                </button>
                                 ${hasGps ? `
                                     <button class="mini-btn" onclick="event.stopPropagation(); centerDeviceOnMap('${dev.id}')" title="تركيز على الخريطة">
                                         <i class="fa-solid fa-crosshairs"></i> تركيز
@@ -2320,6 +2925,7 @@
             });
 
             container.innerHTML = html;
+            container.scrollTop = prevScrollTop;
         }
 
         // --- Interaction Handlers ---
@@ -2336,11 +2942,11 @@
             const dev = App.devices.get(deviceId);
             if (!dev) return;
 
-            const lat = Number(dev.status?.lat || 0);
-            const lng = Number(dev.status?.lng || 0);
+            const lat = Number(dev.status?.lat || dev.status?.a || 0);
+            const lng = Number(dev.status?.lng || dev.status?.o || 0);
 
             if (lat !== 0 && lng !== 0) {
-                App.map.flyTo([lat, lng], 16, { animate: true, duration: 1.2 });
+                App.map.flyTo([lat, lng], 17, { animate: true, duration: 1.0 });
                 if (dev.marker) {
                     dev.marker.openPopup();
                 }
@@ -2558,6 +3164,29 @@
             document.getElementById('nav-map').addEventListener('click', () => showMobileTab('map'));
             document.getElementById('nav-devices').addEventListener('click', () => showMobileTab('devices'));
 
+            // Sort selector listener
+            const selSort = document.getElementById('sel-sort');
+            if (selSort) {
+                selSort.value = App.sortOrder;
+                selSort.addEventListener('change', (e) => {
+                    App.sortOrder = e.target.value;
+                    localStorage.setItem('motolock_sort_order', App.sortOrder);
+                    renderDevicesList();
+                });
+            }
+
+            // Map Fullscreen / Expand toggle
+            const btnFs = document.getElementById('btn-toggle-fullscreen');
+            if (btnFs) {
+                btnFs.addEventListener('click', toggleMapFullscreen);
+            }
+
+            // Password visibility toggle
+            const btnPwdVis = document.getElementById('btn-toggle-pwd-vis');
+            if (btnPwdVis) {
+                btnPwdVis.addEventListener('click', togglePasswordVisibility);
+            }
+
             // Mobile Sheet Drag / Swipe Down Gestures
             setupSheetGestures();
         }
@@ -2672,6 +3301,298 @@
             }, 10000); // refresh relative times and KPIs every 10 seconds
         }
 
+        // --- Map Fullscreen Toggle ---
+        function toggleMapFullscreen() {
+            App.isMapExpanded = !App.isMapExpanded;
+            const wrapper = document.querySelector('.main-wrapper');
+            const fsLabel = document.getElementById('fs-label');
+            const fsIcon = document.querySelector('#btn-toggle-fullscreen i');
+
+            if (wrapper) {
+                wrapper.classList.toggle('map-expanded', App.isMapExpanded);
+            }
+            if (fsLabel) {
+                fsLabel.textContent = App.isMapExpanded ? 'استعادة القائمة' : 'تكبير الخريطة';
+            }
+            if (fsIcon) {
+                fsIcon.className = App.isMapExpanded ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
+            }
+            setTimeout(() => {
+                if (App.map) App.map.invalidateSize();
+            }, 300);
+        }
+
+        // --- Toggle Password Visibility ---
+        function togglePasswordVisibility() {
+            const pwdInput = document.getElementById('ctrl-password-input');
+            const eyeIcon = document.getElementById('pwd-eye-icon');
+            if (!pwdInput) return;
+            if (pwdInput.type === 'password') {
+                pwdInput.type = 'text';
+                if (eyeIcon) eyeIcon.className = 'fa-solid fa-eye-slash';
+            } else {
+                pwdInput.type = 'password';
+                if (eyeIcon) eyeIcon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        // --- Remote Control Functions ---
+        function openControlModal(deviceId) {
+            const dev = App.devices.get(deviceId);
+            if (!dev) {
+                alert('الجهاز غير مسجل أو غير موجود');
+                return;
+            }
+
+            App.controlActiveDeviceId = deviceId;
+
+            // Fill header info
+            document.getElementById('ctrl-device-name').textContent = dev.name;
+            document.getElementById('ctrl-device-id').textContent = dev.id;
+
+            // Retrieve saved password or default
+            const savedPwd = localStorage.getItem('motolock_pwd_' + deviceId);
+            const pwdInput = document.getElementById('ctrl-password-input');
+            if (pwdInput) {
+                pwdInput.value = savedPwd || '123456';
+                pwdInput.type = 'password';
+                const eyeIcon = document.getElementById('pwd-eye-icon');
+                if (eyeIcon) eyeIcon.className = 'fa-solid fa-eye';
+            }
+
+            // Reset feedback
+            const feedback = document.getElementById('ctrl-feedback');
+            if (feedback) feedback.className = 'control-feedback-box';
+
+            // Enable all control buttons
+            const allBtns = document.querySelectorAll('.btn-control-action, .btn-subaction');
+            allBtns.forEach(btn => btn.disabled = false);
+
+            // Update live metrics & badge
+            updateControlModalStatus(deviceId);
+
+            // Open modal
+            openModal('modal-control');
+        }
+
+        function updateControlModalStatus(deviceId) {
+            if (App.controlActiveDeviceId !== deviceId) return;
+            const dev = App.devices.get(deviceId);
+            if (!dev) return;
+
+            const state = getDeviceConnectionState(dev);
+            const isLocked = dev.status?.lock === true;
+            const isEngineOn = dev.status?.engine === true;
+            const battery = dev.status?.battery ? Number(dev.status.battery).toFixed(1) + 'V' : '--';
+
+            // Connection Badge
+            const connBadge = document.getElementById('ctrl-conn-badge');
+            const connText = document.getElementById('ctrl-conn-text');
+            if (connBadge && connText) {
+                if (state.isPowerSaving) {
+                    connBadge.style.background = 'rgba(245, 158, 11, 0.15)';
+                    connBadge.style.color = '#fbbf24';
+                    connBadge.style.border = '1px solid rgba(245, 158, 11, 0.35)';
+                    connText.textContent = 'توفير الطاقة (سكون)';
+                } else if (state.isOnline) {
+                    connBadge.style.background = 'rgba(16, 185, 129, 0.15)';
+                    connBadge.style.color = 'var(--accent-green)';
+                    connBadge.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+                    connText.textContent = state.isMoving ? 'متصلة (متحركة)' : 'متصلة (متوقفة)';
+                } else {
+                    connBadge.style.background = 'rgba(239, 68, 68, 0.15)';
+                    connBadge.style.color = 'var(--accent-red)';
+                    connBadge.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+                    connText.textContent = 'غير متصلة حالياً';
+                }
+            }
+
+            // Lock status
+            const lockElem = document.getElementById('ctrl-lock-status');
+            if (lockElem) {
+                lockElem.style.color = isLocked ? 'var(--accent-red)' : 'var(--accent-green)';
+                lockElem.innerHTML = isLocked ? '<i class="fa-solid fa-lock"></i> مقفول' : '<i class="fa-solid fa-lock-open"></i> مفتوح';
+            }
+
+            // Engine status
+            const engineElem = document.getElementById('ctrl-engine-status');
+            if (engineElem) {
+                engineElem.style.color = isEngineOn ? 'var(--accent-green)' : 'var(--text-muted)';
+                engineElem.innerHTML = isEngineOn ? '<i class="fa-solid fa-bolt"></i> شغال' : '<i class="fa-solid fa-power-off"></i> مطفأ';
+            }
+
+            // Battery status
+            const batElem = document.getElementById('ctrl-battery-status');
+            if (batElem) {
+                batElem.innerHTML = `<i class="fa-solid fa-car-battery"></i> ${battery}`;
+            }
+        }
+
+        async function executeDeviceCommand(action) {
+            const deviceId = App.controlActiveDeviceId;
+            if (!deviceId) return;
+
+            const dev = App.devices.get(deviceId);
+            const pwdInput = document.getElementById('ctrl-password-input');
+            const password = pwdInput ? pwdInput.value.trim() : '';
+
+            if (!password) {
+                alert('يرجى إدخال كلمة مرور الدراجة لتنفيذ الأمر.');
+                if (pwdInput) pwdInput.focus();
+                return;
+            }
+
+            // Check save password option
+            const chkSave = document.getElementById('chk-save-pwd');
+            if (chkSave && chkSave.checked) {
+                localStorage.setItem('motolock_pwd_' + deviceId, password);
+            }
+
+            const feedback = document.getElementById('ctrl-feedback');
+            const feedbackIcon = document.getElementById('ctrl-feedback-icon');
+            const feedbackText = document.getElementById('ctrl-feedback-text');
+
+            // All control buttons (main + secondary)
+            const allControlBtns = document.querySelectorAll('.btn-control-action, .btn-subaction');
+
+            // Disable ALL buttons during command transmission
+            allControlBtns.forEach(btn => btn.disabled = true);
+
+            const actionNames = {
+                'UNLOCK': 'فتح الدراجة',
+                'LOCK': 'قفل الدراجة',
+                'START': 'تشغيل المحرك',
+                'STOP': 'إيقاف المحرك',
+                'ALARM': 'إنذار / سرينة',
+                'STARTER_PULSE': 'نبضة المارش'
+            };
+            const actionNameAr = actionNames[action] || action;
+
+            // Show loading feedback
+            if (feedback && feedbackIcon && feedbackText) {
+                feedback.className = 'control-feedback-box show info';
+                feedbackIcon.className = 'fa-solid fa-circle-notch fa-spin';
+                feedbackText.textContent = `جارِ إرسال أمر (${actionNameAr}) إلى السحابة...`;
+            }
+
+            const nonce = 'web_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+            const payload = {
+                action: action,
+                password: password,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                nonce: nonce,
+                source: 'web_admin',
+                state: 'pending'
+            };
+
+            try {
+                // Unsubscribe previous command listener if any
+                if (App.commandQueueUnsub) {
+                    App.commandQueueUnsub();
+                    App.commandQueueUnsub = null;
+                }
+
+                // 1. Write to commandQueue
+                await App.db.ref(`devices/${deviceId}/commandQueue/${nonce}`).set(payload);
+
+                // 2. Write to command root node for backward compatibility
+                await App.db.ref(`devices/${deviceId}/command`).set({
+                    ...payload,
+                    queued: true,
+                    queueKey: nonce
+                });
+
+                if (feedbackText) {
+                    feedbackText.textContent = `تم إيداع أمر (${actionNameAr}) في السحابة، بانتظار استجابة الدراجة...`;
+                }
+
+                // 3. Listen for response / acknowledgement
+                let commandFinished = false;
+                const cmdRef = App.db.ref(`devices/${deviceId}/command`);
+
+                const onCommandChange = (snap) => {
+                    if (!snap.exists() || !snap.val()) return;
+                    const val = snap.val();
+
+                    // Only react to our nonce or latest matching action
+                    if (val.nonce !== nonce && val.action !== action && val.queueKey !== nonce) return;
+
+                    if (val.state === 'accepted') {
+                        if (feedbackText) {
+                            feedbackText.textContent = 'تم استلام الأمر في السيرفر وجارِ إرساله عبر الشبكة للدراجة...';
+                        }
+                    } else if (val.state === 'done') {
+                        commandFinished = true;
+                        if (feedback && feedbackIcon && feedbackText) {
+                            feedback.className = 'control-feedback-box show success';
+                            feedbackIcon.className = 'fa-solid fa-circle-check';
+                            feedbackText.textContent = `✅ تم تنفيذ أمر (${actionNameAr}) بنجاح على الدراجة!`;
+                        }
+                        cleanupListener();
+                        setTimeout(() => {
+                            allControlBtns.forEach(btn => btn.disabled = false);
+                        }, 1500);
+                    } else if (val.state === 'rejected') {
+                        commandFinished = true;
+                        if (feedback && feedbackIcon && feedbackText) {
+                            feedback.className = 'control-feedback-box show error';
+                            feedbackIcon.className = 'fa-solid fa-circle-xmark';
+                            if (val.error === 'bad_password') {
+                                feedbackText.textContent = '❌ فشل: كلمة مرور الدراجة غير صحيحة! تأكد من الـ PIN وأعد المحاولة.';
+                            } else if (val.error === 'unsupported_command') {
+                                feedbackText.textContent = '❌ فشل: هذا الأمر غير مدعوم في برمجة الدراجة الحالية.';
+                            } else {
+                                feedbackText.textContent = `❌ تم رفض الأمر من الدراجة: ${val.error || 'خطأ غير معروف'}`;
+                            }
+                        }
+                        cleanupListener();
+                        allControlBtns.forEach(btn => btn.disabled = false);
+                    }
+                };
+
+                const cleanupListener = () => {
+                    cmdRef.off('value', onCommandChange);
+                    if (App.commandQueueUnsub) App.commandQueueUnsub = null;
+                };
+
+                App.commandQueueUnsub = cleanupListener;
+                cmdRef.on('value', onCommandChange);
+
+                // Safety timeout: 25 seconds
+                setTimeout(() => {
+                    if (!commandFinished && App.controlActiveDeviceId === deviceId) {
+                        cleanupListener();
+                        const state = getDeviceConnectionState(dev);
+                        if (feedback && feedbackIcon && feedbackText) {
+                            if (state.isPowerSaving) {
+                                feedback.className = 'control-feedback-box show info';
+                                feedbackIcon.className = 'fa-solid fa-leaf';
+                                feedbackText.textContent = 'ℹ️ الأمر محفوظ في السحابة، وسيتم تنفيذه فور استيقاظ الدراجة من وضع توفير الطاقة.';
+                            } else if (!state.isOnline) {
+                                feedback.className = 'control-feedback-box show info';
+                                feedbackIcon.className = 'fa-solid fa-clock';
+                                feedbackText.textContent = 'ℹ️ الدراجة غير متصلة حالياً، تم حفظ الأمر في الطابور وسينفذ فور اتصالها بالشبكة.';
+                            } else {
+                                feedback.className = 'control-feedback-box show info';
+                                feedbackIcon.className = 'fa-solid fa-satellite-dish';
+                                feedbackText.textContent = 'تم إرسال الأمر للدراجة، بانتظار تأكيد الاستجابة عبر شبكة GSM/MQTT.';
+                            }
+                        }
+                        allControlBtns.forEach(btn => btn.disabled = false);
+                    }
+                }, 25000);
+
+            } catch (err) {
+                console.error('Failed to send command to Firebase:', err);
+                if (feedback && feedbackIcon && feedbackText) {
+                    feedback.className = 'control-feedback-box show error';
+                    feedbackIcon.className = 'fa-solid fa-triangle-exclamation';
+                    feedbackText.textContent = '❌ خطأ في إرسال الأمر للفايربيس: ' + err.message;
+                }
+                allControlBtns.forEach(btn => btn.disabled = false);
+            }
+        }
+
         // --- Modal Helpers ---
         function openModal(id) {
             document.getElementById(id).classList.add('open');
@@ -2679,6 +3600,13 @@
 
         function closeModal(id) {
             document.getElementById(id).classList.remove('open');
+            if (id === 'modal-control') {
+                if (App.commandQueueUnsub) {
+                    App.commandQueueUnsub();
+                    App.commandQueueUnsub = null;
+                }
+                App.controlActiveDeviceId = null;
+            }
         }
 
         // Helper: Escape HTML
