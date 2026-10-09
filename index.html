@@ -1252,13 +1252,19 @@
 
         .control-feedback-box {
             display: none;
-            padding: 0.6rem 0.8rem;
+            padding: 0.65rem 0.85rem;
             border-radius: 8px;
             font-size: 0.75rem;
-            line-height: 1.5;
-            align-items: center;
+            line-height: 1.4;
+            align-items: flex-start;
             gap: 0.6rem;
             animation: fadeIn 0.3s ease;
+        }
+
+        .control-feedback-box i {
+            margin-top: 3px;
+            font-size: 1rem;
+            flex-shrink: 0;
         }
 
         @keyframes fadeIn {
@@ -1891,9 +1897,9 @@
             <div class="timeout-pill" title="مهلة اعتبار الجهاز متصل أونلاين بعد آخر إشارة حية">
                 <i class="fa-solid fa-stopwatch" style="color: var(--accent-cyan);"></i>
                 <select id="sel-timeout" class="timeout-select">
-                    <option value="60000">مهلة: 1 دقيقة</option>
-                    <option value="90000" selected>مهلة: 1.5 دقيقة</option>
+                    <option value="90000">مهلة: 1.5 دقيقة</option>
                     <option value="180000">مهلة: 3 دقائق</option>
+                    <option value="210000" selected>مهلة: 3.5 دقيقة (افتراضي)</option>
                     <option value="300000">مهلة: 5 دقائق</option>
                 </select>
             </div>
@@ -2158,8 +2164,10 @@
 
                 <!-- Realtime Feedback Box -->
                 <div class="control-feedback-box" id="ctrl-feedback">
-                    <i class="fa-solid fa-circle-notch fa-spin" id="ctrl-feedback-icon"></i>
-                    <span id="ctrl-feedback-text">جارِ إرسال الأمر...</span>
+                    <i class="fa-solid fa-circle-notch fa-spin" id="ctrl-feedback-icon" style="margin-top: 3px; flex-shrink: 0;"></i>
+                    <div id="ctrl-feedback-text" style="display: flex; flex-direction: column; gap: 0.18rem; flex: 1; min-width: 0;">
+                        <span style="font-weight: 700; font-size: 0.8rem;">جارِ إرسال الأمر...</span>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer" style="justify-content: space-between;">
@@ -2360,7 +2368,7 @@
             selectedDeviceId: null,
             currentFilter: 'all',
             searchQuery: '',
-            onlineThresholdMs: 90000, // 1.5 minutes - device is offline if no fresh data received
+            onlineThresholdMs: 210000, // 3.5 minutes - device idle status interval is 180s (matching backend INACTIVITY_TIMEOUT_MS)
             hasPermissionNotice: false,
             initialCentered: false,
             sortOrder: localStorage.getItem('motolock_sort_order') || 'stable',
@@ -3792,6 +3800,27 @@
             }
         }
 
+        function setControlFeedback(type, iconClass, line1, line2) {
+            const feedback = document.getElementById('ctrl-feedback');
+            const feedbackIcon = document.getElementById('ctrl-feedback-icon');
+            const feedbackText = document.getElementById('ctrl-feedback-text');
+            if (!feedback || !feedbackIcon || !feedbackText) return;
+
+            feedback.className = 'control-feedback-box show ' + type;
+            feedbackIcon.className = iconClass;
+
+            if (line2) {
+                feedbackText.innerHTML = `
+                    <div style="font-weight: 700; font-size: 0.8rem; line-height: 1.35;">${line1}</div>
+                    <div style="font-size: 0.72rem; opacity: 0.92; line-height: 1.4; margin-top: 3px;">${line2}</div>
+                `;
+            } else {
+                feedbackText.innerHTML = `
+                    <div style="font-weight: 600; font-size: 0.78rem; line-height: 1.35;">${line1}</div>
+                `;
+            }
+        }
+
         async function executeDeviceCommand(action) {
             const deviceId = App.controlActiveDeviceId;
             if (!deviceId) return;
@@ -3812,15 +3841,7 @@
                 localStorage.setItem('motolock_pwd_' + deviceId, password);
             }
 
-            const feedback = document.getElementById('ctrl-feedback');
-            const feedbackIcon = document.getElementById('ctrl-feedback-icon');
-            const feedbackText = document.getElementById('ctrl-feedback-text');
-
-            // All control buttons (main + secondary)
             const allControlBtns = document.querySelectorAll('.btn-control-action, .btn-subaction');
-
-            // Disable ALL buttons during command transmission
-            allControlBtns.forEach(btn => btn.disabled = true);
 
             const actionNames = {
                 'UNLOCK': 'فتح الدراجة',
@@ -3832,12 +3853,65 @@
             };
             const actionNameAr = actionNames[action] || action;
 
-            // Show loading feedback
-            if (feedback && feedbackIcon && feedbackText) {
-                feedback.className = 'control-feedback-box show info';
-                feedbackIcon.className = 'fa-solid fa-circle-notch fa-spin';
-                feedbackText.textContent = `جارِ إرسال أمر (${actionNameAr}) إلى السحابة...`;
+            // Check connection state upfront
+            const state = dev ? getDeviceConnectionState(dev) : { isOnline: false, isPowerSaving: false };
+
+            // 1. If device is currently OFFLINE
+            if (!state.isOnline && !state.isPowerSaving) {
+                setControlFeedback(
+                    'error',
+                    'fa-solid fa-triangle-exclamation',
+                    'الدراجة غير متصلة بالإنترنت حالياً',
+                    'الرجاء الانتظار والمحاولة مرة أخرى بعد 30 ثانية أو دقيقة (عند استعادة الاتصال).'
+                );
+
+                // Still save the command in queue so it can execute if bike reconnects
+                try {
+                    const nonce = 'web_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+                    App.db.ref(`devices/${deviceId}/commandQueue/${nonce}`).set({
+                        action: action,
+                        password: password,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP,
+                        nonce: nonce,
+                        source: 'web_admin',
+                        state: 'pending'
+                    });
+                } catch(e) {}
+                return;
             }
+
+            // 2. If device is in POWER SAVING mode
+            if (state.isPowerSaving) {
+                setControlFeedback(
+                    'info',
+                    'fa-solid fa-leaf',
+                    'الدراجة في وضع توفير الطاقة حالياً',
+                    'تم حفظ أمر (' + actionNameAr + ') وسينفذ تلقائياً فور استيقاظ الدراجة بتحريكها أو فتح الكونتاك.'
+                );
+
+                try {
+                    const nonce = 'web_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+                    App.db.ref(`devices/${deviceId}/commandQueue/${nonce}`).set({
+                        action: action,
+                        password: password,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP,
+                        nonce: nonce,
+                        source: 'web_admin',
+                        state: 'pending'
+                    });
+                } catch(e) {}
+                return;
+            }
+
+            // 3. Device is ONLINE: proceed with live command transmission
+            allControlBtns.forEach(btn => btn.disabled = true);
+
+            setControlFeedback(
+                'info',
+                'fa-solid fa-circle-notch fa-spin',
+                `جارِ إرسال أمر (${actionNameAr}) إلى الدراجة...`,
+                'بانتظار استجابة موديول الدراجة وتأكيد التنفيذ عبر السحابة...'
+            );
 
             const nonce = 'web_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
             const payload = {
@@ -3856,21 +3930,17 @@
                     App.commandQueueUnsub = null;
                 }
 
-                // 1. Write to commandQueue
+                // Write to commandQueue
                 await App.db.ref(`devices/${deviceId}/commandQueue/${nonce}`).set(payload);
 
-                // 2. Write to command root node for backward compatibility
+                // Write to command root node for backward compatibility
                 await App.db.ref(`devices/${deviceId}/command`).set({
                     ...payload,
                     queued: true,
                     queueKey: nonce
                 });
 
-                if (feedbackText) {
-                    feedbackText.textContent = `تم إيداع أمر (${actionNameAr}) في السحابة، بانتظار استجابة الدراجة...`;
-                }
-
-                // 3. Listen for response / acknowledgement
+                // Listen for response / acknowledgement
                 let commandFinished = false;
                 const cmdRef = App.db.ref(`devices/${deviceId}/command`);
 
@@ -3882,33 +3952,36 @@
                     if (val.nonce !== nonce && val.action !== action && val.queueKey !== nonce) return;
 
                     if (val.state === 'accepted') {
-                        if (feedbackText) {
-                            feedbackText.textContent = 'تم استلام الأمر في السيرفر وجارِ إرساله عبر الشبكة للدراجة...';
-                        }
+                        setControlFeedback(
+                            'info',
+                            'fa-solid fa-satellite-dish',
+                            'تم استلام الأمر في السيرفر بنجاح',
+                            'جارِ الإرسال عبر شبكة الإنترنت إلى شريحة الدراجة...'
+                        );
                     } else if (val.state === 'done') {
                         commandFinished = true;
-                        if (feedback && feedbackIcon && feedbackText) {
-                            feedback.className = 'control-feedback-box show success';
-                            feedbackIcon.className = 'fa-solid fa-circle-check';
-                            feedbackText.textContent = `✅ تم تنفيذ أمر (${actionNameAr}) بنجاح على الدراجة!`;
-                        }
+                        setControlFeedback(
+                            'success',
+                            'fa-solid fa-circle-check',
+                            `✅ تم تنفيذ أمر (${actionNameAr}) بنجاح على الدراجة!`,
+                            'استجابت الدراجة في الوقت الفعلي وتم تحديث الحالة.'
+                        );
                         cleanupListener();
                         setTimeout(() => {
                             allControlBtns.forEach(btn => btn.disabled = false);
-                        }, 1500);
+                        }, 1200);
                     } else if (val.state === 'rejected') {
                         commandFinished = true;
-                        if (feedback && feedbackIcon && feedbackText) {
-                            feedback.className = 'control-feedback-box show error';
-                            feedbackIcon.className = 'fa-solid fa-circle-xmark';
-                            if (val.error === 'bad_password') {
-                                feedbackText.textContent = '❌ فشل: كلمة مرور الدراجة غير صحيحة! تأكد من الـ PIN وأعد المحاولة.';
-                            } else if (val.error === 'unsupported_command') {
-                                feedbackText.textContent = '❌ فشل: هذا الأمر غير مدعوم في برمجة الدراجة الحالية.';
-                            } else {
-                                feedbackText.textContent = `❌ تم رفض الأمر من الدراجة: ${val.error || 'خطأ غير معروف'}`;
-                            }
-                        }
+                        let reason = val.error || 'خطأ غير معروف';
+                        if (val.error === 'bad_password') reason = 'كلمة مرور الدراجة غير صحيحة! تأكد من الـ PIN وأعد المحاولة.';
+                        else if (val.error === 'unsupported_command') reason = 'هذا الأمر غير مدعوم في برمجة الدراجة الحالية.';
+
+                        setControlFeedback(
+                            'error',
+                            'fa-solid fa-circle-xmark',
+                            `❌ تم رفض أمر (${actionNameAr}) من الدراجة`,
+                            reason
+                        );
                         cleanupListener();
                         allControlBtns.forEach(btn => btn.disabled = false);
                     }
@@ -3922,37 +3995,28 @@
                 App.commandQueueUnsub = cleanupListener;
                 cmdRef.on('value', onCommandChange);
 
-                // Safety timeout: 25 seconds
+                // Safety timeout: 18 seconds (if network drops midway)
                 setTimeout(() => {
                     if (!commandFinished && App.controlActiveDeviceId === deviceId) {
                         cleanupListener();
-                        const state = getDeviceConnectionState(dev);
-                        if (feedback && feedbackIcon && feedbackText) {
-                            if (state.isPowerSaving) {
-                                feedback.className = 'control-feedback-box show info';
-                                feedbackIcon.className = 'fa-solid fa-leaf';
-                                feedbackText.textContent = 'ℹ️ الأمر محفوظ في السحابة، وسيتم تنفيذه فور استيقاظ الدراجة من وضع توفير الطاقة.';
-                            } else if (!state.isOnline) {
-                                feedback.className = 'control-feedback-box show info';
-                                feedbackIcon.className = 'fa-solid fa-clock';
-                                feedbackText.textContent = 'ℹ️ الدراجة غير متصلة حالياً، تم حفظ الأمر في الطابور وسينفذ فور اتصالها بالشبكة.';
-                            } else {
-                                feedback.className = 'control-feedback-box show info';
-                                feedbackIcon.className = 'fa-solid fa-satellite-dish';
-                                feedbackText.textContent = 'تم إرسال الأمر للدراجة، بانتظار تأكيد الاستجابة عبر شبكة GSM/MQTT.';
-                            }
-                        }
+                        setControlFeedback(
+                            'error',
+                            'fa-solid fa-clock-rotate-left',
+                            'الدراجة غير متصلة بالإنترنت حالياً (لم تستجب)',
+                            'الرجاء الانتظار والمحاولة مرة أخرى بعد 30 ثانية أو دقيقة.'
+                        );
                         allControlBtns.forEach(btn => btn.disabled = false);
                     }
-                }, 25000);
+                }, 18000);
 
             } catch (err) {
                 console.error('Failed to send command to Firebase:', err);
-                if (feedback && feedbackIcon && feedbackText) {
-                    feedback.className = 'control-feedback-box show error';
-                    feedbackIcon.className = 'fa-solid fa-triangle-exclamation';
-                    feedbackText.textContent = '❌ خطأ في إرسال الأمر للفايربيس: ' + err.message;
-                }
+                setControlFeedback(
+                    'error',
+                    'fa-solid fa-triangle-exclamation',
+                    '❌ خطأ في إرسال الأمر للفايربيس',
+                    err.message
+                );
                 allControlBtns.forEach(btn => btn.disabled = false);
             }
         }
