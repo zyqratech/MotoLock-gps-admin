@@ -512,6 +512,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 0.5rem;
         }
 
         .device-title-area {
@@ -539,6 +540,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            min-width: 0;
         }
 
         .device-custom-name {
@@ -579,6 +581,7 @@
             align-items: center;
             gap: 0.35rem;
             white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .status-badge.online-moving {
@@ -1042,39 +1045,39 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.85rem 1rem;
+            padding: 0.6rem 0.75rem;
             background: rgba(0, 0, 0, 0.28);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
+            border-radius: 10px;
         }
 
         .control-device-info h4 {
-            font-size: 0.98rem;
+            font-size: 0.88rem;
             font-weight: 800;
             color: var(--text-main);
         }
 
         .control-device-info span {
-            font-size: 0.74rem;
+            font-size: 0.66rem;
             font-family: 'JetBrains Mono', monospace;
             color: var(--text-dim);
         }
 
         .control-state-pill {
-            font-size: 0.74rem;
+            font-size: 0.66rem;
             font-weight: 700;
-            padding: 0.3rem 0.75rem;
+            padding: 0.22rem 0.6rem;
             border-radius: 50px;
             display: flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.35rem;
         }
 
         .control-actions-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.85rem;
-            margin-top: 0.35rem;
+            gap: 0.6rem;
+            margin-top: 0.2rem;
         }
 
         .btn-control-action {
@@ -1082,9 +1085,9 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            padding: 1.15rem 0.85rem;
-            border-radius: 12px;
+            gap: 0.4rem;
+            padding: 0.85rem 0.65rem;
+            border-radius: 10px;
             border: 1px solid transparent;
             cursor: pointer;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1125,16 +1128,16 @@
         }
 
         .btn-control-action i {
-            font-size: 2rem;
+            font-size: 1.5rem;
         }
 
         .btn-control-action .action-title {
             font-weight: 800;
-            font-size: 1rem;
+            font-size: 0.85rem;
         }
 
         .btn-control-action .action-desc {
-            font-size: 0.72rem;
+            font-size: 0.65rem;
             opacity: 0.85;
             font-weight: 500;
             line-height: 1.3;
@@ -1144,8 +1147,8 @@
         .control-subactions-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 0.5rem;
-            margin-top: 0.2rem;
+            gap: 0.4rem;
+            margin-top: 0.1rem;
         }
 
         @media (max-width: 480px) {
@@ -1159,9 +1162,9 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 0.35rem;
-            padding: 0.75rem 0.35rem;
-            border-radius: 10px;
+            gap: 0.25rem;
+            padding: 0.55rem 0.3rem;
+            border-radius: 8px;
             border: 1px solid var(--border-color);
             background: rgba(0, 0, 0, 0.25);
             color: var(--text-main);
@@ -1179,18 +1182,18 @@
         }
 
         .btn-subaction i {
-            font-size: 1.35rem;
+            font-size: 1.1rem;
             transition: transform 0.2s ease;
         }
 
         .btn-subaction .subaction-title {
-            font-size: 0.76rem;
+            font-size: 0.68rem;
             font-weight: 700;
             white-space: nowrap;
         }
 
         .btn-subaction .subaction-cmd {
-            font-size: 0.62rem;
+            font-size: 0.56rem;
             font-family: 'JetBrains Mono', monospace;
             opacity: 0.7;
         }
@@ -1249,9 +1252,9 @@
 
         .control-feedback-box {
             display: none;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 0.82rem;
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
             line-height: 1.5;
             align-items: center;
             gap: 0.6rem;
@@ -1572,7 +1575,7 @@
             }
 
             .card-metrics {
-                grid-template-columns: repeat(4, 1fr) !important;
+                grid-template-columns: repeat(5, 1fr) !important;
                 padding: 0.35rem 0.45rem;
                 gap: 0.25rem;
             }
@@ -1676,6 +1679,167 @@
 
             .modal-body {
                 padding: 0.9rem;
+            }
+
+            /* --- Control Modal Mobile Optimization (Bottom Sheet) --- */
+            #modal-control {
+                align-items: flex-end;
+                padding: 0;
+            }
+
+            #modal-control .modal-box {
+                max-width: 100vw !important;
+                width: 100vw;
+                max-height: 92vh;
+                overflow-y: auto;
+                border-radius: 18px 18px 0 0;
+                transform: translateY(100%);
+            }
+
+            #modal-control.open .modal-box {
+                transform: translateY(0);
+            }
+
+            #modal-control .modal-header {
+                padding: 0.65rem 0.85rem;
+                position: sticky;
+                top: 0;
+                z-index: 1;
+            }
+
+            #modal-control .modal-header h3 {
+                font-size: 0.88rem;
+                gap: 0.35rem;
+            }
+
+            #modal-control .modal-body {
+                padding: 0.65rem 0.7rem;
+                gap: 0.6rem !important;
+            }
+
+            .control-status-banner {
+                padding: 0.55rem 0.7rem;
+                border-radius: 10px;
+                flex-wrap: wrap;
+                gap: 0.4rem;
+            }
+
+            .control-device-info h4 {
+                font-size: 0.85rem;
+            }
+
+            .control-device-info span {
+                font-size: 0.62rem;
+            }
+
+            .control-state-pill {
+                font-size: 0.64rem;
+                padding: 0.2rem 0.5rem;
+            }
+
+            /* Metrics grid inside control modal */
+            #modal-control [style*="grid-template-columns"] {
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 0.3rem !important;
+                padding: 0.45rem 0.5rem !important;
+            }
+
+            #modal-control [style*="grid-template-columns"] [style*="font-size: 0.68rem"] {
+                font-size: 0.6rem !important;
+            }
+
+            #modal-control [style*="grid-template-columns"] [style*="font-size: 0.85rem"] {
+                font-size: 0.72rem !important;
+                margin-top: 0.1rem !important;
+            }
+
+            /* Password section compact */
+            #modal-control .form-group label {
+                font-size: 0.7rem;
+            }
+
+            #modal-control .form-control {
+                padding: 0.45rem 0.65rem;
+                font-size: 0.78rem;
+            }
+
+            #modal-control .mini-btn {
+                font-size: 0.58rem !important;
+                padding: 0.12rem 0.3rem !important;
+            }
+
+            /* Main action buttons compact */
+            .control-actions-grid {
+                gap: 0.5rem;
+                margin-top: 0.15rem;
+            }
+
+            .btn-control-action {
+                padding: 0.75rem 0.45rem;
+                gap: 0.3rem;
+                border-radius: 10px;
+            }
+
+            .btn-control-action i {
+                font-size: 1.4rem;
+            }
+
+            .btn-control-action .action-title {
+                font-size: 0.78rem;
+            }
+
+            .btn-control-action .action-desc {
+                font-size: 0.6rem;
+            }
+
+            /* Sub-action buttons compact */
+            .control-subactions-grid {
+                gap: 0.3rem;
+                margin-top: 0.1rem;
+            }
+
+            .btn-subaction {
+                padding: 0.5rem 0.2rem;
+                gap: 0.2rem;
+                border-radius: 8px;
+            }
+
+            .btn-subaction i {
+                font-size: 1rem;
+            }
+
+            .btn-subaction .subaction-title {
+                font-size: 0.64rem;
+            }
+
+            .btn-subaction .subaction-cmd {
+                font-size: 0.52rem;
+            }
+
+            /* Feedback box compact */
+            .control-feedback-box {
+                padding: 0.5rem 0.65rem;
+                font-size: 0.72rem;
+                gap: 0.4rem;
+            }
+
+            /* Footer compact */
+            #modal-control .modal-footer {
+                padding: 0.5rem 0.7rem;
+                position: sticky;
+                bottom: 0;
+                background: #111a2e;
+                border-top: 1px solid var(--border-color);
+            }
+
+            #modal-control .modal-footer span {
+                font-size: 0.62rem !important;
+            }
+
+            /* Save password checkbox compact */
+            #modal-control #chk-save-pwd + label,
+            #modal-control label[style*="font-size: 0.75rem"] {
+                font-size: 0.65rem !important;
             }
         }
 
@@ -1880,7 +2044,7 @@
 
     <!-- Modal: Remote Control -->
     <div class="modal-backdrop" id="modal-control">
-        <div class="modal-box" style="max-width: 480px;">
+        <div class="modal-box" style="max-width: 400px;">
             <div class="modal-header">
                 <h3><i class="fa-solid fa-gamepad" style="color: var(--accent-cyan);"></i> التحكم بالدراجة عن بُعد</h3>
                 <button class="modal-close" onclick="closeModal('modal-control')">&times;</button>
@@ -1898,7 +2062,7 @@
                 </div>
 
                 <!-- Live Metrics Summary -->
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; background: rgba(0,0,0,0.22); padding: 0.6rem 0.75rem; border-radius: 10px; border: 1px solid var(--border-color); text-align: center;">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.35rem; background: rgba(0,0,0,0.22); padding: 0.45rem 0.5rem; border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
                     <div>
                         <div style="font-size: 0.68rem; color: var(--text-dim);">حالة القفل</div>
                         <div id="ctrl-lock-status" style="font-size: 0.85rem; font-weight: 700; margin-top: 0.2rem; color: var(--accent-red);">
@@ -1915,6 +2079,12 @@
                         <div style="font-size: 0.68rem; color: var(--text-dim);">البطارية</div>
                         <div id="ctrl-battery-status" style="font-size: 0.85rem; font-weight: 700; margin-top: 0.2rem; color: var(--accent-green); font-family: 'JetBrains Mono', monospace;">
                             <i class="fa-solid fa-car-battery"></i> 12.8V
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.68rem; color: var(--text-dim);">الشبكة (SIM)</div>
+                        <div id="ctrl-signal-status" style="font-size: 0.85rem; font-weight: 700; margin-top: 0.2rem; color: var(--accent-green);">
+                            <i class="fa-solid fa-signal"></i> --
                         </div>
                     </div>
                 </div>
@@ -2082,8 +2252,9 @@
     ".write": false,
     "devices": {
       ".read": "auth != null",
-      ".write": "auth != null",
       "$deviceId": {
+        ".read": "auth != null",
+        ".write": "auth != null && $deviceId.matches(/^[0-9A-Fa-f]{12}$/)",
         "commandQueue": { ".indexOn": ["timestamp"] },
         "trips": { ".indexOn": ["startTime", "endTime"] },
         "temp_trip": { ".indexOn": ["timestamp", "receivedAt"] }
@@ -2126,6 +2297,19 @@
                     <i class="fa-solid fa-shield-halved" style="color: var(--accent-cyan);"></i>
                     <strong>حل بطء Firebase Console:</strong>
                     هذه الصفحة صُممت للاستماع المباشر لحالة الأجهزة دون تحميل آلاف نقاط الرحلات دفعة واحدة، مما يمنحك سرعة فائقة ولا يستهلك ذاكرة المتصفح.
+                </div>
+                <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); padding: 0.85rem; border-radius: 8px; font-size: 0.8rem; margin-top: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
+                        <div>
+                            <strong style="color: #f87171;"><i class="fa-solid fa-broom"></i> تنظيف العقد والأجهزة الوهمية:</strong>
+                            <p style="color: var(--text-muted); font-size: 0.73rem; margin: 0.25rem 0 0;">
+                                حذف العقد غير الصالحة مثل (command, commandQueue والأحرف العشوائية) مع الحفاظ التام على أجهزتك الحقيقية (12 خانة Hex).
+                            </p>
+                        </div>
+                        <button type="button" class="btn-primary" id="btn-clean-fake-nodes" style="background: #dc2626; border-color: #ef4444; white-space: nowrap; font-size: 0.78rem; padding: 0.45rem 0.8rem; flex-shrink: 0;">
+                            <i class="fa-solid fa-trash-can"></i> تنظيف الآن
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -2344,7 +2528,12 @@
                 const devicesRef = App.db.ref('devices');
 
                 devicesRef.on('child_added', (snapshot) => {
-                    const deviceId = normalizeId(snapshot.key);
+                    const rawKey = snapshot.key;
+                    if (!isValidDeviceId(rawKey)) {
+                        console.warn('[Admin] Ignored invalid device key:', rawKey);
+                        return;
+                    }
+                    const deviceId = normalizeId(rawKey);
                     if (deviceId) {
                         App.trackedIds.add(deviceId);
                         listenToSingleDevice(deviceId);
@@ -2365,6 +2554,7 @@
 
         // Direct HTTP REST fallback query
         async function fetchDeviceRestFallback(deviceId) {
+            if (!isValidDeviceId(deviceId)) return;
             try {
                 let token = '';
                 if (App.auth && App.auth.currentUser) {
@@ -2394,6 +2584,7 @@
 
         // Listen to a single device with ULTRA-LIGHTWEIGHT listeners (status and meta only, NO temp_trip)
         function listenToSingleDevice(rawId) {
+            if (!isValidDeviceId(rawId)) return;
             const deviceId = normalizeId(rawId);
             if (!deviceId || App.activeDeviceListeners.has(deviceId)) return;
 
@@ -2473,8 +2664,18 @@
             return (id || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
         }
 
+        // Validate real ESP32 device ID: exactly 12 hexadecimal characters, not dummy/demo or command keywords
+        function isValidDeviceId(id) {
+            if (!id) return false;
+            const clean = normalizeId(id);
+            if (clean === '123456') return false;
+            if (clean === 'COMMAND' || clean === 'COMMANDQUEUE') return false;
+            return /^[0-9A-F]{12}$/.test(clean);
+        }
+
         // Process device snapshot data
         function handleDeviceSnapshot(rawId, data) {
+            if (!isValidDeviceId(rawId)) return;
             const deviceId = normalizeId(rawId);
             if (!deviceId) return;
 
@@ -2532,11 +2733,13 @@
             const timeDiff = Date.now() - lastSeen;
             const isOnline = lastSeen > 0 && timeDiff < App.onlineThresholdMs;
 
-            // Power saving mode detection from status or meta
-            const isPowerSaving = Boolean(
+            // Power saving mode detection from status or meta (deactivated if contact is ON or battery >= 12V)
+            const isContact = Boolean(dev.status?.contact === true || Number(dev.status?.battery || 0) >= 12.0);
+            const isPowerSaving = !isContact && Boolean(
                 dev.status?.powerSavingActive === true || 
                 dev.status?.powerSave === true || 
-                dev.meta?.powerSavingActive === true
+                dev.meta?.powerSavingActive === true ||
+                dev.meta?.offlineReason === 'powersaving'
             );
 
             const isMoving = isOnline && (dev.status?.motionState === 'moving' || (Number(dev.status?.speed || 0) > 1.5));
@@ -2631,19 +2834,93 @@
             }
         }
 
+        function getDeviceStationaryTimeAgo(dev, state) {
+            if (!state.isParked && !state.isPowerSaving) return '';
+            const ts = Number(dev.status?.stationarySinceAt || dev.meta?.stationarySinceAt || 0);
+            if (ts > 0) return formatTimeAgo(ts);
+
+            const fwTs = Number(dev.status?.timestamp || 0);
+            const fwStat = Number(dev.status?.stationarySince || 0);
+            const lastSeen = Number(state.lastSeen || 0);
+            if (fwTs > 0 && fwStat > 0 && fwTs >= fwStat && lastSeen > 0) {
+                const statAt = lastSeen - (fwTs - fwStat);
+                return formatTimeAgo(statAt);
+            }
+            if (state.lastSeen > 0) {
+                return formatTimeAgo(state.lastSeen);
+            }
+            return '';
+        }
+
+        function formatCellularSignal(status) {
+            if (!status) {
+                return { csq: 0, percent: 0, dbm: 0, color: 'var(--text-dim)', label: 'غير محدد', op: '', displayText: '--', fullText: 'غير محدد' };
+            }
+            let csq = Number(status.csq ?? status.simCsq ?? 0);
+            let percent = Number(status.signalPercent ?? status.csqPercent ?? 0);
+            let dbm = Number(status.signalDbm ?? 0);
+            const op = String(status.simOp || status.operator || '').trim();
+
+            if (percent === 0 && csq > 0 && csq <= 31) {
+                percent = Math.min(100, Math.round((csq / 31) * 100));
+            }
+            if (dbm === 0 && csq > 0 && csq <= 31) {
+                dbm = -113 + (csq * 2);
+            }
+
+            let color = 'var(--text-dim)';
+            let label = 'لا توجد إشارة';
+            if (csq === 99 || csq <= 0 || percent <= 0) {
+                color = 'var(--text-muted)';
+                label = 'لا توجد إشارة';
+            } else if (csq >= 20 || percent >= 65) {
+                color = 'var(--accent-green)';
+                label = 'ممتاز';
+            } else if (csq >= 14 || percent >= 45) {
+                color = 'var(--accent-cyan)';
+                label = 'جيد';
+            } else if (csq >= 10 || percent >= 30) {
+                color = 'var(--accent-amber)';
+                label = 'متوسط';
+            } else {
+                color = 'var(--accent-red)';
+                label = 'ضعيف';
+            }
+
+            const hasSignal = csq > 0 && csq <= 31 && percent > 0;
+            const displayText = hasSignal ? `${percent}%` : '--';
+            const fullText = hasSignal 
+                ? `${percent}% (${csq}/31 • ${label})`
+                : 'لا توجد إشارة';
+
+            return {
+                csq,
+                percent,
+                dbm,
+                color,
+                label,
+                op,
+                hasSignal,
+                displayText,
+                fullText
+            };
+        }
+
         function createPopupHtml(dev, state, lat, lng) {
             const speed = Number(dev.status?.speed || 0).toFixed(1);
             const sats = dev.status?.sats ?? '0';
             const isLocked = dev.status?.lock === true;
             const timeAgo = formatTimeAgo(state.lastSeen);
+            const parkedAgo = getDeviceStationaryTimeAgo(dev, state);
+            const signal = formatCellularSignal(dev.status);
 
             let statusLabel = '';
             if (state.isPowerSaving) {
-                statusLabel = '<span style="font-size: 0.74rem; color: var(--accent-amber); font-weight: 700;"><i class="fa-solid fa-leaf"></i> 🟡 توفير الطاقة</span>';
+                statusLabel = `<span style="font-size: 0.74rem; color: var(--accent-amber); font-weight: 700;"><i class="fa-solid fa-leaf"></i> 🟡 توفير الطاقة ${parkedAgo ? '(' + parkedAgo + ')' : ''}</span>`;
             } else if (state.isMoving) {
                 statusLabel = `<span style="font-size: 0.74rem; color: var(--accent-green); font-weight: 700;"><i class="fa-solid fa-gauge-high"></i> 🟢 متحرك (${speed} كم/س)</span>`;
             } else if (state.isParked) {
-                statusLabel = '<span style="font-size: 0.74rem; color: var(--accent-blue); font-weight: 700;"><i class="fa-solid fa-square-parking"></i> 🔵 متوقف</span>';
+                statusLabel = `<span style="font-size: 0.74rem; color: var(--accent-blue); font-weight: 700;"><i class="fa-solid fa-square-parking"></i> 🔵 متوقف ${parkedAgo ? '(' + parkedAgo + ')' : ''}</span>`;
             } else {
                 statusLabel = '<span style="font-size: 0.74rem; color: var(--accent-red); font-weight: 700;"><i class="fa-solid fa-circle-xmark"></i> 🔴 غير متصل</span>';
             }
@@ -2667,11 +2944,22 @@
                         <span>🛰️ ${sats}</span>
                     </div>
                     <div class="popup-info-row">
+                        <span>شبكة المحمول (SIM):</span>
+                        <span style="color: ${signal.color}; font-weight: 700;">
+                            <i class="fa-solid fa-signal"></i> ${signal.fullText}${signal.op ? ' • ' + escapeHtml(signal.op) : ''}
+                        </span>
+                    </div>
+                    <div class="popup-info-row">
                         <span>حالة القفل:</span>
                         <span style="color: ${isLocked ? 'var(--accent-red)' : 'var(--accent-green)'}">
                             ${isLocked ? '🔒 مقفول' : '🔓 مفتوح'}
                         </span>
                     </div>
+                    ${(state.isParked || state.isPowerSaving) && parkedAgo ? `
+                    <div class="popup-info-row">
+                        <span>مدة التوقف:</span>
+                        <span style="color: var(--accent-cyan); font-weight: 700;">${parkedAgo}</span>
+                    </div>` : ''}
                     <div class="popup-info-row">
                         <span>آخر اتصال:</span>
                         <span>${timeAgo}</span>
@@ -2834,16 +3122,19 @@
                 const lng = Number(dev.status?.lng || 0);
                 const hasGps = lat !== 0 && lng !== 0;
 
+                const parkedAgo = getDeviceStationaryTimeAgo(dev, state);
+                const signal = formatCellularSignal(dev.status);
+
                 let badgeHtml = '';
                 let iconColor = 'var(--text-dim)';
                 if (state.isPowerSaving) {
-                    badgeHtml = `<span class="status-badge powersaving"><i class="fa-solid fa-leaf"></i> توفير الطاقة</span>`;
+                    badgeHtml = `<span class="status-badge powersaving" title="وضع توفير الطاقة ${parkedAgo || ''}"><i class="fa-solid fa-leaf"></i> توفير ${parkedAgo ? '(' + parkedAgo + ')' : ''}</span>`;
                     iconColor = 'var(--accent-amber)';
                 } else if (state.isMoving) {
                     badgeHtml = `<span class="status-badge online-moving"><span class="pulse-dot"></span> متحرك (${speed} كم/س)</span>`;
                     iconColor = 'var(--accent-green)';
                 } else if (state.isParked) {
-                    badgeHtml = `<span class="status-badge online-parked"><i class="fa-solid fa-square-parking"></i> متوقف</span>`;
+                    badgeHtml = `<span class="status-badge online-parked"><i class="fa-solid fa-square-parking"></i> متوقف ${parkedAgo ? '(' + parkedAgo + ')' : ''}</span>`;
                     iconColor = 'var(--accent-blue)';
                 } else {
                     badgeHtml = `<span class="status-badge offline"><i class="fa-solid fa-circle-xmark"></i> غير متصل</span>`;
@@ -2868,7 +3159,7 @@
                             ${badgeHtml}
                         </div>
 
-                        <div class="card-metrics" style="grid-template-columns: repeat(4, 1fr);">
+                        <div class="card-metrics" style="grid-template-columns: repeat(5, 1fr);">
                             <div class="metric-cell">
                                 <span class="metric-label">القفل</span>
                                 <span class="metric-val" style="color: ${isLocked ? 'var(--accent-red)' : 'var(--accent-green)'}">
@@ -2882,6 +3173,14 @@
                                 <span class="metric-val" style="color: ${dev.status?.battery > 12.0 ? 'var(--accent-green)' : 'var(--accent-amber)'}">
                                     <i class="fa-solid fa-car-battery"></i>
                                     ${battery}
+                                </span>
+                            </div>
+
+                            <div class="metric-cell" title="${signal.op ? escapeHtml(signal.op) + ' - ' : ''}${signal.fullText}${signal.dbm ? ' (' + signal.dbm + ' dBm)' : ''}">
+                                <span class="metric-label">الشبكة</span>
+                                <span class="metric-val" style="color: ${signal.color};">
+                                    <i class="fa-solid fa-signal"></i>
+                                    ${signal.displayText}
                                 </span>
                             </div>
 
@@ -3121,6 +3420,62 @@
                 closeModal('modal-config');
                 location.reload();
             });
+
+            // Clean Fake Nodes button
+            const btnClean = document.getElementById('btn-clean-fake-nodes');
+            if (btnClean) {
+                btnClean.addEventListener('click', async () => {
+                    const confirmClean = confirm(
+                        'هل أنت متأكد من تنظيف قاعدة البيانات؟\n\n' +
+                        'سيقوم هذا الإجراء بفحص جميع العقد وحذف أي عقدة غير صالحة مثل:\n' +
+                        '• command و commandQueue\n' +
+                        '• الأحرف المفردة (E, AA, FAE, إلخ)\n' +
+                        '• أرقام الهواتف أو السيريال التي أُدخلت خطأً\n\n' +
+                        'وسيتم الحفاظ التام على جميع دراجاتك وأجهزتك الحقيقية (12 خانة Hex).'
+                    );
+                    if (!confirmClean) return;
+
+                    btnClean.disabled = true;
+                    btnClean.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جارٍ التنظيف...';
+
+                    try {
+                        const snap = await App.db.ref('devices').once('value');
+                        if (!snap.exists()) {
+                            alert('لا توجد أي بيانات تحت devices حالياً.');
+                            return;
+                        }
+
+                        const data = snap.val() || {};
+                        const toDelete = [];
+                        for (const key of Object.keys(data)) {
+                            if (!isValidDeviceId(key)) {
+                                toDelete.push(key);
+                            }
+                        }
+
+                        if (toDelete.length === 0) {
+                            alert('قاعدة البيانات نظيفة تماماً! لا توجد أي عقد وهمية.');
+                            return;
+                        }
+
+                        for (const key of toDelete) {
+                            await App.db.ref(`devices/${key}`).remove();
+                            removeDevice(key);
+                        }
+
+                        alert(`تمت العملية بنجاح! 🎉\nتم حذف ${toDelete.length} عقدة وهمية من الفايربيس:\n${toDelete.join(', ')}`);
+                        closeModal('modal-config');
+                        renderDevicesList();
+                        updateKpiCounters();
+                    } catch (e) {
+                        console.error('Clean fake nodes error:', e);
+                        alert('حدث خطأ أثناء التنظيف: ' + e.message);
+                    } finally {
+                        btnClean.disabled = false;
+                        btnClean.innerHTML = '<i class="fa-solid fa-trash-can"></i> تنظيف الآن';
+                    }
+                });
+            }
 
             // Search input
             document.getElementById('device-search').addEventListener('input', (e) => {
@@ -3425,6 +3780,15 @@
             const batElem = document.getElementById('ctrl-battery-status');
             if (batElem) {
                 batElem.innerHTML = `<i class="fa-solid fa-car-battery"></i> ${battery}`;
+            }
+
+            // Signal status
+            const signal = formatCellularSignal(dev.status);
+            const signalElem = document.getElementById('ctrl-signal-status');
+            if (signalElem) {
+                signalElem.style.color = signal.color;
+                signalElem.innerHTML = `<i class="fa-solid fa-signal"></i> ${signal.displayText}`;
+                signalElem.title = `${signal.op ? signal.op + ' - ' : ''}${signal.fullText}${signal.dbm ? ' (' + signal.dbm + ' dBm)' : ''}`;
             }
         }
 
