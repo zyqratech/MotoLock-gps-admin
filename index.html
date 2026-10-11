@@ -199,6 +199,59 @@
             border-color: var(--accent-cyan);
         }
 
+        .usage-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            background: rgba(56, 189, 248, 0.08);
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            padding: 0.35rem 0.65rem;
+            border-radius: 50px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: #38bdf8;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .usage-pill:hover {
+            background: rgba(56, 189, 248, 0.16);
+            border-color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .usage-period-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            padding: 0.35rem 0.4rem;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+            white-space: nowrap;
+        }
+
+        .usage-period-btn.active {
+            background: var(--bg-card);
+            color: #38bdf8;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+        }
+
+        .usage-period-btn:hover:not(.active) {
+            color: #fff;
+            background: rgba(255,255,255,0.06);
+        }
+
         .timeout-select {
             background: transparent;
             border: none;
@@ -1402,6 +1455,13 @@
                 max-width: 70px;
             }
 
+            .usage-pill {
+                padding: 0.2rem 0.4rem;
+                font-size: 0.68rem;
+                gap: 0.25rem;
+                white-space: nowrap;
+            }
+
             .btn-icon {
                 width: 32px;
                 height: 32px;
@@ -1908,6 +1968,11 @@
                 <i class="fa-solid fa-plus"></i>
             </button>
 
+            <button type="button" class="usage-pill" id="btn-usage" onclick="openModal('modal-usage')" title="عرض استهلاك وباقة الفايربيس (Connections, Storage, Downloads)">
+                <i class="fa-solid fa-chart-pie" style="color: #38bdf8;"></i>
+                <span id="usage-pill-text">الاستهلاك</span>
+            </button>
+
             <button class="btn-icon" id="btn-config" title="إعدادات الاتصال">
                 <i class="fa-solid fa-gear"></i>
             </button>
@@ -2319,10 +2384,155 @@
                         </button>
                     </div>
                 </div>
+                <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); padding: 0.85rem; border-radius: 8px; font-size: 0.8rem; margin-top: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
+                        <div>
+                            <strong style="color: #fbbf24;"><i class="fa-solid fa-route"></i> تفريغ مسارات temp_trip لتوفير الباقة:</strong>
+                            <p style="color: var(--text-muted); font-size: 0.73rem; margin: 0.25rem 0 0;">
+                                حذف نقاط الرحلات المتراكمة في الفايربيس وتوفير باقة التنزيل (Download Bandwidth) فوراً بدون التأثير على حالة الأجهزة.
+                            </p>
+                        </div>
+                        <button type="button" class="btn-primary" id="btn-clean-temp-trips" style="background: #d97706; border-color: #f59e0b; white-space: nowrap; font-size: 0.78rem; padding: 0.45rem 0.8rem; flex-shrink: 0;">
+                            <i class="fa-solid fa-broom"></i> تفريغ الآن
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn-secondary" onclick="closeModal('modal-config')">إغلاق</button>
                 <button class="btn-primary" id="btn-save-config">حفظ وإعادة الاتصال</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Firebase Usage & Billable Metrics -->
+    <div class="modal-backdrop" id="modal-usage">
+        <div class="modal-box" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-chart-line" style="color: #38bdf8;"></i> استهلاك وباقة الفايربيس (Usage & Quotas)</h3>
+                <button class="modal-close" onclick="closeModal('modal-usage')">&times;</button>
+            </div>
+            <div class="modal-body" style="gap: 0.85rem;">
+                
+                <!-- Time Range Filter Pills (Same as Google Console) -->
+                <div style="display: flex; gap: 0.35rem; background: rgba(0,0,0,0.3); padding: 0.25rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <button type="button" class="usage-period-btn" id="ubtn-month" onclick="switchUsagePeriod('month')">
+                        <i class="fa-solid fa-calendar-days"></i> الشهر الحالي
+                    </button>
+                    <button type="button" class="usage-period-btn" id="ubtn-7d" onclick="switchUsagePeriod('7d')">
+                        <i class="fa-solid fa-calendar-week"></i> 7 أيام
+                    </button>
+                    <button type="button" class="usage-period-btn active" id="ubtn-24h" onclick="switchUsagePeriod('24h')">
+                        <i class="fa-solid fa-sun"></i> اليوم (24h)
+                    </button>
+                    <button type="button" class="usage-period-btn" id="ubtn-1h" onclick="switchUsagePeriod('1h')">
+                        <i class="fa-solid fa-clock"></i> آخر ساعة
+                    </button>
+                </div>
+
+                <!-- Info description banner -->
+                <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 0.65rem 0.75rem; font-size: 0.76rem; color: var(--text-muted); line-height: 1.5;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem;">
+                        <strong style="color: #38bdf8; font-size: 0.82rem;" id="usage-period-title">
+                            <i class="fa-solid fa-filter"></i> اليوم (آخر 24 ساعة)
+                        </strong>
+                        <span style="font-size: 0.68rem; background: rgba(16, 185, 129, 0.2); color: var(--accent-green); padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700;" id="usage-badge">🟢 الباقة آمنة</span>
+                    </div>
+                    <span id="usage-period-desc">إجمالي الاستهلاك خلال آخر 24 ساعة فقط. مفيد لمراقبة التحسينات الجديدة.</span>
+                </div>
+
+                <!-- 3 Metric Cards Grid -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+                    <!-- Connections -->
+                    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem 0.5rem; text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.25rem;">
+                            <i class="fa-solid fa-network-wired" style="color: var(--accent-cyan);"></i> المتصلون
+                        </div>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace;" id="usage-val-connections">
+                            10<span style="font-size: 0.75rem; color: var(--text-dim); font-weight: 500;">/100</span>
+                        </div>
+                        <div style="font-size: 0.62rem; color: var(--accent-green); margin-top: 0.2rem; font-weight: 600;" id="usage-sub-connections">
+                            10 of 100 max
+                        </div>
+                    </div>
+
+                    <!-- Storage -->
+                    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem 0.5rem; text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.25rem;">
+                            <i class="fa-solid fa-database" style="color: #a78bfa;"></i> التخزين
+                        </div>
+                        <div style="font-size: 1.1rem; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace;" id="usage-val-storage">
+                            190.01<span style="font-size: 0.68rem; color: var(--text-dim);"> KB</span>
+                        </div>
+                        <div style="font-size: 0.62rem; color: var(--text-muted); margin-top: 0.2rem;" id="usage-sub-storage">
+                            من 1.0 GB مجاني
+                        </div>
+                    </div>
+
+                    <!-- Downloads -->
+                    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem 0.5rem; text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.25rem;">
+                            <i class="fa-solid fa-download" style="color: #38bdf8;"></i> التنزيلات
+                        </div>
+                        <div style="font-size: 1.15rem; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace;" id="usage-val-downloads">
+                            1.88<span style="font-size: 0.72rem; color: var(--text-dim);"> GB</span>
+                        </div>
+                        <div style="font-size: 0.62rem; color: var(--text-muted); margin-top: 0.2rem;" id="usage-sub-downloads">
+                            من 10.0 GB مجاني (18.8%)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual edit drawer (toggleable) -->
+                <div id="usage-edit-drawer" style="display: none; background: rgba(0,0,0,0.3); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 0.75rem; margin-top: 0.1rem;">
+                    <div style="font-size: 0.78rem; font-weight: 700; color: #38bdf8; margin-bottom: 0.4rem;">
+                        <i class="fa-solid fa-pen-to-square"></i> تعديل أرقام الفترة الحالية يدوياً:
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;">
+                        <div>
+                            <label style="font-size: 0.65rem; color: var(--text-dim);">المتصلون:</label>
+                            <input type="text" id="edit-usage-conn" class="form-control" style="font-size: 0.75rem; padding: 0.25rem 0.4rem;" placeholder="مثال: 6">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.65rem; color: var(--text-dim);">التخزين:</label>
+                            <input type="text" id="edit-usage-storage" class="form-control" style="font-size: 0.75rem; padding: 0.25rem 0.4rem;" placeholder="مثال: 190.01 KB">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.65rem; color: var(--text-dim);">التنزيلات:</label>
+                            <input type="text" id="edit-usage-dl" class="form-control" style="font-size: 0.75rem; padding: 0.25rem 0.4rem;" placeholder="مثال: 5.26 MB">
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 0.4rem; margin-top: 0.5rem;">
+                        <button type="button" class="btn-secondary" style="font-size: 0.7rem; padding: 0.25rem 0.6rem;" onclick="toggleUsageEditForm(false)">إلغاء</button>
+                        <button type="button" class="btn-primary" style="font-size: 0.7rem; padding: 0.25rem 0.6rem;" onclick="saveCustomUsageMetrics()">حفظ وتطبيق</button>
+                    </div>
+                </div>
+
+                <!-- Google Console Direct Link Card -->
+                <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.65rem 0.75rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
+                    <div>
+                        <div style="font-weight: 700; font-size: 0.78rem; color: #fff; display: flex; align-items: center; gap: 0.4rem;">
+                            <i class="fa-brands fa-google" style="color: #ea4335;"></i> صفحة Firebase Usage المباشرة
+                        </div>
+                        <div style="font-size: 0.68rem; color: var(--text-dim); margin-top: 0.15rem;">
+                            الرسوم البيانية الرسمية ومعدل الاستهلاك اللحظي
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.35rem; align-items: center;">
+                        <button type="button" class="mini-btn" style="color: var(--accent-cyan); border-color: rgba(56, 189, 248, 0.35); padding: 0.3rem 0.5rem; font-size: 0.7rem;" onclick="toggleUsageEditForm()" title="تعديل الأرقام يدوياً">
+                            <i class="fa-solid fa-pen"></i> تعديل
+                        </button>
+                        <a href="https://console.firebase.google.com/u/6/project/motolock-gps/database/motolock-gps-default-rtdb/usage" target="_blank" class="btn-primary" style="background: #0284c7; border-color: #38bdf8; text-decoration: none; padding: 0.32rem 0.65rem; font-size: 0.72rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.3rem;">
+                            <span>فتح الكونسول</span> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.62rem;"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: space-between;">
+                <span style="font-size: 0.7rem; color: var(--text-dim);" id="usage-last-updated-text">
+                    <i class="fa-solid fa-clock-rotate-left"></i> يتم التحديث تلقائياً
+                </span>
+                <button class="btn-secondary" onclick="closeModal('modal-usage')">إغلاق</button>
             </div>
         </div>
     </div>
@@ -2375,7 +2585,10 @@
             isMapExpanded: false,
             controlActiveDeviceId: null,
             commandQueueUnsub: null,
-            renderDebounceTimer: null
+            renderDebounceTimer: null,
+            isWsConnected: false,
+            restSyncInterval: null,
+            syncStarted: false
         };
 
         // Throttle list rendering so high-frequency GPS packets update data smoothly without DOM thrashing
@@ -2486,12 +2699,18 @@
                         .then((cred) => {
                             console.log('Signed in anonymously:', cred.user?.uid);
                             updateConnStatus('connected', 'متصل بالفايربيس');
-                            startDeviceSync();
+                            if (!App.syncStarted) {
+                                App.syncStarted = true;
+                                startDeviceSync();
+                            }
                         })
                         .catch((err) => {
                             console.warn('Anonymous auth note:', err.message);
                             updateConnStatus('connected', 'متصل (وضع مباشر)');
-                            startDeviceSync();
+                            if (!App.syncStarted) {
+                                App.syncStarted = true;
+                                startDeviceSync();
+                            }
                         });
                 };
                 tryAuth();
@@ -2501,16 +2720,22 @@
                 App.db.ref('.info/connected').on('value', (snap) => {
                     if (snap.val() === true) {
                         hasConnectedOnce = true;
+                        App.isWsConnected = true;
                         updateConnStatus('connected', 'متصل بالفايربيس');
                     } else if (hasConnectedOnce) {
+                        App.isWsConnected = false;
                         updateConnStatus('disconnected', 'انقطع الاتصال');
                     }
                 });
 
             } catch (error) {
                 console.error('Firebase init error:', error);
+                App.isWsConnected = false;
                 updateConnStatus('connected', 'متصل (وضع REST)');
-                startDeviceSync();
+                if (!App.syncStarted) {
+                    App.syncStarted = true;
+                    startDeviceSync();
+                }
             }
         }
 
@@ -2526,9 +2751,9 @@
         // --- Realtime Devices Sync ---
         function startDeviceSync() {
             // 1. Start listening to all known/tracked devices immediately via status & meta listeners
+            // Ultra-lightweight: WebSocket listeners receive delta events only without downloading trips
             App.trackedIds.forEach(deviceId => {
                 listenToSingleDevice(deviceId);
-                fetchDeviceRestFallback(deviceId);
             });
 
             // 2. Try to listen to /devices root to discover any other new devices automatically
@@ -2554,13 +2779,39 @@
                 console.warn('Error initiating /devices root listener:', e);
             }
 
-            // 3. Fallback REST sync for sandboxed mobile browsers where WebSockets may be blocked
-            setInterval(() => {
+            // 3. Fallback REST sync: ONLY when Realtime WebSockets are disconnected
+            // NEVER poll when WebSockets are connected to prevent downloading excessive bandwidth
+            if (App.restSyncInterval) clearInterval(App.restSyncInterval);
+            App.restSyncInterval = setInterval(() => {
+                if (App.isWsConnected) return; // WebSockets are handling real-time data efficiently
                 App.trackedIds.forEach(id => fetchDeviceRestFallback(id));
-            }, 12000);
+            }, 30000);
+
+            // 4. Optional listener for live usage metrics if pushed by server
+            try {
+                App.db.ref('system/usage').on('value', (snap) => {
+                    if (snap.exists() && snap.val()) {
+                        const u = snap.val();
+                        if (u.connections != null) {
+                            const el = document.getElementById('usage-val-connections');
+                            if (el) el.innerHTML = `${escapeHtml(String(u.connections))}<span style="font-size: 0.75rem; color: var(--text-dim); font-weight: 500;">/100</span>`;
+                        }
+                        if (u.storage) {
+                            const el = document.getElementById('usage-val-storage');
+                            if (el) el.innerHTML = `${escapeHtml(String(u.storage))}`;
+                        }
+                        if (u.downloads) {
+                            const el = document.getElementById('usage-val-downloads');
+                            if (el) el.innerHTML = `${escapeHtml(String(u.downloads))}`;
+                        }
+                    }
+                });
+            } catch (e) {
+                // Ignore if not permitted
+            }
         }
 
-        // Direct HTTP REST fallback query
+        // Direct HTTP REST fallback query (queries ONLY lightweight status & meta nodes, NEVER whole device node)
         async function fetchDeviceRestFallback(deviceId) {
             if (!isValidDeviceId(deviceId)) return;
             try {
@@ -2570,14 +2821,23 @@
                 }
 
                 const authParam = token ? `?auth=${token}` : '';
-                const url = `${App.config.databaseURL}/devices/${deviceId}.json${authParam}`;
+                // Query status.json & meta.json separately to avoid downloading bloated temp_trip or trips!
+                const [statusRes, metaRes] = await Promise.all([
+                    fetch(`${App.config.databaseURL}/devices/${deviceId}/status.json${authParam}`),
+                    fetch(`${App.config.databaseURL}/devices/${deviceId}/meta.json${authParam}`).catch(() => null)
+                ]);
 
-                const res = await fetch(url);
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data) {
-                        handleDeviceSnapshot(deviceId, data);
-                        updateConnStatus('connected', 'متصل بالفايربيس');
+                if (statusRes.ok) {
+                    const status = await statusRes.json();
+                    let meta = {};
+                    if (metaRes && metaRes.ok) {
+                        meta = (await metaRes.json()) || {};
+                    }
+                    if (status) {
+                        handleDeviceSnapshot(deviceId, { status, meta });
+                        if (!App.isWsConnected) {
+                            updateConnStatus('connected', 'متصل (وضع REST)');
+                        }
                     }
                 }
             } catch (e) {
@@ -2741,8 +3001,9 @@
             const timeDiff = Date.now() - lastSeen;
             const isOnline = lastSeen > 0 && timeDiff < App.onlineThresholdMs;
 
-            // Power saving mode detection from status or meta (deactivated if contact is ON or battery >= 12V)
-            const isContact = Boolean(dev.status?.contact === true || Number(dev.status?.battery || 0) >= 12.0);
+            // Power saving mode detection from status or meta
+            // Contact is true only if contact sensor is HIGH (or alternator is actively charging >= 13.6V)
+            const isContact = Boolean(dev.status?.contact === true || Number(dev.status?.battery || 0) >= 13.6);
             const isPowerSaving = !isContact && Boolean(
                 dev.status?.powerSavingActive === true || 
                 dev.status?.powerSave === true || 
@@ -2862,12 +3123,22 @@
 
         function formatCellularSignal(status) {
             if (!status) {
-                return { csq: 0, percent: 0, dbm: 0, color: 'var(--text-dim)', label: 'غير محدد', op: '', displayText: '--', fullText: 'غير محدد' };
+                return { csq: 0, percent: 0, dbm: 0, color: 'var(--text-dim)', label: 'غير محدد', op: '', shortOp: '', displayText: '--', fullText: 'غير محدد' };
             }
             let csq = Number(status.csq ?? status.simCsq ?? 0);
             let percent = Number(status.signalPercent ?? status.csqPercent ?? 0);
             let dbm = Number(status.signalDbm ?? 0);
-            const op = String(status.simOp || status.operator || '').trim();
+            const op = String(status.simOp || status.operator || status.op || '').trim();
+
+            let shortOp = '';
+            if (op) {
+                const lower = op.toLowerCase();
+                if (lower.includes('voda')) shortOp = 'Vodafone';
+                else if (lower.includes('orange') || lower.includes('mobinil')) shortOp = 'Orange';
+                else if (lower.includes('etisalat') || lower.includes('etis')) shortOp = 'Etisalat';
+                else if (lower.includes('we') || lower.includes('telecom') || lower.includes('te')) shortOp = 'WE';
+                else shortOp = op.replace(/\s*EG\b/i, '').trim();
+            }
 
             if (percent === 0 && csq > 0 && csq <= 31) {
                 percent = Math.min(100, Math.round((csq / 31) * 100));
@@ -2908,6 +3179,7 @@
                 color,
                 label,
                 op,
+                shortOp,
                 hasSignal,
                 displayText,
                 fullText
@@ -3189,6 +3461,7 @@
                                 <span class="metric-val" style="color: ${signal.color};">
                                     <i class="fa-solid fa-signal"></i>
                                     ${signal.displayText}
+                                    ${signal.shortOp ? `<span style="font-size: 0.62rem; color: #38bdf8; font-weight: 700; display: block; margin-top: 0.15rem; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="الشبكة: ${escapeHtml(signal.op)}">${escapeHtml(signal.shortOp)}</span>` : ''}
                                 </span>
                             </div>
 
@@ -3447,19 +3720,31 @@
                     btnClean.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جارٍ التنظيف...';
 
                     try {
-                        const snap = await App.db.ref('devices').once('value');
-                        if (!snap.exists()) {
-                            alert('لا توجد أي بيانات تحت devices حالياً.');
-                            return;
+                        let keys = [];
+                        // 1. First attempt shallow fetch to avoid downloading trip data
+                        try {
+                            let token = '';
+                            if (App.auth && App.auth.currentUser) {
+                                token = await App.auth.currentUser.getIdToken().catch(() => '');
+                            }
+                            const authParam = token ? `?auth=${token}&shallow=true` : '?shallow=true';
+                            const res = await fetch(`${App.config.databaseURL}/devices.json${authParam}`);
+                            if (res.ok) {
+                                const shallowObj = await res.json();
+                                if (shallowObj && typeof shallowObj === 'object') {
+                                    keys = Object.keys(shallowObj);
+                                }
+                            }
+                        } catch (shallowErr) {
+                            console.warn('Shallow check note:', shallowErr);
                         }
 
-                        const data = snap.val() || {};
-                        const toDelete = [];
-                        for (const key of Object.keys(data)) {
-                            if (!isValidDeviceId(key)) {
-                                toDelete.push(key);
-                            }
+                        // 2. If shallow fetch returned no keys, check in-memory devices
+                        if (keys.length === 0) {
+                            keys = Array.from(new Set([...App.trackedIds, ...App.devices.keys()]));
                         }
+
+                        const toDelete = keys.filter(key => !isValidDeviceId(key));
 
                         if (toDelete.length === 0) {
                             alert('قاعدة البيانات نظيفة تماماً! لا توجد أي عقد وهمية.');
@@ -3467,7 +3752,7 @@
                         }
 
                         for (const key of toDelete) {
-                            await App.db.ref(`devices/${key}`).remove();
+                            await App.db.ref(`devices/${key}`).remove().catch(() => {});
                             removeDevice(key);
                         }
 
@@ -3481,6 +3766,44 @@
                     } finally {
                         btnClean.disabled = false;
                         btnClean.innerHTML = '<i class="fa-solid fa-trash-can"></i> تنظيف الآن';
+                    }
+                });
+            }
+
+            // Clean Temp Trips button
+            const btnCleanTrips = document.getElementById('btn-clean-temp-trips');
+            if (btnCleanTrips) {
+                btnCleanTrips.addEventListener('click', async () => {
+                    const confirmPurge = confirm(
+                        'هل أنت متأكد من تفريغ نقاط مسارات temp_trip المؤقتة لجميع الأجهزة في الفايربيس؟\n\n' +
+                        '• سيؤدي هذا لتوفير مساحة التخزين وباقة التنزيلات (Download Bandwidth) فوراً.\n' +
+                        '• لن يؤثر على حالة الأجهزة أو آخر موقع أو بطارية أو تشغيل/قفل الدراجات.'
+                    );
+                    if (!confirmPurge) return;
+
+                    btnCleanTrips.disabled = true;
+                    btnCleanTrips.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جارٍ التفريغ...';
+
+                    try {
+                        const targetIds = Array.from(new Set([...App.trackedIds, ...App.devices.keys()])).filter(isValidDeviceId);
+                        let purgedCount = 0;
+                        for (const id of targetIds) {
+                            try {
+                                await App.db.ref(`devices/${id}/temp_trip`).remove();
+                                purgedCount++;
+                            } catch (e) {
+                                console.warn(`Could not purge temp_trip for ${id}:`, e);
+                            }
+                        }
+
+                        alert(`تمت العملية بنجاح! 🎉\nتم تفريغ مسارات temp_trip لـ ${purgedCount} جهازاً في الفايربيس لتوفير الباقة.`);
+                        closeModal('modal-config');
+                    } catch (e) {
+                        console.error('Clean temp trips error:', e);
+                        alert('حدث خطأ أثناء تفريغ المسارات: ' + e.message);
+                    } finally {
+                        btnCleanTrips.disabled = false;
+                        btnCleanTrips.innerHTML = '<i class="fa-solid fa-broom"></i> تفريغ الآن';
                     }
                 });
             }
@@ -3795,7 +4118,7 @@
             const signalElem = document.getElementById('ctrl-signal-status');
             if (signalElem) {
                 signalElem.style.color = signal.color;
-                signalElem.innerHTML = `<i class="fa-solid fa-signal"></i> ${signal.displayText}`;
+                signalElem.innerHTML = `<i class="fa-solid fa-signal"></i> ${signal.displayText}${signal.shortOp ? ' (' + escapeHtml(signal.shortOp) + ')' : ''}`;
                 signalElem.title = `${signal.op ? signal.op + ' - ' : ''}${signal.fullText}${signal.dbm ? ' (' + signal.dbm + ' dBm)' : ''}`;
             }
         }
@@ -4036,6 +4359,179 @@
                 App.controlActiveDeviceId = null;
             }
         }
+
+        // --- Usage Modal: Period Filters & Manual Edit ---
+        const USAGE_PERIODS = {
+            'month': {
+                title: '<i class="fa-solid fa-filter"></i> الشهر الحالي (Oct 1 - Nov 1)',
+                desc: 'إجمالي الاستهلاك التراكمي للفوترة من 1 أكتوبر حتى اليوم.',
+                btnId: 'ubtn-month'
+            },
+            '7d': {
+                title: '<i class="fa-solid fa-filter"></i> آخر 7 أيام',
+                desc: 'إجمالي استهلاك التنزيلات والاتصالات خلال آخر أسبوع فقط.',
+                btnId: 'ubtn-7d'
+            },
+            '24h': {
+                title: '<i class="fa-solid fa-filter"></i> اليوم (آخر 24 ساعة)',
+                desc: 'إجمالي الاستهلاك خلال آخر 24 ساعة فقط. مفيد لمراقبة التحسينات الجديدة.',
+                btnId: 'ubtn-24h'
+            },
+            '1h': {
+                title: '<i class="fa-solid fa-filter"></i> آخر ساعة',
+                desc: 'الاستهلاك اللحظي في الساعة الأخيرة. يجب أن يكون قريباً من الصفر بعد التحسينات.',
+                btnId: 'ubtn-1h'
+            }
+        };
+
+        let currentUsagePeriod = '24h';
+
+        function switchUsagePeriod(period) {
+            currentUsagePeriod = period;
+            const info = USAGE_PERIODS[period];
+            if (!info) return;
+
+            // Update active button
+            document.querySelectorAll('.usage-period-btn').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(info.btnId);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            // Update title and description
+            const titleEl = document.getElementById('usage-period-title');
+            const descEl = document.getElementById('usage-period-desc');
+            if (titleEl) titleEl.innerHTML = info.title;
+            if (descEl) descEl.textContent = info.desc;
+
+            // Load saved metrics for this period
+            loadSavedUsageMetrics(period);
+        }
+
+        function loadSavedUsageMetrics(period) {
+            try {
+                const saved = localStorage.getItem('motolock_usage_' + period);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    applyUsageMetrics(data);
+
+                    // Show last updated time
+                    if (data.updatedAt) {
+                        const ago = Math.round((Date.now() - data.updatedAt) / 60000);
+                        const updEl = document.getElementById('usage-last-updated-text');
+                        if (updEl) {
+                            if (ago < 1) updEl.innerHTML = '<i class="fa-solid fa-circle-check" style="color: var(--accent-green);"></i> تم التحديث الآن';
+                            else if (ago < 60) updEl.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> آخر تحديث: منذ ${ago} دقيقة`;
+                            else updEl.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> آخر تحديث: منذ ${Math.round(ago / 60)} ساعة`;
+                        }
+                    }
+                } else {
+                    // No saved data for this period
+                    const updEl = document.getElementById('usage-last-updated-text');
+                    if (updEl) updEl.innerHTML = '<i class="fa-solid fa-pen"></i> اضغط "تعديل" لإدخال الأرقام من الكونسول';
+                }
+            } catch (e) {
+                console.warn('loadSavedUsageMetrics error:', e);
+            }
+        }
+
+        function applyUsageMetrics(data) {
+            if (data.connections != null) {
+                const el = document.getElementById('usage-val-connections');
+                const sub = document.getElementById('usage-sub-connections');
+                if (el) el.innerHTML = `${escapeHtml(String(data.connections))}<span style="font-size: 0.75rem; color: var(--text-dim); font-weight: 500;">/100</span>`;
+                if (sub) sub.textContent = `${data.connections} of 100 max`;
+            }
+            if (data.storage) {
+                const el = document.getElementById('usage-val-storage');
+                if (el) el.innerHTML = escapeHtml(String(data.storage));
+            }
+            if (data.downloads) {
+                const el = document.getElementById('usage-val-downloads');
+                const sub = document.getElementById('usage-sub-downloads');
+                if (el) el.innerHTML = escapeHtml(String(data.downloads));
+
+                // Calculate percentage of 10 GB
+                if (sub) {
+                    const dlStr = String(data.downloads).toLowerCase();
+                    let dlGB = 0;
+                    if (dlStr.includes('gb')) dlGB = parseFloat(dlStr);
+                    else if (dlStr.includes('mb')) dlGB = parseFloat(dlStr) / 1024;
+                    else if (dlStr.includes('kb')) dlGB = parseFloat(dlStr) / (1024 * 1024);
+                    const pct = dlGB > 0 ? (dlGB / 10 * 100).toFixed(1) : '0';
+                    sub.textContent = `من 10.0 GB مجاني (${pct}%)`;
+                }
+            }
+
+            // Update badge color
+            const badge = document.getElementById('usage-badge');
+            if (badge && data.downloads) {
+                const dlStr = String(data.downloads).toLowerCase();
+                let dlGB = 0;
+                if (dlStr.includes('gb')) dlGB = parseFloat(dlStr);
+                else if (dlStr.includes('mb')) dlGB = parseFloat(dlStr) / 1024;
+
+                if (dlGB >= 8) {
+                    badge.style.background = 'rgba(239, 68, 68, 0.2)';
+                    badge.style.color = '#ef4444';
+                    badge.textContent = '🔴 تحذير! الباقة تقترب من الحد';
+                } else if (dlGB >= 5) {
+                    badge.style.background = 'rgba(245, 158, 11, 0.2)';
+                    badge.style.color = '#f59e0b';
+                    badge.textContent = '🟡 الباقة متوسطة';
+                } else {
+                    badge.style.background = 'rgba(16, 185, 129, 0.2)';
+                    badge.style.color = 'var(--accent-green)';
+                    badge.textContent = '🟢 الباقة آمنة';
+                }
+            }
+        }
+
+        function toggleUsageEditForm(forceState) {
+            const drawer = document.getElementById('usage-edit-drawer');
+            if (!drawer) return;
+            const show = forceState !== undefined ? forceState : (drawer.style.display === 'none');
+            drawer.style.display = show ? 'block' : 'none';
+        }
+
+        function saveCustomUsageMetrics() {
+            const connVal = document.getElementById('edit-usage-conn')?.value?.trim();
+            const storageVal = document.getElementById('edit-usage-storage')?.value?.trim();
+            const dlVal = document.getElementById('edit-usage-dl')?.value?.trim();
+
+            if (!connVal && !storageVal && !dlVal) {
+                alert('الرجاء إدخال قيمة واحدة على الأقل.');
+                return;
+            }
+
+            const data = { updatedAt: Date.now() };
+            if (connVal) data.connections = connVal;
+            if (storageVal) data.storage = storageVal;
+            if (dlVal) data.downloads = dlVal;
+
+            // Save to localStorage under current period
+            try {
+                localStorage.setItem('motolock_usage_' + currentUsagePeriod, JSON.stringify(data));
+            } catch (e) {}
+
+            // Apply immediately
+            applyUsageMetrics(data);
+
+            // Update last-updated text
+            const updEl = document.getElementById('usage-last-updated-text');
+            if (updEl) updEl.innerHTML = '<i class="fa-solid fa-circle-check" style="color: var(--accent-green);"></i> تم التحديث الآن (يدوياً)';
+
+            // Close edit drawer
+            toggleUsageEditForm(false);
+
+            // Clear inputs
+            if (document.getElementById('edit-usage-conn')) document.getElementById('edit-usage-conn').value = '';
+            if (document.getElementById('edit-usage-storage')) document.getElementById('edit-usage-storage').value = '';
+            if (document.getElementById('edit-usage-dl')) document.getElementById('edit-usage-dl').value = '';
+        }
+
+        // Load saved month metrics on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSavedUsageMetrics('24h');
+        });
 
         // Helper: Escape HTML
         function escapeHtml(str) {
