@@ -561,6 +561,17 @@
             box-shadow: 0 0 16px rgba(0, 210, 255, 0.25);
         }
 
+        @keyframes cardFlash {
+            0% { transform: scale(1); box-shadow: 0 0 0 rgba(0, 210, 255, 0); }
+            35% { transform: scale(1.02); box-shadow: 0 0 24px rgba(0, 210, 255, 0.65); border-color: var(--accent-cyan); }
+            100% { transform: scale(1); box-shadow: 0 0 16px rgba(0, 210, 255, 0.25); }
+        }
+
+        .device-card.flash-highlight {
+            animation: cardFlash 1.5s ease-out;
+            border-color: var(--accent-cyan) !important;
+        }
+
         .card-top {
             display: flex;
             align-items: center;
@@ -1373,6 +1384,50 @@
             color: var(--accent-cyan);
         }
 
+        /* --- Remote Control Modal Landscape & Responsive Enhancements --- */
+        .modal-box-control {
+            max-width: 840px !important;
+            width: 94% !important;
+            max-height: 90vh !important;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-body-control {
+            padding: 0.85rem 1.15rem !important;
+            max-height: calc(90vh - 105px) !important;
+            overflow-y: auto !important;
+            overscroll-behavior: contain;
+        }
+
+        .control-landscape-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.95rem;
+            align-items: start;
+        }
+
+        .control-col-primary,
+        .control-col-diagnostics {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            min-width: 0;
+        }
+
+        .ctrl-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.35rem;
+            background: rgba(0, 0, 0, 0.22);
+            padding: 0.42rem 0.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
         /* --- Responsive Queries --- */
 
         /* Tablets & Small Laptops */
@@ -1753,16 +1808,17 @@
                 padding: 0;
             }
 
-            #modal-control .modal-box {
+            #modal-control .modal-box,
+            .modal-box-control {
                 max-width: 100vw !important;
-                width: 100vw;
-                max-height: 92vh;
-                overflow-y: auto;
-                border-radius: 18px 18px 0 0;
+                width: 100vw !important;
+                max-height: 92vh !important;
+                border-radius: 18px 18px 0 0 !important;
                 transform: translateY(100%);
             }
 
-            #modal-control.open .modal-box {
+            #modal-control.open .modal-box,
+            #modal-control.open .modal-box-control {
                 transform: translateY(0);
             }
 
@@ -1778,16 +1834,24 @@
                 gap: 0.35rem;
             }
 
-            #modal-control .modal-body {
-                padding: 0.65rem 0.7rem;
+            #modal-control .modal-body,
+            .modal-body-control {
+                padding: 0.6rem 0.75rem !important;
                 gap: 0.6rem !important;
+                max-height: calc(92vh - 95px) !important;
+                overflow-y: auto !important;
+            }
+
+            .control-landscape-grid {
+                grid-template-columns: 1fr !important;
+                gap: 0.65rem !important;
             }
 
             .control-status-banner {
-                padding: 0.55rem 0.7rem;
+                padding: 0.5rem 0.65rem;
                 border-radius: 10px;
                 flex-wrap: wrap;
-                gap: 0.4rem;
+                gap: 0.35rem;
             }
 
             .control-device-info h4 {
@@ -1804,17 +1868,17 @@
             }
 
             /* Metrics grid inside control modal */
-            #modal-control [style*="grid-template-columns"] {
+            .ctrl-metrics-grid {
                 grid-template-columns: repeat(4, 1fr) !important;
-                gap: 0.3rem !important;
-                padding: 0.45rem 0.5rem !important;
+                gap: 0.25rem !important;
+                padding: 0.35rem 0.45rem !important;
             }
 
-            #modal-control [style*="grid-template-columns"] [style*="font-size: 0.68rem"] {
-                font-size: 0.6rem !important;
+            .ctrl-metrics-grid [style*="font-size: 0.65rem"] {
+                font-size: 0.58rem !important;
             }
 
-            #modal-control [style*="grid-template-columns"] [style*="font-size: 0.85rem"] {
+            .ctrl-metrics-grid [style*="font-size: 0.8rem"] {
                 font-size: 0.72rem !important;
                 margin-top: 0.1rem !important;
             }
@@ -1841,21 +1905,21 @@
             }
 
             .btn-control-action {
-                padding: 0.75rem 0.45rem;
-                gap: 0.3rem;
+                padding: 0.7rem 0.45rem;
+                gap: 0.25rem;
                 border-radius: 10px;
             }
 
             .btn-control-action i {
-                font-size: 1.4rem;
+                font-size: 1.35rem;
             }
 
             .btn-control-action .action-title {
-                font-size: 0.78rem;
+                font-size: 0.76rem;
             }
 
             .btn-control-action .action-desc {
-                font-size: 0.6rem;
+                font-size: 0.58rem;
             }
 
             /* Sub-action buttons compact */
@@ -1865,21 +1929,21 @@
             }
 
             .btn-subaction {
-                padding: 0.5rem 0.2rem;
+                padding: 0.45rem 0.2rem;
                 gap: 0.2rem;
                 border-radius: 8px;
             }
 
             .btn-subaction i {
-                font-size: 1rem;
+                font-size: 0.95rem;
             }
 
             .btn-subaction .subaction-title {
-                font-size: 0.64rem;
+                font-size: 0.62rem;
             }
 
             .btn-subaction .subaction-cmd {
-                font-size: 0.52rem;
+                font-size: 0.5rem;
             }
 
             /* Feedback box compact */
@@ -2115,123 +2179,187 @@
 
     <!-- Modal: Remote Control -->
     <div class="modal-backdrop" id="modal-control">
-        <div class="modal-box" style="max-width: 400px;">
+        <div class="modal-box modal-box-control">
             <div class="modal-header">
                 <h3><i class="fa-solid fa-gamepad" style="color: var(--accent-cyan);"></i> التحكم بالدراجة عن بُعد</h3>
                 <button class="modal-close" onclick="closeModal('modal-control')">&times;</button>
             </div>
-            <div class="modal-body" style="gap: 1rem;">
-                <!-- Device Status Info Banner -->
-                <div class="control-status-banner">
-                    <div class="control-device-info">
-                        <h4 id="ctrl-device-name">دراجة</h4>
-                        <span id="ctrl-device-id">6CC84044E15A</span>
-                    </div>
-                    <div id="ctrl-conn-badge" class="control-state-pill" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3);">
-                        <span class="pulse-dot" style="width: 7px; height: 7px;"></span> <span id="ctrl-conn-text">متصلة الآن</span>
-                    </div>
-                </div>
+            <div class="modal-body modal-body-control">
+                <div class="control-landscape-grid">
+                    <!-- Column 1: Primary Controls & Actions (الأوامر والتحكم) -->
+                    <div class="control-col-primary">
+                        <!-- Device Status Info Banner -->
+                        <div class="control-status-banner">
+                            <div class="control-device-info">
+                                <h4 id="ctrl-device-name">دراجة</h4>
+                                <div style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.15rem;">
+                                    <span id="ctrl-device-id" style="font-family: monospace;">6CC84044E15A</span>
+                                    <span id="ctrl-device-fw" class="fw-badge" style="font-size: 0.65rem; font-weight: 700; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 4px; padding: 0.05rem 0.35rem;" title="إصدار الفيرموير">v1.0.13</span>
+                                </div>
+                            </div>
+                            <div id="ctrl-conn-badge" class="control-state-pill" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3);">
+                                <span class="pulse-dot" style="width: 7px; height: 7px;"></span> <span id="ctrl-conn-text">متصلة الآن</span>
+                            </div>
+                        </div>
 
-                <!-- Live Metrics Summary -->
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.35rem; background: rgba(0,0,0,0.22); padding: 0.45rem 0.5rem; border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
-                    <div>
-                        <div style="font-size: 0.68rem; color: var(--text-dim);">حالة القفل</div>
-                        <div id="ctrl-lock-status" style="font-size: 0.85rem; font-weight: 700; margin-top: 0.2rem; color: var(--accent-red);">
-                            <i class="fa-solid fa-lock"></i> مقفول
+                        <!-- Password Input Section -->
+                        <div class="form-group" style="margin-top: 0.1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label for="ctrl-password-input" style="display: flex; align-items: center; gap: 0.35rem; font-weight: 700; font-size: 0.76rem;">
+                                    <i class="fa-solid fa-key" style="color: #fbbf24;"></i> كلمة مرور الجهاز:
+                                </label>
+                                <div style="display: flex; gap: 0.35rem;">
+                                    <button type="button" class="mini-btn" style="font-size: 0.62rem; padding: 0.12rem 0.38rem; color: #fbbf24; border-color: rgba(251, 191, 36, 0.4);" onclick="document.getElementById('ctrl-password-input').value='ZYQRA00#00R'" title="استخدام باسوورد المطور الثابت">
+                                        <i class="fa-solid fa-shield"></i> ماستر ZYQRA
+                                    </button>
+                                    <button type="button" class="mini-btn" style="font-size: 0.62rem; padding: 0.12rem 0.38rem;" onclick="document.getElementById('ctrl-password-input').value='123456'" title="استخدام الباسوورد الافتراضي">
+                                        123456
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="password-input-wrapper">
+                                <input type="password" class="form-control" id="ctrl-password-input" value="123456" placeholder="أدخل كلمة مرور الدراجة..." style="letter-spacing: 2px; padding: 0.45rem 0.75rem; font-size: 0.82rem;">
+                                <button type="button" class="password-toggle-btn" id="btn-toggle-pwd-vis" title="إظهار / إخفاء كلمة المرور">
+                                    <i class="fa-solid fa-eye" id="pwd-eye-icon"></i>
+                                </button>
+                            </div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 0.15rem;">
+                                <label style="font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+                                    <input type="checkbox" id="chk-save-pwd" checked style="accent-color: var(--accent-cyan); cursor: pointer;">
+                                    حفظ كلمة المرور لهذه الدراجة (لتنفيذ الأوامر بنقرة واحدة)
+                                </label>
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <div style="font-size: 0.68rem; color: var(--text-dim);">المحرك</div>
-                        <div id="ctrl-engine-status" style="font-size: 0.85rem; font-weight: 700; margin-top: 0.2rem; color: var(--text-muted);">
-                            <i class="fa-solid fa-power-off"></i> مطفأ
-                        </div>
-                    </div>
-                    <div>
-                        <div style="font-size: 0.68rem; color: var(--text-dim);">البطارية</div>
-                        <div id="ctrl-battery-status" style="font-size: 0.85rem; font-weight: 700; margin-top: 0.2rem; color: var(--accent-green); font-family: 'JetBrains Mono', monospace;">
-                            <i class="fa-solid fa-car-battery"></i> 12.8V
-                        </div>
-                    </div>
-                    <div>
-                        <div style="font-size: 0.68rem; color: var(--text-dim);">الشبكة (SIM)</div>
-                        <div id="ctrl-signal-status" style="font-size: 0.85rem; font-weight: 700; margin-top: 0.2rem; color: var(--accent-green);">
-                            <i class="fa-solid fa-signal"></i> --
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Password Input Section -->
-                <div class="form-group" style="margin-top: 0.15rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <label for="ctrl-password-input" style="display: flex; align-items: center; gap: 0.35rem; font-weight: 700;">
-                            <i class="fa-solid fa-key" style="color: #fbbf24;"></i> كلمة مرور الجهاز:
-                        </label>
-                        <div style="display: flex; gap: 0.35rem;">
-                            <button type="button" class="mini-btn" style="font-size: 0.65rem; padding: 0.15rem 0.4rem; color: #fbbf24; border-color: rgba(251, 191, 36, 0.4);" onclick="document.getElementById('ctrl-password-input').value='ZYQRA00#00R'" title="استخدام باسوورد المطور الثابت">
-                                <i class="fa-solid fa-shield"></i> ماستر ZYQRA
+                        <!-- Two Big Action Buttons -->
+                        <div class="control-actions-grid">
+                            <button type="button" class="btn-control-action unlock" id="btn-cmd-unlock" onclick="executeDeviceCommand('UNLOCK')">
+                                <i class="fa-solid fa-lock-open"></i>
+                                <span class="action-title">فتح الدراجة (UNLOCK)</span>
+                                <span class="action-desc">إلغاء قفل الحماية وتفعيل السير</span>
                             </button>
-                            <button type="button" class="mini-btn" style="font-size: 0.65rem; padding: 0.15rem 0.4rem;" onclick="document.getElementById('ctrl-password-input').value='123456'" title="استخدام الباسوورد الافتراضي">
-                                123456
+                            <button type="button" class="btn-control-action lock" id="btn-cmd-lock" onclick="executeDeviceCommand('LOCK')">
+                                <i class="fa-solid fa-lock"></i>
+                                <span class="action-title">قفل الدراجة (LOCK)</span>
+                                <span class="action-desc">تفعيل الأمان وإيقاف الحركة</span>
+                            </button>
+                        </div>
+
+                        <!-- Secondary Quick Action Buttons: Start, Stop, Alarm, Starter -->
+                        <div class="control-subactions-grid">
+                            <button type="button" class="btn-subaction start" id="btn-cmd-start" onclick="executeDeviceCommand('START')" title="تشغيل كهرباء المحرك (Ignition ON)">
+                                <i class="fa-solid fa-bolt"></i>
+                                <span class="subaction-title">تشغيل المحرك</span>
+                                <span class="subaction-cmd">START</span>
+                            </button>
+                            <button type="button" class="btn-subaction stop" id="btn-cmd-stop" onclick="executeDeviceCommand('STOP')" title="إطفاء كهرباء المحرك فوراً (Ignition OFF)">
+                                <i class="fa-solid fa-power-off"></i>
+                                <span class="subaction-title">إيقاف المحرك</span>
+                                <span class="subaction-cmd">STOP</span>
+                            </button>
+                            <button type="button" class="btn-subaction alarm" id="btn-cmd-alarm" onclick="executeDeviceCommand('ALARM')" title="تشغيل / تبديل سرينة الإنذار">
+                                <i class="fa-solid fa-bell"></i>
+                                <span class="subaction-title">إنذار / سرينة</span>
+                                <span class="subaction-cmd">ALARM</span>
+                            </button>
+                            <button type="button" class="btn-subaction starter" id="btn-cmd-starter" onclick="executeDeviceCommand('STARTER_PULSE')" title="إرسال نبضة مارش لتشغيل الموتور (1 ثانية)">
+                                <i class="fa-solid fa-gauge-simple-high"></i>
+                                <span class="subaction-title">مارش (Start)</span>
+                                <span class="subaction-cmd">STARTER</span>
                             </button>
                         </div>
                     </div>
-                    <div class="password-input-wrapper">
-                        <input type="password" class="form-control" id="ctrl-password-input" value="123456" placeholder="أدخل كلمة مرور الدراجة..." style="letter-spacing: 2px;">
-                        <button type="button" class="password-toggle-btn" id="btn-toggle-pwd-vis" title="إظهار / إخفاء كلمة المرور">
-                            <i class="fa-solid fa-eye" id="pwd-eye-icon"></i>
-                        </button>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 0.25rem;">
-                        <label style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
-                            <input type="checkbox" id="chk-save-pwd" checked style="accent-color: var(--accent-cyan); cursor: pointer;">
-                            حفظ كلمة المرور لهذه الدراجة (لتنفيذ الأوامر بنقرة واحدة)
-                        </label>
-                    </div>
-                </div>
 
-                <!-- Two Big Action Buttons -->
-                <div class="control-actions-grid">
-                    <button type="button" class="btn-control-action unlock" id="btn-cmd-unlock" onclick="executeDeviceCommand('UNLOCK')">
-                        <i class="fa-solid fa-lock-open"></i>
-                        <span class="action-title">فتح الدراجة (UNLOCK)</span>
-                        <span class="action-desc">إلغاء قفل الحماية وتفعيل السير</span>
-                    </button>
-                    <button type="button" class="btn-control-action lock" id="btn-cmd-lock" onclick="executeDeviceCommand('LOCK')">
-                        <i class="fa-solid fa-lock"></i>
-                        <span class="action-title">قفل الدراجة (LOCK)</span>
-                        <span class="action-desc">تفعيل الأمان وإيقاف الحركة</span>
-                    </button>
-                </div>
+                    <!-- Column 2: Live Telemetry, Diagnostics & Events (التشخيص والمتابعة الحية) -->
+                    <div class="control-col-diagnostics">
+                        <!-- Live Metrics Summary -->
+                        <div class="ctrl-metrics-grid">
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--text-dim);">حالة القفل</div>
+                                <div id="ctrl-lock-status" style="font-size: 0.8rem; font-weight: 700; margin-top: 0.15rem; color: var(--accent-red);">
+                                    <i class="fa-solid fa-lock"></i> مقفول
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--text-dim);">المحرك</div>
+                                <div id="ctrl-engine-status" style="font-size: 0.8rem; font-weight: 700; margin-top: 0.15rem; color: var(--text-muted);">
+                                    <i class="fa-solid fa-power-off"></i> مطفأ
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--text-dim);">البطارية</div>
+                                <div id="ctrl-battery-status" style="font-size: 0.8rem; font-weight: 700; margin-top: 0.15rem; color: var(--accent-green); font-family: 'JetBrains Mono', monospace;">
+                                    <i class="fa-solid fa-car-battery"></i> 12.8V
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--text-dim);">الشبكة (SIM)</div>
+                                <div id="ctrl-signal-status" style="font-size: 0.8rem; font-weight: 700; margin-top: 0.15rem; color: var(--accent-green);">
+                                    <i class="fa-solid fa-signal"></i> --
+                                </div>
+                            </div>
+                        </div>
 
-                <!-- Secondary Quick Action Buttons: Start, Stop, Alarm, Starter -->
-                <div class="control-subactions-grid">
-                    <button type="button" class="btn-subaction start" id="btn-cmd-start" onclick="executeDeviceCommand('START')" title="تشغيل كهرباء المحرك (Ignition ON)">
-                        <i class="fa-solid fa-bolt"></i>
-                        <span class="subaction-title">تشغيل المحرك</span>
-                        <span class="subaction-cmd">START</span>
-                    </button>
-                    <button type="button" class="btn-subaction stop" id="btn-cmd-stop" onclick="executeDeviceCommand('STOP')" title="إطفاء كهرباء المحرك فوراً (Ignition OFF)">
-                        <i class="fa-solid fa-power-off"></i>
-                        <span class="subaction-title">إيقاف المحرك</span>
-                        <span class="subaction-cmd">STOP</span>
-                    </button>
-                    <button type="button" class="btn-subaction alarm" id="btn-cmd-alarm" onclick="executeDeviceCommand('ALARM')" title="تشغيل / تبديل سرينة الإنذار">
-                        <i class="fa-solid fa-bell"></i>
-                        <span class="subaction-title">إنذار / سرينة</span>
-                        <span class="subaction-cmd">ALARM</span>
-                    </button>
-                    <button type="button" class="btn-subaction starter" id="btn-cmd-starter" onclick="executeDeviceCommand('STARTER_PULSE')" title="إرسال نبضة مارش لتشغيل الموتور (1 ثانية)">
-                        <i class="fa-solid fa-gauge-simple-high"></i>
-                        <span class="subaction-title">مارش (Start)</span>
-                        <span class="subaction-cmd">STARTER</span>
-                    </button>
-                </div>
+                        <!-- Daily Stability & Disconnects Stats in Modal -->
+                        <div id="ctrl-daily-stats" style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.35rem 0.65rem; font-size: 0.72rem;">
+                            <span style="color: var(--text-dim); display: inline-flex; align-items: center; gap: 0.3rem;">
+                                <i class="fa-regular fa-calendar-check" style="color: var(--accent-blue);"></i> إحصائيات اليوم:
+                            </span>
+                            <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                <span id="ctrl-disconnects-val" style="color: var(--text-muted); font-weight: 600;">
+                                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 0.65rem;"></i> انقطاع: <strong>0</strong>
+                                </span>
+                                <span style="color: rgba(255, 255, 255, 0.15);">|</span>
+                                <span id="ctrl-powersaving-val" style="color: var(--text-muted); font-weight: 600;">
+                                    <i class="fa-solid fa-leaf" style="font-size: 0.65rem;"></i> توفير: <strong>0</strong>
+                                </span>
+                            </div>
+                        </div>
 
-                <!-- Realtime Feedback Box -->
-                <div class="control-feedback-box" id="ctrl-feedback">
-                    <i class="fa-solid fa-circle-notch fa-spin" id="ctrl-feedback-icon" style="margin-top: 3px; flex-shrink: 0;"></i>
-                    <div id="ctrl-feedback-text" style="display: flex; flex-direction: column; gap: 0.18rem; flex: 1; min-width: 0;">
-                        <span style="font-weight: 700; font-size: 0.8rem;">جارِ إرسال الأمر...</span>
+                        <!-- Wake Reason Info Row in Modal -->
+                        <div id="ctrl-wake-row" style="display: none; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.32rem 0.65rem; font-size: 0.72rem;">
+                            <span style="color: var(--text-dim); display: inline-flex; align-items: center; gap: 0.3rem;">
+                                <i class="fa-solid fa-bell" style="color: #fbbf24;"></i> سبب الاستيقاظ الأخير:
+                            </span>
+                            <span id="ctrl-wake-val" style="color: #fbbf24; font-weight: 700;">--</span>
+                        </div>
+
+                        <!-- Remote Rescue & Diagnostics Tools: Ping & Reboot -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem;">
+                            <button type="button" class="btn-subaction" id="btn-cmd-ping" onclick="executeDeviceCommand('PING')" style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.28); color: #38bdf8; padding: 0.45rem 0.5rem; border-radius: 8px;" title="فحص سرعة استجابة الاتصال ووقت الرد بالملي ثانية">
+                                <i class="fa-solid fa-stopwatch" style="font-size: 0.95rem;"></i>
+                                <span class="subaction-title" style="font-size: 0.72rem; font-weight: 700;">فحص الاستجابة (Ping)</span>
+                                <span class="subaction-cmd" style="font-size: 0.6rem; opacity: 0.85;">قياس زمن الاستجابة</span>
+                            </button>
+                            <button type="button" class="btn-subaction" id="btn-cmd-reboot" onclick="executeDeviceCommand('REBOOT')" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.28); color: #fbbf24; padding: 0.45rem 0.5rem; border-radius: 8px;" title="إعادة تشغيل الـ ESP32 والموديولات عن بُعد في حال تعليق الاتصال">
+                                <i class="fa-solid fa-arrows-rotate" style="font-size: 0.95rem;"></i>
+                                <span class="subaction-title" style="font-size: 0.72rem; font-weight: 700;">إعادة تشغيل الجهاز</span>
+                                <span class="subaction-cmd" style="font-size: 0.6rem; opacity: 0.85;">Soft Reboot</span>
+                            </button>
+                        </div>
+
+                        <!-- Realtime Feedback Box -->
+                        <div class="control-feedback-box" id="ctrl-feedback">
+                            <i class="fa-solid fa-circle-notch fa-spin" id="ctrl-feedback-icon" style="margin-top: 2px; flex-shrink: 0;"></i>
+                            <div id="ctrl-feedback-text" style="display: flex; flex-direction: column; gap: 0.15rem; flex: 1; min-width: 0;">
+                                <span style="font-weight: 700; font-size: 0.78rem;">جارِ إرسال الأمر...</span>
+                            </div>
+                        </div>
+
+                        <!-- Live Device Events Log (12-Hour format) -->
+                        <div class="control-events-log" style="background: rgba(0,0,0,0.22); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 8px; padding: 0.45rem 0.6rem;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.3rem; padding-bottom: 0.25rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
+                                <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-main); display: inline-flex; align-items: center; gap: 0.3rem;">
+                                    <i class="fa-solid fa-timeline" style="color: var(--accent-cyan);"></i> سجل الأحداث الحية السريع (12 ساعة)
+                                </span>
+                                <button type="button" class="mini-btn" style="font-size: 0.6rem; padding: 0.1rem 0.4rem; color: var(--text-dim);" onclick="clearDeviceEventsLog(App.controlActiveDeviceId)" title="مسح سجل الأحداث">
+                                    <i class="fa-solid fa-trash-can"></i> مسح
+                                </button>
+                            </div>
+                            <div id="ctrl-events-log-list" style="max-height: 110px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.25rem;">
+                                <!-- Events injected here -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2970,6 +3098,25 @@
                 };
                 App.devices.set(deviceId, deviceObj);
             } else {
+                const prevStatus = deviceObj.status || {};
+                // Track engine transitions
+                if (!prevStatus.engine && status.engine) {
+                    addDeviceEvent(deviceId, 'فتح الكونتاكت وبدء دوران المحرك', 'engine_on', 'fa-solid fa-bolt');
+                } else if (prevStatus.engine && !status.engine) {
+                    addDeviceEvent(deviceId, 'إيقاف المحرك والدخول في وضع التوقف', 'engine_off', 'fa-solid fa-power-off');
+                }
+                // Track lock transitions
+                if (prevStatus.lock !== undefined && prevStatus.lock !== status.lock) {
+                    addDeviceEvent(deviceId, status.lock ? 'قفل الدراجة وتفعيل الأمان' : 'فتح قفل الدراجة وتجهيز الحركة', 'lock', status.lock ? 'fa-solid fa-lock' : 'fa-solid fa-lock-open');
+                }
+                // Track wake reason
+                if (status.lastWakeReason && status.lastWakeReason !== prevStatus.lastWakeReason) {
+                    const wake = formatWakeReason(status.lastWakeReason);
+                    if (wake) {
+                        addDeviceEvent(deviceId, 'استيقاظ الدراجة: ' + wake.text, 'vibration', wake.icon);
+                    }
+                }
+
                 deviceObj.name = customName;
                 deviceObj.status = status;
                 deviceObj.meta = meta;
@@ -2993,28 +3140,46 @@
         }
 
         // Calculate device connection state
-        // CRITICAL: We trust receivedAt freshness, but check power saving mode explicitly.
+        // CRITICAL: Checks explicit mqttOnline from server/meta AND dynamic freshness timeout
         function getDeviceConnectionState(dev) {
-            const receivedAt = dev.status?.receivedAt || 0;
-            const lastSeenAt = dev.meta?.lastSeenAt || 0;
+            const receivedAt = Number(dev.status?.receivedAt || dev.status?.timestamp || 0);
+            const lastSeenAt = Number(dev.meta?.lastSeenAt || 0);
             const lastSeen = Math.max(receivedAt, lastSeenAt);
-            const timeDiff = Date.now() - lastSeen;
-            const isOnline = lastSeen > 0 && timeDiff < App.onlineThresholdMs;
+            const timeDiff = lastSeen > 0 ? (Date.now() - lastSeen) : Infinity;
+
+            // 1. فحص هل السيرفر أو الـ Broker سجل انقطاع الاتصال صراحة
+            const isExplicitlyOffline = (dev.meta?.mqttOnline === false || dev.meta?.mqttOnline === 'false');
+
+            // 2. مهلة استجابة فورية سريعة مطابقة للتطبيق (تكشف نزع الشريحة وانقطاع النت فوراً):
+            // - لو المحرك شغال أو الدراجة تتحرك (الإرسال كل 1.5 ثانية): مهلة 35 ثانية كافية لاعتبارها غير متصلة
+            // - لو الدراجة متوقفة: مهلة 65 ثانية كافية لاعتبارها غير متصلة
+            const isEngineOrMoving = Boolean(
+                dev.status?.engine === true || 
+                dev.status?.contact === true || 
+                dev.status?.motionState === 'moving' || 
+                Number(dev.status?.speed || 0) > 1.5
+            );
+            const activeThreshold = isEngineOrMoving ? 35000 : 65000;
+
+            const isOnline = !isExplicitlyOffline && lastSeen > 0 && timeDiff < activeThreshold;
 
             // Power saving mode detection from status or meta
             // Contact is true only if contact sensor is HIGH (or alternator is actively charging >= 13.6V)
             const isContact = Boolean(dev.status?.contact === true || Number(dev.status?.battery || 0) >= 13.6);
+            const stationarySince = Number(dev.status?.stationarySinceAt || dev.meta?.stationarySinceAt || 0);
+            const isStationaryLong = stationarySince > 0 && ((Date.now() - stationarySince) >= 900000); // 15 min
             const isPowerSaving = !isContact && Boolean(
                 dev.status?.powerSavingActive === true || 
                 dev.status?.powerSave === true || 
                 dev.meta?.powerSavingActive === true ||
-                dev.meta?.offlineReason === 'powersaving'
+                dev.meta?.offlineReason === 'powersaving' ||
+                (!isOnline && isStationaryLong && !dev.status?.engine)
             );
 
             const isMoving = isOnline && (dev.status?.motionState === 'moving' || (Number(dev.status?.speed || 0) > 1.5));
             const isParked = isOnline && !isMoving;
 
-            return {
+            const state = {
                 isOnline,
                 isMoving,
                 isParked,
@@ -3022,6 +3187,156 @@
                 lastSeen,
                 timeDiff
             };
+
+            if (dev._lastTrackedState) {
+                recordDeviceStateTransition(dev.id, dev._lastTrackedState, state);
+            }
+            dev._lastTrackedState = state;
+
+            return state;
+        }
+
+        function getTodayDateStr() {
+            const d = new Date();
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        function getDeviceDailyStats(dev) {
+            const today = getTodayDateStr();
+            const storageKey = 'motolock_stats_' + dev.id;
+            let stored = null;
+            try {
+                stored = JSON.parse(localStorage.getItem(storageKey) || 'null');
+            } catch (e) {}
+
+            let disconnects = 0;
+            let powerSavings = 0;
+
+            // 1. القيمة المعتمدة من خادم Firebase
+            if (dev.meta?.statsDate === today) {
+                disconnects = Number(dev.meta.disconnectsToday || 0);
+                powerSavings = Number(dev.meta.powerSavingToday || 0);
+            }
+
+            // 2. مزامنة القيمة المسجلة محلياً أثناء مراقبة المتصفح
+            if (stored && stored.date === today) {
+                disconnects = Math.max(disconnects, Number(stored.disconnects || 0));
+                powerSavings = Math.max(powerSavings, Number(stored.powerSavings || 0));
+            }
+
+            // 3. التحقق الذكي من أحداث اليوم:
+            // إذا كان الجهاز قد تواصل اليوم ثم انفصل قبل فتح لوحة التحكم ولم يسجل السيرفر العداد بعد:
+            const state = getDeviceConnectionState(dev);
+            const lastSeenTs = Number(state.lastSeen || 0);
+            if (lastSeenTs > 0) {
+                const lastSeenDate = new Date(lastSeenTs).toISOString().slice(0, 10);
+                if (lastSeenDate === today && !state.isOnline) {
+                    if (state.isPowerSaving) {
+                        powerSavings = Math.max(powerSavings, 1);
+                    } else {
+                        disconnects = Math.max(disconnects, 1);
+                    }
+                }
+            }
+
+            // 4. إصدار الفيرموير: فقط إذا أرسله الجهاز صراحةً (بدون أي تخمين أو افتراض)
+            let fw = null;
+            if (dev.status?.fw) {
+                fw = String(dev.status.fw).trim();
+            } else if (dev.meta?.firmwareVersion) {
+                fw = String(dev.meta.firmwareVersion).trim();
+            } else if (dev.status?.version) {
+                fw = String(dev.status.version).trim();
+            }
+
+            return {
+                disconnects,
+                powerSavings,
+                fw
+            };
+        }
+
+        function recordDeviceStateTransition(deviceId, prevState, newState) {
+            if (!prevState || !newState) return;
+            // تجاهل أي استدعاء متكرر بدون تغير حقيقي في حالة الاتصال أو التوفير
+            if (prevState.isOnline === newState.isOnline && prevState.isPowerSaving === newState.isPowerSaving) {
+                return;
+            }
+
+            // تسجيل أحداث الاتصال في سجل الأحداث الحية
+            if (!prevState.isOnline && newState.isOnline) {
+                addDeviceEvent(deviceId, 'استعادة الاتصال بالإنترنت والسيرفر', 'online', 'fa-solid fa-wifi');
+            } else if (prevState.isOnline && !newState.isOnline) {
+                if (newState.isPowerSaving) {
+                    addDeviceEvent(deviceId, 'انتقال لوضع توفير الطاقة (سكون)', 'powersave', 'fa-solid fa-leaf');
+                } else {
+                    addDeviceEvent(deviceId, 'انقطاع الاتصال بالإنترنت', 'offline', 'fa-solid fa-triangle-exclamation');
+                }
+            } else if (!prevState.isPowerSaving && newState.isPowerSaving) {
+                addDeviceEvent(deviceId, 'انتقال لوضع توفير الطاقة (سكون)', 'powersave', 'fa-solid fa-leaf');
+            }
+
+            const today = getTodayDateStr();
+            const storageKey = 'motolock_stats_' + deviceId;
+            let stored = null;
+            try {
+                stored = JSON.parse(localStorage.getItem(storageKey) || 'null');
+            } catch (e) {}
+
+            if (!stored || stored.date !== today) {
+                stored = { date: today, disconnects: 0, powerSavings: 0 };
+            }
+
+            let changed = false;
+            if (prevState.isOnline && !newState.isOnline) {
+                if (newState.isPowerSaving) {
+                    stored.powerSavings = (stored.powerSavings || 0) + 1;
+                } else {
+                    stored.disconnects = (stored.disconnects || 0) + 1;
+                }
+                changed = true;
+            } else if (!prevState.isPowerSaving && newState.isPowerSaving) {
+                stored.powerSavings = (stored.powerSavings || 0) + 1;
+                changed = true;
+            }
+
+            if (changed) {
+                try {
+                    localStorage.setItem(storageKey, JSON.stringify(stored));
+                } catch (e) {}
+            }
+        }
+
+        // Focus and select device in list (opens mobile drawer and restores map if expanded)
+        function openDeviceInList(deviceId) {
+            if (!deviceId) return;
+            App.selectedDeviceId = deviceId;
+
+            // 1. إذا كانت الخريطة مكبرة بملء الشاشة، استعد القائمة الجانبية فوراً
+            if (App.isMapExpanded) {
+                toggleMapFullscreen();
+            }
+
+            // 2. إذا كنا على الهاتف (شاشة <= 900px)، افتح درج قائمة الأجهزة
+            if (window.innerWidth <= 900) {
+                showMobileTab('devices');
+            }
+
+            // 3. إعادة رسم القائمة فوراً لتطبيق كلاس selected المضيء
+            renderDevicesList();
+
+            // 4. التمرير السلس إلى بطاقة الدراجة في القائمة وتفعيل وميض التحديد (Flash Highlight)
+            setTimeout(() => {
+                const el = document.querySelector(`.device-card[data-id="${deviceId}"]`);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.classList.add('flash-highlight');
+                    setTimeout(() => el.classList.remove('flash-highlight'), 1800);
+                }
+            }, 80);
         }
 
         // --- Map Marker Update ---
@@ -3076,31 +3391,34 @@
                 popupAnchor: [0, -20]
             });
 
-            const popupContent = createPopupHtml(dev, state, lat, lng);
-
             if (!dev.marker) {
                 dev.marker = L.marker([lat, lng], { icon: customIcon }).addTo(App.map);
-                dev.marker.bindPopup(popupContent, { autoPan: true });
+                dev.marker.bindPopup(() => getDevicePopupHtml(dev), { autoPan: true });
                 dev.marker.on('click', () => {
-                    App.selectedDeviceId = dev.id;
+                    dev.marker.setPopupContent(getDevicePopupHtml(dev));
+                    openDeviceInList(dev.id);
                     dev.marker.openPopup();
-                    renderDevicesList();
-                    const el = document.querySelector(`.device-card[data-id="${dev.id}"]`);
-                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 });
             } else {
                 dev.marker.setLatLng([lat, lng]);
                 dev.marker.setIcon(customIcon);
-                dev.marker.setPopupContent(popupContent);
+                if (typeof dev.marker.isPopupOpen === 'function' && dev.marker.isPopupOpen()) {
+                    dev.marker.setPopupContent(getDevicePopupHtml(dev));
+                }
                 dev.marker.off('click');
                 dev.marker.on('click', () => {
-                    App.selectedDeviceId = dev.id;
+                    dev.marker.setPopupContent(getDevicePopupHtml(dev));
+                    openDeviceInList(dev.id);
                     dev.marker.openPopup();
-                    renderDevicesList();
-                    const el = document.querySelector(`.device-card[data-id="${dev.id}"]`);
-                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 });
             }
+        }
+
+        function getDevicePopupHtml(dev) {
+            const lat = Number(dev.status?.lat || dev.status?.a || 0);
+            const lng = Number(dev.status?.lng || dev.status?.o || 0);
+            const state = getDeviceConnectionState(dev);
+            return createPopupHtml(dev, state, lat, lng);
         }
 
         function getDeviceStationaryTimeAgo(dev, state) {
@@ -3193,31 +3511,47 @@
             const timeAgo = formatTimeAgo(state.lastSeen);
             const parkedAgo = getDeviceStationaryTimeAgo(dev, state);
             const signal = formatCellularSignal(dev.status);
+            const dailyStats = getDeviceDailyStats(dev);
+            const wakeReason = formatWakeReason(dev.status?.lastWakeReason || dev.meta?.lastWakeReason);
 
             let statusLabel = '';
             if (state.isPowerSaving) {
-                statusLabel = `<span style="font-size: 0.74rem; color: var(--accent-amber); font-weight: 700;"><i class="fa-solid fa-leaf"></i> 🟡 توفير الطاقة ${parkedAgo ? '(' + parkedAgo + ')' : ''}</span>`;
+                statusLabel = `<span class="popup-status-badge" style="font-size: 0.74rem; color: var(--accent-amber); font-weight: 700;"><i class="fa-solid fa-leaf"></i> 🟡 توفير الطاقة ${parkedAgo ? '(' + parkedAgo + ')' : ''}</span>`;
             } else if (state.isMoving) {
-                statusLabel = `<span style="font-size: 0.74rem; color: var(--accent-green); font-weight: 700;"><i class="fa-solid fa-gauge-high"></i> 🟢 متحرك (${speed} كم/س)</span>`;
+                statusLabel = `<span class="popup-status-badge" style="font-size: 0.74rem; color: var(--accent-green); font-weight: 700;"><i class="fa-solid fa-gauge-high"></i> 🟢 متحرك (${speed} كم/س)</span>`;
             } else if (state.isParked) {
-                statusLabel = `<span style="font-size: 0.74rem; color: var(--accent-blue); font-weight: 700;"><i class="fa-solid fa-square-parking"></i> 🔵 متوقف ${parkedAgo ? '(' + parkedAgo + ')' : ''}</span>`;
+                statusLabel = `<span class="popup-status-badge" style="font-size: 0.74rem; color: var(--accent-blue); font-weight: 700;"><i class="fa-solid fa-square-parking"></i> 🔵 متوقف ${parkedAgo ? '(' + parkedAgo + ')' : ''}</span>`;
             } else {
-                statusLabel = '<span style="font-size: 0.74rem; color: var(--accent-red); font-weight: 700;"><i class="fa-solid fa-circle-xmark"></i> 🔴 غير متصل</span>';
+                statusLabel = '<span class="popup-status-badge" style="font-size: 0.74rem; color: var(--accent-red); font-weight: 700;"><i class="fa-solid fa-circle-xmark"></i> 🔴 غير متصل</span>';
+            }
+
+            let fwHtml = '';
+            if (dailyStats.fw) {
+                const isLatest = dailyStats.fw === '1.0.13';
+                const fwColor = isLatest ? '#38bdf8' : '#a78bfa';
+                const fwBg = isLatest ? 'rgba(56, 189, 248, 0.12)' : 'rgba(167, 139, 250, 0.12)';
+                const fwBorder = isLatest ? 'rgba(56, 189, 248, 0.28)' : 'rgba(167, 139, 250, 0.28)';
+                fwHtml = `<span class="fw-badge" style="font-size: 0.6rem; font-weight: 700; background: ${fwBg}; color: ${fwColor}; border: 1px solid ${fwBorder}; border-radius: 4px; padding: 0.05rem 0.35rem; display: inline-flex; align-items: center; gap: 0.2rem;" title="إصدار الفيرموير: ${escapeHtml(dailyStats.fw)}">
+                    <i class="fa-solid fa-microchip" style="font-size: 0.55rem;"></i> v${escapeHtml(dailyStats.fw)}
+                </span>`;
             }
 
             return `
-                <div class="map-popup-card">
+                <div class="map-popup-card" data-popup-id="${dev.id}">
                     <div class="popup-title">
                         <span>${escapeHtml(dev.name)}</span>
                         ${statusLabel}
                     </div>
                     <div class="popup-info-row">
                         <span>المعرف (MAC):</span>
-                        <span>${dev.id}</span>
+                        <div style="display: flex; align-items: center; gap: 0.35rem;">
+                            <span>${dev.id}</span>
+                            ${fwHtml}
+                        </div>
                     </div>
                     <div class="popup-info-row">
                         <span>السرعة الحالية:</span>
-                        <span>${speed} كم/س</span>
+                        <span class="popup-speed-val">${speed} كم/س</span>
                     </div>
                     <div class="popup-info-row">
                         <span>أقمار GPS:</span>
@@ -3235,18 +3569,43 @@
                             ${isLocked ? '🔒 مقفول' : '🔓 مفتوح'}
                         </span>
                     </div>
-                    ${(state.isParked || state.isPowerSaving) && parkedAgo ? `
-                    <div class="popup-info-row">
+                    <div class="popup-info-row popup-row-parked" style="${(state.isParked || state.isPowerSaving) && parkedAgo ? '' : 'display: none;'}">
                         <span>مدة التوقف:</span>
-                        <span style="color: var(--accent-cyan); font-weight: 700;">${parkedAgo}</span>
-                    </div>` : ''}
+                        <span class="popup-parked-val" style="color: var(--accent-cyan); font-weight: 700;">${parkedAgo || ''}</span>
+                    </div>
                     <div class="popup-info-row">
                         <span>آخر اتصال:</span>
-                        <span>${timeAgo}</span>
+                        <span class="popup-last-seen-val">${timeAgo}</span>
                     </div>
-                    <div style="display: flex; gap: 0.4rem; margin-top: 0.5rem;">
+                    ${wakeReason ? `
+                    <div class="popup-info-row">
+                        <span>سبب الاستيقاظ:</span>
+                        <span style="color: ${wakeReason.color}; font-weight: 700;">
+                            <i class="${wakeReason.icon}"></i> ${escapeHtml(wakeReason.text)}
+                        </span>
+                    </div>` : ''}
+
+                    <div class="popup-info-row" style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px; padding: 0.3rem 0.5rem; margin: 0.15rem 0; font-size: 0.74rem;">
+                        <span style="color: var(--text-dim); display: inline-flex; align-items: center; gap: 0.25rem;">
+                            <i class="fa-regular fa-calendar-check" style="color: var(--accent-blue);"></i> إحصائيات اليوم:
+                        </span>
+                        <div style="display: flex; align-items: center; gap: 0.65rem;">
+                            <span style="color: ${dailyStats.disconnects > 0 ? '#f87171' : 'var(--text-muted)'}; font-weight: 700;" title="عدد مرات انقطاع الاتصال خلال اليوم">
+                                <i class="fa-solid fa-triangle-exclamation" style="font-size: 0.65rem; color: ${dailyStats.disconnects > 0 ? '#ef4444' : 'var(--text-dim)'};"></i> انقطاع: <strong class="popup-stats-disconnects">${dailyStats.disconnects}</strong>
+                            </span>
+                            <span style="color: rgba(255, 255, 255, 0.15);">|</span>
+                            <span style="color: ${dailyStats.powerSavings > 0 ? '#fbbf24' : 'var(--text-muted)'}; font-weight: 700;" title="عدد مرات الدخول في وضع توفير الطاقة خلال اليوم">
+                                <i class="fa-solid fa-leaf" style="font-size: 0.65rem; color: ${dailyStats.powerSavings > 0 ? '#f59e0b' : 'var(--text-dim)'};"></i> توفير: <strong class="popup-stats-powersave">${dailyStats.powerSavings}</strong>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 0.35rem; margin-top: 0.45rem;">
                         <button type="button" class="popup-btn popup-btn-control" style="flex: 1;" onclick="openControlModal('${dev.id}')" title="التحكم بالدراجة عن بُعد">
                             <i class="fa-solid fa-gamepad"></i> تحكم
+                        </button>
+                        <button type="button" class="popup-btn" onclick="openDeviceInList('${dev.id}')" style="background: rgba(14, 165, 233, 0.18); border: 1px solid rgba(14, 165, 233, 0.35); color: #38bdf8;" title="تحديد وفتح الدراجة في القائمة">
+                            <i class="fa-solid fa-list-ul"></i> القائمة
                         </button>
                         <button type="button" class="popup-btn popup-btn-zoom" onclick="centerDeviceOnMap('${dev.id}')" title="تكبير الخريطة والتركيز على الدراجة">
                             <i class="fa-solid fa-magnifying-glass-plus"></i> تكبير
@@ -3404,6 +3763,20 @@
 
                 const parkedAgo = getDeviceStationaryTimeAgo(dev, state);
                 const signal = formatCellularSignal(dev.status);
+                const dailyStats = getDeviceDailyStats(dev);
+                const wakeReason = formatWakeReason(dev.status?.lastWakeReason || dev.meta?.lastWakeReason);
+
+                let fwBadgeHtml = '';
+                if (dailyStats.fw) {
+                    const isLatest = dailyStats.fw === '1.0.13';
+                    const fwColor = isLatest ? '#38bdf8' : '#a78bfa';
+                    const fwBg = isLatest ? 'rgba(56, 189, 248, 0.12)' : 'rgba(167, 139, 250, 0.12)';
+                    const fwBorder = isLatest ? 'rgba(56, 189, 248, 0.28)' : 'rgba(167, 139, 250, 0.28)';
+                    const fwTitle = isLatest ? 'فيرموير v1.0.13 (الأحدث)' : `فيرموير v${dailyStats.fw}`;
+                    fwBadgeHtml = `<span class="fw-badge" style="font-size: 0.62rem; font-weight: 700; background: ${fwBg}; color: ${fwColor}; border: 1px solid ${fwBorder}; border-radius: 4px; padding: 0.05rem 0.35rem; display: inline-flex; align-items: center; gap: 0.25rem;" title="${fwTitle}">
+                        <i class="fa-solid fa-microchip" style="font-size: 0.58rem;"></i> v${escapeHtml(dailyStats.fw)}
+                    </span>`;
+                }
 
                 let badgeHtml = '';
                 let iconColor = 'var(--text-dim)';
@@ -3433,7 +3806,11 @@
                                         ${escapeHtml(dev.name)}
                                         <i class="fa-solid fa-pen-to-square btn-rename" onclick="event.stopPropagation(); promptRename('${dev.id}')" title="تعديل الاسم"></i>
                                     </span>
-                                    <span class="device-mac">${dev.id}</span>
+                                    <div style="display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
+                                        <span class="device-mac">${dev.id}</span>
+                                        ${fwBadgeHtml}
+                                        ${wakeReason ? `<span class="wake-badge" style="font-size: 0.62rem; font-weight: 700; background: ${wakeReason.bg}; color: ${wakeReason.color}; border: 1px solid ${wakeReason.border}; border-radius: 4px; padding: 0.05rem 0.35rem; display: inline-flex; align-items: center; gap: 0.2rem;" title="سبب الاستيقاظ: ${escapeHtml(wakeReason.text)}"><i class="${wakeReason.icon}" style="font-size: 0.55rem;"></i> ${escapeHtml(wakeReason.shortText)}</span>` : ''}
+                                    </div>
                                 </div>
                             </div>
                             ${badgeHtml}
@@ -3482,6 +3859,22 @@
                             </div>
                         </div>
 
+                        <div class="daily-stats-row" style="display: flex; align-items: center; justify-content: space-between; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px; padding: 0.3rem 0.6rem; margin: 0.45rem 0 0.35rem; font-size: 0.72rem;">
+                            <span style="color: var(--text-dim); display: inline-flex; align-items: center; gap: 0.3rem;">
+                                <i class="fa-regular fa-calendar-check" style="color: var(--accent-blue);"></i> إحصائيات اليوم:
+                            </span>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <span style="display: inline-flex; align-items: center; gap: 0.3rem; color: ${dailyStats.disconnects > 0 ? '#f87171' : 'var(--text-muted)'}; font-weight: 600;" title="عدد مرات انقطاع الاتصال خلال اليوم">
+                                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 0.68rem; color: ${dailyStats.disconnects > 0 ? '#ef4444' : 'var(--text-dim)'};"></i> انقطاع: <strong>${dailyStats.disconnects}</strong>
+                                </span>
+                                <span style="color: rgba(255, 255, 255, 0.12);">|</span>
+                                <span style="display: inline-flex; align-items: center; gap: 0.3rem; color: ${dailyStats.powerSavings > 0 ? '#fbbf24' : 'var(--text-muted)'}; font-weight: 600;" title="عدد مرات الدخول في وضع توفير الطاقة خلال اليوم">
+                                    <i class="fa-solid fa-leaf" style="font-size: 0.68rem; color: ${dailyStats.powerSavings > 0 ? '#f59e0b' : 'var(--text-dim)'};"></i> توفير: <strong>${dailyStats.powerSavings}</strong>
+                                </span>
+                            </div>
+                        </div>
+
+
                         <div class="card-footer">
                             <span><i class="fa-regular fa-clock"></i> ${timeAgo}</span>
                             <div class="card-actions">
@@ -3528,6 +3921,7 @@
             if (lat !== 0 && lng !== 0) {
                 App.map.flyTo([lat, lng], 17, { animate: true, duration: 1.0 });
                 if (dev.marker) {
+                    dev.marker.setPopupContent(getDevicePopupHtml(dev));
                     dev.marker.openPopup();
                 }
 
@@ -3980,11 +4374,289 @@
             return `منذ ${diffDays} يوم`;
         }
 
+        // --- Wake Reason Formatter ---
+        function formatWakeReason(rawReason) {
+            if (!rawReason) return null;
+            const r = String(rawReason).toLowerCase().trim();
+            if (!r || r === 'unknown' || r === 'none') return null;
+
+            if (r.includes('vibration') || r.includes('motion') || r.includes('shock')) {
+                return {
+                    text: 'حركة / اهتزاز (حساس الصدمات)',
+                    shortText: 'اهتزاز / حركة',
+                    icon: 'fa-solid fa-bolt',
+                    color: '#fbbf24',
+                    bg: 'rgba(251, 191, 36, 0.12)',
+                    border: 'rgba(251, 191, 36, 0.28)'
+                };
+            }
+            if (r.includes('stationary') || r.includes('parked') || r.includes('standstill')) {
+                return {
+                    text: 'ثبات وتوقف الدراجة (Stationary / ركن)',
+                    shortText: 'ثبات وركن الدراجة',
+                    icon: 'fa-solid fa-square-parking',
+                    color: '#38bdf8',
+                    bg: 'rgba(56, 189, 248, 0.12)',
+                    border: 'rgba(56, 189, 248, 0.28)'
+                };
+            }
+            if (r.includes('contact')) {
+                return {
+                    text: 'فتح الكونتاكت (تشغيل السويتش)',
+                    shortText: 'فتح كونتاكت',
+                    icon: 'fa-solid fa-key',
+                    color: '#38bdf8',
+                    bg: 'rgba(56, 189, 248, 0.12)',
+                    border: 'rgba(56, 189, 248, 0.28)'
+                };
+            }
+            if (r.includes('cmd') || r.includes('command') || r.includes('unlock') || r.includes('start') || r.includes('starter')) {
+                return {
+                    text: 'أمر تحكم عن بُعد (سحابي)',
+                    shortText: 'أمر تحكم',
+                    icon: 'fa-solid fa-tower-broadcast',
+                    color: '#a78bfa',
+                    bg: 'rgba(167, 139, 250, 0.12)',
+                    border: 'rgba(167, 139, 250, 0.28)'
+                };
+            }
+            if (r.includes('timer') || r.includes('interval') || r.includes('keepalive')) {
+                return {
+                    text: 'مؤقت دوري مجدول',
+                    shortText: 'مؤقت دوري',
+                    icon: 'fa-regular fa-clock',
+                    color: '#34d399',
+                    bg: 'rgba(52, 211, 153, 0.12)',
+                    border: 'rgba(52, 211, 153, 0.28)'
+                };
+            }
+            if (r.includes('boot') || r.includes('power_on') || r.includes('rst') || r.includes('reset')) {
+                return {
+                    text: 'بدء تشغيل الجهاز (Power-on)',
+                    shortText: 'بدء تشغيل',
+                    icon: 'fa-solid fa-plug',
+                    color: '#94a3b8',
+                    bg: 'rgba(148, 163, 184, 0.12)',
+                    border: 'rgba(148, 163, 184, 0.28)'
+                };
+            }
+
+            return {
+                text: rawReason,
+                shortText: rawReason,
+                icon: 'fa-solid fa-bell',
+                color: '#38bdf8',
+                bg: 'rgba(56, 189, 248, 0.12)',
+                border: 'rgba(56, 189, 248, 0.28)'
+            };
+        }
+
+        // --- 12-Hour Clock Formatter (نظام 12 ساعة) ---
+        function formatTime12H(dateOrTs) {
+            const d = (typeof dateOrTs === 'number' || typeof dateOrTs === 'string') ? new Date(dateOrTs) : (dateOrTs || new Date());
+            let hours = d.getHours();
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            const seconds = String(d.getSeconds()).padStart(2, '0');
+            const period = hours >= 12 ? 'م' : 'ص';
+            hours = hours % 12;
+            if (hours === 0) hours = 12;
+            const hoursStr = String(hours).padStart(2, '0');
+            return `${hoursStr}:${minutes}:${seconds} ${period}`;
+        }
+
+        function formatTime12HShort(dateOrTs) {
+            const d = (typeof dateOrTs === 'number' || typeof dateOrTs === 'string') ? new Date(dateOrTs) : (dateOrTs || new Date());
+            let hours = d.getHours();
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            const period = hours >= 12 ? 'م' : 'ص';
+            hours = hours % 12;
+            if (hours === 0) hours = 12;
+            const hoursStr = String(hours).padStart(2, '0');
+            return `${hoursStr}:${minutes} ${period}`;
+        }
+
+        // --- Device Live Events Manager (سجل الأحداث الحية السريع) ---
+        function addDeviceEvent(deviceId, text, type = 'info', icon = 'fa-solid fa-info-circle') {
+            if (!deviceId || !text) return;
+            const storageKey = 'motolock_events_' + deviceId;
+            let events = [];
+            try {
+                events = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            } catch(e) {}
+            
+            // Prevent duplicate event within 12 seconds
+            const now = Date.now();
+            if (events.length > 0) {
+                const last = events[0];
+                if (last.text === text && (now - last.timestamp) < 12000) {
+                    return;
+                }
+            }
+
+            events.unshift({
+                id: 'evt_' + now + '_' + Math.random().toString(36).substring(2, 6),
+                timestamp: now,
+                text: text,
+                type: type,
+                icon: icon
+            });
+
+            if (events.length > 30) {
+                events = events.slice(0, 30);
+            }
+
+            try {
+                localStorage.setItem(storageKey, JSON.stringify(events));
+            } catch(e) {}
+
+            // If modal-control is currently open for this device, refresh the events log DOM
+            if (App.controlActiveDeviceId === deviceId) {
+                renderDeviceEventsLog(deviceId);
+            }
+        }
+
+        function renderDeviceEventsLog(deviceId) {
+            const container = document.getElementById('ctrl-events-log-list');
+            if (!container) return;
+
+            const storageKey = 'motolock_events_' + deviceId;
+            let events = [];
+            try {
+                events = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            } catch(e) {}
+
+            if (events.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: var(--text-muted); font-size: 0.72rem; padding: 0.75rem 0.5rem;">
+                        <i class="fa-regular fa-clock" style="font-size: 1.1rem; color: var(--text-dim); margin-bottom: 0.25rem; display: block;"></i>
+                        لا توجد أحداث مسجلة بعد لهذه الدراجة. يتم تسجيل الأحداث فور حدوثها.
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            events.forEach(evt => {
+                const time12H = formatTime12HShort(evt.timestamp);
+                let badgeColor = 'var(--text-muted)';
+                let badgeBg = 'rgba(255, 255, 255, 0.04)';
+                if (evt.type === 'engine_on' || evt.type === 'success' || evt.type === 'online') {
+                    badgeColor = 'var(--accent-green)';
+                    badgeBg = 'rgba(16, 185, 129, 0.12)';
+                } else if (evt.type === 'engine_off' || evt.type === 'offline' || evt.type === 'error') {
+                    badgeColor = 'var(--accent-red)';
+                    badgeBg = 'rgba(239, 68, 68, 0.12)';
+                } else if (evt.type === 'vibration' || evt.type === 'warning' || evt.type === 'powersave') {
+                    badgeColor = '#fbbf24';
+                    badgeBg = 'rgba(251, 191, 36, 0.12)';
+                } else if (evt.type === 'command' || evt.type === 'ping' || evt.type === 'reboot') {
+                    badgeColor = '#38bdf8';
+                    badgeBg = 'rgba(56, 189, 248, 0.12)';
+                }
+
+                html += `
+                    <div class="event-log-item" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.32rem 0.5rem; background: ${badgeBg}; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; font-size: 0.72rem;">
+                        <div style="display: flex; align-items: center; gap: 0.45rem; min-width: 0;">
+                            <i class="${escapeHtml(evt.icon || 'fa-solid fa-circle-dot')}" style="color: ${badgeColor}; font-size: 0.72rem; flex-shrink: 0;"></i>
+                            <span style="color: var(--text-main); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(evt.text)}</span>
+                        </div>
+                        <span style="font-family: monospace; font-size: 0.68rem; color: var(--text-dim); flex-shrink: 0; direction: ltr; font-weight: 600;">
+                            ${time12H}
+                        </span>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function clearDeviceEventsLog(deviceId) {
+            if (!deviceId) return;
+            if (confirm('هل أنت متأكد من مسح سجل أحداث هذه الدراجة؟')) {
+                localStorage.removeItem('motolock_events_' + deviceId);
+                renderDeviceEventsLog(deviceId);
+            }
+        }
+
+        function updateOpenPopups() {
+            App.devices.forEach(dev => {
+                if (dev.marker && typeof dev.marker.isPopupOpen === 'function' && dev.marker.isPopupOpen()) {
+                    const popup = dev.marker.getPopup();
+                    const popupEl = popup ? popup.getElement() : null;
+                    if (popupEl) {
+                        const state = getDeviceConnectionState(dev);
+                        const timeAgo = formatTimeAgo(state.lastSeen);
+                        const parkedAgo = getDeviceStationaryTimeAgo(dev, state);
+                        const speed = Number(dev.status?.speed || 0).toFixed(1);
+
+                        // 1. تحديث نص آخر اتصال ليتطابق ثانية بثانية مع القائمة
+                        const lastSeenEl = popupEl.querySelector('.popup-last-seen-val');
+                        if (lastSeenEl && lastSeenEl.textContent !== timeAgo) {
+                            lastSeenEl.textContent = timeAgo;
+                        }
+
+                        // 2. تحديث مدة التوقف
+                        const parkedRow = popupEl.querySelector('.popup-row-parked');
+                        const parkedEl = popupEl.querySelector('.popup-parked-val');
+                        if (parkedRow && parkedEl) {
+                            if ((state.isParked || state.isPowerSaving) && parkedAgo) {
+                                parkedRow.style.display = '';
+                                if (parkedEl.textContent !== parkedAgo) {
+                                parkedEl.textContent = parkedAgo;
+                                }
+                            } else {
+                                parkedRow.style.display = 'none';
+                            }
+                        }
+
+                        // 3. تحديث شارة الحالة في العنوان
+                        const statusBadgeEl = popupEl.querySelector('.popup-status-badge');
+                        if (statusBadgeEl) {
+                            let statusLabel = '';
+                            if (state.isPowerSaving) {
+                                statusLabel = `<i class="fa-solid fa-leaf"></i> 🟡 توفير الطاقة ${parkedAgo ? '(' + parkedAgo + ')' : ''}`;
+                                statusBadgeEl.style.color = 'var(--accent-amber)';
+                            } else if (state.isMoving) {
+                                statusLabel = `<i class="fa-solid fa-gauge-high"></i> 🟢 متحرك (${speed} كم/س)`;
+                                statusBadgeEl.style.color = 'var(--accent-green)';
+                            } else if (state.isParked) {
+                                statusLabel = `<i class="fa-solid fa-square-parking"></i> 🔵 متوقف ${parkedAgo ? '(' + parkedAgo + ')' : ''}`;
+                                statusBadgeEl.style.color = 'var(--accent-blue)';
+                            } else {
+                                statusLabel = '<i class="fa-solid fa-circle-xmark"></i> 🔴 غير متصل';
+                                statusBadgeEl.style.color = 'var(--accent-red)';
+                            }
+                            if (statusBadgeEl.innerHTML !== statusLabel) {
+                                statusBadgeEl.innerHTML = statusLabel;
+                            }
+                        }
+
+                        // 4. إحصائيات اليوم (انقطاع / توفير)
+                        const dailyStats = getDeviceDailyStats(dev);
+                        const discEl = popupEl.querySelector('.popup-stats-disconnects');
+                        if (discEl && discEl.textContent !== String(dailyStats.disconnects)) {
+                            discEl.textContent = dailyStats.disconnects;
+                        }
+                        const psEl = popupEl.querySelector('.popup-stats-powersave');
+                        if (psEl && psEl.textContent !== String(dailyStats.powerSavings)) {
+                            psEl.textContent = dailyStats.powerSavings;
+                        }
+                    } else {
+                        dev.marker.setPopupContent(getDevicePopupHtml(dev));
+                    }
+                }
+            });
+        }
+
         function startRelativeTimeTicker() {
             setInterval(() => {
                 renderDevicesList();
                 updateKpiCounters();
-            }, 10000); // refresh relative times and KPIs every 10 seconds
+                updateOpenPopups();
+                if (App.controlActiveDeviceId) {
+                    updateControlModalStatus(App.controlActiveDeviceId);
+                }
+            }, 4000); // refresh relative times, KPIs and connection state every 4 seconds
         }
 
         // --- Map Fullscreen Toggle ---
@@ -4057,6 +4729,9 @@
             // Update live metrics & badge
             updateControlModalStatus(deviceId);
 
+            // Render live device events log
+            renderDeviceEventsLog(deviceId);
+
             // Open modal
             openModal('modal-control');
         }
@@ -4121,6 +4796,46 @@
                 signalElem.innerHTML = `<i class="fa-solid fa-signal"></i> ${signal.displayText}${signal.shortOp ? ' (' + escapeHtml(signal.shortOp) + ')' : ''}`;
                 signalElem.title = `${signal.op ? signal.op + ' - ' : ''}${signal.fullText}${signal.dbm ? ' (' + signal.dbm + ' dBm)' : ''}`;
             }
+
+            // Daily stats & firmware in modal
+            const dailyStats = getDeviceDailyStats(dev);
+            const fwElem = document.getElementById('ctrl-device-fw');
+            if (fwElem) {
+                if (dailyStats.fw) {
+                    fwElem.style.display = 'inline-flex';
+                    fwElem.textContent = 'v' + dailyStats.fw;
+                    fwElem.title = 'إصدار الفيرموير: ' + dailyStats.fw;
+                } else {
+                    fwElem.style.display = 'none';
+                    fwElem.textContent = '';
+                }
+            }
+
+            const discElem = document.getElementById('ctrl-disconnects-val');
+            if (discElem) {
+                discElem.style.color = dailyStats.disconnects > 0 ? '#f87171' : 'var(--text-muted)';
+                discElem.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="font-size: 0.7rem; color: ${dailyStats.disconnects > 0 ? '#ef4444' : 'var(--text-dim)'};"></i> انقطاع الاتصال: <strong>${dailyStats.disconnects}</strong>`;
+            }
+
+            const psElem = document.getElementById('ctrl-powersaving-val');
+            if (psElem) {
+                psElem.style.color = dailyStats.powerSavings > 0 ? '#fbbf24' : 'var(--text-muted)';
+                psElem.innerHTML = `<i class="fa-solid fa-leaf" style="font-size: 0.7rem; color: ${dailyStats.powerSavings > 0 ? '#f59e0b' : 'var(--text-dim)'};"></i> توفير الطاقة: <strong>${dailyStats.powerSavings}</strong>`;
+            }
+
+            // Wake Reason in modal
+            const wakeReason = formatWakeReason(dev.status?.lastWakeReason || dev.meta?.lastWakeReason);
+            const wakeRow = document.getElementById('ctrl-wake-row');
+            const wakeVal = document.getElementById('ctrl-wake-val');
+            if (wakeRow && wakeVal) {
+                if (wakeReason) {
+                    wakeRow.style.display = 'flex';
+                    wakeVal.style.color = wakeReason.color;
+                    wakeVal.innerHTML = `<i class="${wakeReason.icon}"></i> ${escapeHtml(wakeReason.text)}`;
+                } else {
+                    wakeRow.style.display = 'none';
+                }
+            }
         }
 
         function setControlFeedback(type, iconClass, line1, line2) {
@@ -4166,13 +4881,21 @@
 
             const allControlBtns = document.querySelectorAll('.btn-control-action, .btn-subaction');
 
+            if (action === 'REBOOT') {
+                if (!confirm(`تحذير: هل أنت متأكد من رغبتك في إعادة تشغيل نظام الدراجة (${dev ? dev.name : deviceId}) وموديولات الـ SIM والـ GPS عن بُعد (Soft Reboot)؟`)) {
+                    return;
+                }
+            }
+
             const actionNames = {
                 'UNLOCK': 'فتح الدراجة',
                 'LOCK': 'قفل الدراجة',
                 'START': 'تشغيل المحرك',
                 'STOP': 'إيقاف المحرك',
                 'ALARM': 'إنذار / سرينة',
-                'STARTER_PULSE': 'نبضة المارش'
+                'STARTER_PULSE': 'نبضة المارش',
+                'PING': 'فحص الاستجابة (Ping)',
+                'REBOOT': 'إعادة تشغيل الجهاز (Reboot)'
             };
             const actionNameAr = actionNames[action] || action;
 
@@ -4236,6 +4959,7 @@
                 'بانتظار استجابة موديول الدراجة وتأكيد التنفيذ عبر السحابة...'
             );
 
+            const sendStartTime = Date.now();
             const nonce = 'web_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
             const payload = {
                 action: action,
@@ -4253,6 +4977,25 @@
                     App.commandQueueUnsub = null;
                 }
 
+                // Auto-cleanup stale pending items in queue before sending new command
+                try {
+                    const qSnap = await App.db.ref(`devices/${deviceId}/commandQueue`).once('value');
+                    const qVal = qSnap.val() || {};
+                    const nowTs = Date.now();
+                    const staleRemovals = [];
+                    for (const [k, v] of Object.entries(qVal)) {
+                        const vTs = Number(v.timestamp || 0);
+                        if (!vTs || (nowTs - vTs > 30000) || v.state === 'done' || v.state === 'rejected') {
+                            staleRemovals.push(App.db.ref(`devices/${deviceId}/commandQueue/${k}`).remove());
+                        }
+                    }
+                    if (staleRemovals.length > 0) {
+                        await Promise.all(staleRemovals);
+                    }
+                } catch (cleanErr) {
+                    console.warn('[Admin] Queue cleanup error:', cleanErr);
+                }
+
                 // Write to commandQueue
                 await App.db.ref(`devices/${deviceId}/commandQueue/${nonce}`).set(payload);
 
@@ -4263,16 +5006,17 @@
                     queueKey: nonce
                 });
 
-                // Listen for response / acknowledgement
+                // Listen for response / acknowledgement on BOTH root node and nonce queue node
                 let commandFinished = false;
                 const cmdRef = App.db.ref(`devices/${deviceId}/command`);
+                const queueItemRef = App.db.ref(`devices/${deviceId}/commandQueue/${nonce}`);
 
                 const onCommandChange = (snap) => {
                     if (!snap.exists() || !snap.val()) return;
                     const val = snap.val();
 
                     // Only react to our nonce or latest matching action
-                    if (val.nonce !== nonce && val.action !== action && val.queueKey !== nonce) return;
+                    if (val.nonce && val.nonce !== nonce && val.queueKey !== nonce) return;
 
                     if (val.state === 'accepted') {
                         setControlFeedback(
@@ -4283,12 +5027,33 @@
                         );
                     } else if (val.state === 'done') {
                         commandFinished = true;
-                        setControlFeedback(
-                            'success',
-                            'fa-solid fa-circle-check',
-                            `✅ تم تنفيذ أمر (${actionNameAr}) بنجاح على الدراجة!`,
-                            'استجابت الدراجة في الوقت الفعلي وتم تحديث الحالة.'
-                        );
+                        if (action === 'PING') {
+                            const latency = Date.now() - sendStartTime;
+                            setControlFeedback(
+                                'success',
+                                'fa-solid fa-stopwatch',
+                                `✅ استجابت الدراجة بنجاح! وقت الرد: ${latency} مللي ثانية`,
+                                'الاتصال بشريحة وسيرفر الدراجة نشط وسريع ومستقر.'
+                            );
+                            addDeviceEvent(deviceId, `فحص سرعة الاستجابة (Ping: ${latency}ms)`, 'ping', 'fa-solid fa-stopwatch');
+                        } else if (action === 'REBOOT') {
+                            setControlFeedback(
+                                'success',
+                                'fa-solid fa-arrows-rotate',
+                                '✅ تم إرسال أمر إعادة التشغيل (Soft Reboot) بنجاح!',
+                                'يقوم الجهاز الآن بإعادة التشغيل وسيعاود الاتصال تلقائياً خلال لحظات.'
+                            );
+                            addDeviceEvent(deviceId, 'إعادة تشغيل الجهاز عن بُعد (Soft Reboot)', 'reboot', 'fa-solid fa-arrows-rotate');
+                        } else {
+                            setControlFeedback(
+                                'success',
+                                'fa-solid fa-circle-check',
+                                `✅ تم تنفيذ أمر (${actionNameAr}) بنجاح على الدراجة!`,
+                                'استجابت الدراجة في الوقت الفعلي وتم تحديث الحالة.'
+                            );
+                            addDeviceEvent(deviceId, `تنفيذ أمر (${actionNameAr}) بنجاح`, 'command', 'fa-solid fa-circle-check');
+                        }
+
                         cleanupListener();
                         setTimeout(() => {
                             allControlBtns.forEach(btn => btn.disabled = false);
@@ -4297,7 +5062,7 @@
                         commandFinished = true;
                         let reason = val.error || 'خطأ غير معروف';
                         if (val.error === 'bad_password') reason = 'كلمة مرور الدراجة غير صحيحة! تأكد من الـ PIN وأعد المحاولة.';
-                        else if (val.error === 'unsupported_command') reason = 'هذا الأمر غير مدعوم في برمجة الدراجة الحالية.';
+                        else if (val.error === 'unsupported_command') reason = 'هذا الأمر غير مدعوم في برمجة الدراجة الحالية (يرجى التأكد من الفيرموير).';
 
                         setControlFeedback(
                             'error',
@@ -4305,6 +5070,7 @@
                             `❌ تم رفض أمر (${actionNameAr}) من الدراجة`,
                             reason
                         );
+                        addDeviceEvent(deviceId, `رفض أمر (${actionNameAr}): ${reason}`, 'error', 'fa-solid fa-circle-xmark');
                         cleanupListener();
                         allControlBtns.forEach(btn => btn.disabled = false);
                     }
@@ -4312,25 +5078,27 @@
 
                 const cleanupListener = () => {
                     cmdRef.off('value', onCommandChange);
+                    queueItemRef.off('value', onCommandChange);
                     if (App.commandQueueUnsub) App.commandQueueUnsub = null;
                 };
 
                 App.commandQueueUnsub = cleanupListener;
                 cmdRef.on('value', onCommandChange);
+                queueItemRef.on('value', onCommandChange);
 
-                // Safety timeout: 18 seconds (if network drops midway)
+                // Safety timeout: 28 seconds (giving 2G SIM800L roundtrip sufficient time)
                 setTimeout(() => {
                     if (!commandFinished && App.controlActiveDeviceId === deviceId) {
                         cleanupListener();
                         setControlFeedback(
                             'error',
                             'fa-solid fa-clock-rotate-left',
-                            'الدراجة غير متصلة بالإنترنت حالياً (لم تستجب)',
-                            'الرجاء الانتظار والمحاولة مرة أخرى بعد 30 ثانية أو دقيقة.'
+                            'الدراجة لم تستجب للأمر خلال المهلة المحددة (28 ثانية)',
+                            'تأكد من رفع وتحديث كود الفيرموير الجديد على شريحة الدراجة وتشغيل وسيط MQTT ثم أعد المحاولة.'
                         );
                         allControlBtns.forEach(btn => btn.disabled = false);
                     }
-                }, 18000);
+                }, 28000);
 
             } catch (err) {
                 console.error('Failed to send command to Firebase:', err);
