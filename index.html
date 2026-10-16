@@ -2194,7 +2194,7 @@
                                 <h4 id="ctrl-device-name">دراجة</h4>
                                 <div style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.15rem;">
                                     <span id="ctrl-device-id" style="font-family: monospace;">6CC84044E15A</span>
-                                    <span id="ctrl-device-fw" class="fw-badge" style="font-size: 0.65rem; font-weight: 700; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 4px; padding: 0.05rem 0.35rem;" title="إصدار الفيرموير">v1.0.13</span>
+                                    <span id="ctrl-device-fw" class="fw-badge" style="font-size: 0.65rem; font-weight: 700; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 4px; padding: 0.05rem 0.35rem;" title="إصدار الفيرموير">v1.0.14</span>
                                 </div>
                             </div>
                             <div id="ctrl-conn-badge" class="control-state-pill" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3);">
@@ -3527,7 +3527,7 @@
 
             let fwHtml = '';
             if (dailyStats.fw) {
-                const isLatest = dailyStats.fw === '1.0.13';
+                const isLatest = dailyStats.fw === '1.0.14';
                 const fwColor = isLatest ? '#38bdf8' : '#a78bfa';
                 const fwBg = isLatest ? 'rgba(56, 189, 248, 0.12)' : 'rgba(167, 139, 250, 0.12)';
                 const fwBorder = isLatest ? 'rgba(56, 189, 248, 0.28)' : 'rgba(167, 139, 250, 0.28)';
@@ -3768,11 +3768,11 @@
 
                 let fwBadgeHtml = '';
                 if (dailyStats.fw) {
-                    const isLatest = dailyStats.fw === '1.0.13';
+                    const isLatest = dailyStats.fw === '1.0.14';
                     const fwColor = isLatest ? '#38bdf8' : '#a78bfa';
                     const fwBg = isLatest ? 'rgba(56, 189, 248, 0.12)' : 'rgba(167, 139, 250, 0.12)';
                     const fwBorder = isLatest ? 'rgba(56, 189, 248, 0.28)' : 'rgba(167, 139, 250, 0.28)';
-                    const fwTitle = isLatest ? 'فيرموير v1.0.13 (الأحدث)' : `فيرموير v${dailyStats.fw}`;
+                    const fwTitle = isLatest ? 'فيرموير v1.0.14 (الأحدث)' : `فيرموير v${dailyStats.fw}`;
                     fwBadgeHtml = `<span class="fw-badge" style="font-size: 0.62rem; font-weight: 700; background: ${fwBg}; color: ${fwColor}; border: 1px solid ${fwBorder}; border-radius: 4px; padding: 0.05rem 0.35rem; display: inline-flex; align-items: center; gap: 0.25rem;" title="${fwTitle}">
                         <i class="fa-solid fa-microchip" style="font-size: 0.58rem;"></i> v${escapeHtml(dailyStats.fw)}
                     </span>`;
