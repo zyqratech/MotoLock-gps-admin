@@ -2688,7 +2688,28 @@
             appId: "1:585012166262:android:af560c09c7cd17abbbe957"
         };
 
-        const KNOWN_DEFAULT_DEVICES = ['6CC84044E15A', 'CCDBA7979B46'];
+        const KNOWN_DEFAULT_DEVICES = [
+            '6CC84044E15A',
+            'CCDBA7979B46',
+            'CCDBA797831A', // أحمد محمد التجمع الأول
+            '80F3DA430AA6',
+            'CCDBA7977B8A',
+            '28562F49E0B2',
+            '004B123A862E',
+            '004B1296B9A2',
+            '004B12F2987E',
+            '004B12F23CCA',
+            '004B12F1DF96',
+            '004B12F13676',
+            '004B12354EBE',
+            '1C8F573A94EE',
+            '88F15560735E',
+            'B4BFE96FDA76',
+            '8C8C29EE7D8E',
+            'B03FD36F6E8A',
+            'B4BFE96F09C6',
+            '38182B8B349E'
+        ];
 
         // App State
         const App = {
@@ -2750,6 +2771,7 @@
                 // Pre-populate custom names for known devices if not set
                 if (!App.customNames['6CC84044E15A']) App.customNames['6CC84044E15A'] = 'دراجة 6CC8 (نشطة)';
                 if (!App.customNames['CCDBA7979B46']) App.customNames['CCDBA7979B46'] = 'دراجة CCDB';
+                if (!App.customNames['CCDBA797831A']) App.customNames['CCDBA797831A'] = 'أحمد محمد (التجمع الأول)';
 
                 const savedTracked = localStorage.getItem('motolock_tracked_ids');
                 if (savedTracked) {
@@ -3142,26 +3164,38 @@
         // Calculate device connection state
         // CRITICAL: Checks explicit mqttOnline from server/meta AND dynamic freshness timeout
         function getDeviceConnectionState(dev) {
-            const receivedAt = Number(dev.status?.receivedAt || dev.status?.timestamp || 0);
-            const lastSeenAt = Number(dev.meta?.lastSeenAt || 0);
+            // Helper to parse epoch ms safely (ignoring millis() uptimes like 50000)
+            function toEpochMs(val) {
+                if (!val) return 0;
+                const n = Number(val);
+                if (isNaN(n) || n <= 0) return 0;
+                if (n > 1000000000000) return n; // Epoch ms
+                if (n > 1000000000) return n * 1000; // Epoch seconds
+                return 0; // Discard uptime millis
+            }
+
+            const receivedAt = toEpochMs(dev.status?.receivedAt || dev.status?.t || dev.status?.serverTimestamp);
+            const lastSeenAt = toEpochMs(dev.meta?.lastSeenAt);
             const lastSeen = Math.max(receivedAt, lastSeenAt);
             const timeDiff = lastSeen > 0 ? (Date.now() - lastSeen) : Infinity;
 
-            // 1. فحص هل السيرفر أو الـ Broker سجل انقطاع الاتصال صراحة
-            const isExplicitlyOffline = (dev.meta?.mqttOnline === false || dev.meta?.mqttOnline === 'false');
-
-            // 2. مهلة استجابة فورية سريعة مطابقة للتطبيق (تكشف نزع الشريحة وانقطاع النت فوراً):
-            // - لو المحرك شغال أو الدراجة تتحرك (الإرسال كل 1.5 ثانية): مهلة 35 ثانية كافية لاعتبارها غير متصلة
-            // - لو الدراجة متوقفة: مهلة 65 ثانية كافية لاعتبارها غير متصلة
             const isEngineOrMoving = Boolean(
                 dev.status?.engine === true || 
                 dev.status?.contact === true || 
                 dev.status?.motionState === 'moving' || 
                 Number(dev.status?.speed || 0) > 1.5
             );
-            const activeThreshold = isEngineOrMoving ? 35000 : 65000;
 
-            const isOnline = !isExplicitlyOffline && lastSeen > 0 && timeDiff < activeThreshold;
+            // مهلة واقعية تستوعب تبديل أبراج شبكات المحمول في مصر (2G Cell Handovers):
+            // 90 ثانية أثناء الحركة، و 180 ثانية أثناء التوقف
+            const activeThreshold = isEngineOrMoving ? 90000 : 180000;
+
+            // إذا كان الجهاز قد أرسل أي بيانات حديثة خلال مهلة النشاط، فهو متصل 100%
+            // البيانات الحية تتفوق دائماً على أي قيمة قديمة للـ mqttOnline
+            const isFreshData = lastSeen > 0 && timeDiff < activeThreshold;
+            const isExplicitlyOffline = !isFreshData && (dev.meta?.mqttOnline === false || dev.meta?.mqttOnline === 'false');
+
+            const isOnline = isFreshData || (!isExplicitlyOffline && lastSeen > 0 && timeDiff < activeThreshold);
 
             // Power saving mode detection from status or meta
             // Contact is true only if contact sensor is HIGH (or alternator is actively charging >= 13.6V)
