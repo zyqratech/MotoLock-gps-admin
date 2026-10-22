@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MotoLock GPS | لوحة تحكم ومراقبة الأجهزة</title>
+
+    <!-- Meta for Mobile & SEO -->
+    <meta name="description"
+        content="لوحة تحكم ذكية ومباشرة لمراقبة وتتبع دراجات وأجهزة MotoLock GPS لحظياً عبر Firebase">
+    <meta name="theme-color" content="#090e17">
+    <link rel="icon" type="image/png" href="../app_icon.png">
+
+    <!-- Fonts: Cairo & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-brand">
+            <div class="logo-icon">
+                <i class="fa-solid fa-motorcycle"></i>
+            </div>
+            <div class="brand-text">
+                <h1>MotoLock <span>Admin</span></h1>
+                <span id="version-label">مراقبة الأجهزة الحية v2.0</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="conn-pill connecting" id="firebase-conn-pill">
+                <span class="pulse-dot"></span>
+                <span id="firebase-conn-text">جارِ الاتصال...</span>
+            </div>
+
+            <div class="timeout-pill" title="مهلة اعتبار الجهاز متصل أونلاين بعد آخر إشارة حية">
+                <i class="fa-solid fa-stopwatch" style="color: var(--accent-cyan);"></i>
+                <select id="sel-timeout" class="timeout-select">
+                    <option value="90000">مهلة: 1.5 دقيقة</option>
+                    <option value="180000">مهلة: 3 دقائق</option>
+                    <option value="210000" selected>مهلة: 3.5 دقيقة (افتراضي)</option>
+                    <option value="300000">مهلة: 5 دقائق</option>
+                </select>
+            </div>
+
+            <button class="btn-icon" id="btn-add-device" title="إضافة معرف جهاز">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+
+            <button type="button" class="usage-pill" id="btn-usage" onclick="openModal('modal-usage')"
+                title="عرض استهلاك وباقة الفايربيس (Connections, Storage, Downloads)">
+                <i class="fa-solid fa-chart-pie" style="color: #38bdf8;"></i>
+                <span id="usage-pill-text">الاستهلاك</span>
+            </button>
+
+            <button type="button" class="usage-pill" id="btn-broadcast" onclick="openBroadcastModal()"
+                title="إدارة ونشر الرسائل والإعلانات للمستخدمين"
+                style="background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.35); color: #f59e0b;">
+                <i class="fa-solid fa-bullhorn" style="color: #fbbf24;"></i>
+                <span id="broadcast-pill-text" style="color: #fbbf24;">الإعلانات</span>
+                <span id="broadcast-badge-count" style="display:none; background: #ef4444; color: #fff; font-size: 0.65rem; padding: 1px 6px; border-radius: 10px; margin-right: 4px;">0</span>
+            </button>
+
+            <button class="btn-icon" id="btn-config" title="إعدادات الاتصال">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- KPI Summary Bar -->
+    <div class="kpi-container">
+        <div class="kpi-card active" data-filter="all" style="--card-accent: var(--accent-cyan);">
+            <div class="kpi-icon"><i class="fa-solid fa-server"></i></div>
+            <div class="kpi-content">
+                <span class="kpi-title">إجمالي الأجهزة</span>
+                <span class="kpi-value" id="kpi-total">0</span>
+            </div>
+        </div>
+
+        <div class="kpi-card" data-filter="online" style="--card-accent: var(--accent-green);">
+            <div class="kpi-icon"><i class="fa-solid fa-wifi"></i></div>
+            <div class="kpi-content">
+                <span class="kpi-title">متصلة الآن</span>
+                <span class="kpi-value" id="kpi-online">0</span>
+            </div>
+        </div>
+
+        <div class="kpi-card" data-filter="moving" style="--card-accent: #00d2ff;">
+            <div class="kpi-icon"><i class="fa-solid fa-gauge-high"></i></div>
+            <div class="kpi-content">
+                <span class="kpi-title">تتحرك حالياً</span>
+                <span class="kpi-value" id="kpi-moving">0</span>
+            </div>
+        </div>
+
+        <div class="kpi-card" data-filter="parked" style="--card-accent: var(--accent-blue);">
+            <div class="kpi-icon"><i class="fa-solid fa-square-parking"></i></div>
+            <div class="kpi-content">
+                <span class="kpi-title">متوقفة / مركونة</span>
+                <span class="kpi-value" id="kpi-parked">0</span>
+            </div>
+        </div>
+
+        <div class="kpi-card" data-filter="powersaving" style="--card-accent: var(--accent-amber);">
+            <div class="kpi-icon"><i class="fa-solid fa-leaf"></i></div>
+            <div class="kpi-content">
+                <span class="kpi-title">توفير الطاقة</span>
+                <span class="kpi-value" id="kpi-powersaving">0</span>
+            </div>
+        </div>
+
+        <div class="kpi-card" data-filter="offline" style="--card-accent: var(--accent-red);">
+            <div class="kpi-icon"><i class="fa-solid fa-power-off"></i></div>
+            <div class="kpi-content">
+                <span class="kpi-title">غير متصلة</span>
+                <span class="kpi-value" id="kpi-offline">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="main-wrapper">
+
+        <!-- Sidebar Devices Directory -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sheet-drag-handle" id="sheet-drag-handle" title="اسحب أو اضغط للنزول إلى الخريطة">
+                <div class="sheet-drag-pill"></div>
+            </div>
+            <div class="sidebar-header">
+                <div style="display: flex; align-items: center; gap: 0.5rem; width: 100%;">
+                    <div class="search-box" style="flex: 1;">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" class="search-input" id="device-search"
+                            placeholder="بحث بالاسم أو الماك MAC...">
+                    </div>
+                    <button class="btn-icon mobile-close-btn" onclick="showMobileTab('map')" title="العودة للخريطة">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+
+                <div
+                    style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; background: rgba(0,0,0,0.22); padding: 0.35rem 0.65rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <span
+                        style="font-size: 0.72rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.35rem; font-weight: 600;">
+                        <i class="fa-solid fa-arrow-down-short-wide" style="color: var(--accent-cyan);"></i> ترتيب
+                        القائمة:
+                    </span>
+                    <select id="sel-sort" class="sort-select" title="اختر طريقة ترتيب القائمة لمنع قفز الأسماء">
+                        <option value="stable" selected>📌 ثابت بالاسم (يمنع القفز)</option>
+                        <option value="online_first">🟢 المتصل أولاً (أسماء ثابتة)</option>
+                        <option value="activity">🕒 أحدث نشاط (متحرك)</option>
+                        <option value="mac">🆔 حسب كود الماك</option>
+                    </select>
+                </div>
+
+                <div class="filter-chips">
+                    <span class="chip active" data-filter="all">الكل</span>
+                    <span class="chip" data-filter="online">متصلة (أونلاين)</span>
+                    <span class="chip" data-filter="moving">متحركة</span>
+                    <span class="chip" data-filter="parked">متوقفة</span>
+                    <span class="chip" data-filter="powersaving">توفير الطاقة</span>
+                    <span class="chip" data-filter="offline">غير متصلة</span>
+                </div>
+            </div>
+
+            <!-- Devices List -->
+            <div class="devices-list" id="devices-list-container">
+                <div class="empty-state">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i>
+                    <p>جارِ استعلام الأجهزة من Firebase...</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Live Map Area -->
+        <main id="map-container">
+            <div id="map"></div>
+
+            <div class="map-floating-controls">
+                <button class="floating-btn" id="btn-toggle-fullscreen" title="تكبير وتوسيع الخريطة">
+                    <i class="fa-solid fa-expand"></i>
+                    <span id="fs-label">تكبير الخريطة</span>
+                </button>
+                <button class="floating-btn" id="btn-fit-bounds">
+                    <i class="fa-solid fa-arrows-to-dot"></i>
+                    <span>إظهار الكل</span>
+                </button>
+                <button class="floating-btn" id="btn-toggle-map-style">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span id="map-style-name">أقمار صناعية</span>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Navigation Bar -->
+    <nav class="mobile-bottom-nav">
+        <button class="mobile-nav-btn active" id="nav-map">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <span>الخريطة</span>
+        </button>
+        <button class="mobile-nav-btn" id="nav-devices">
+            <i class="fa-solid fa-motorcycle"></i>
+            <span>الأجهزة (<span id="mobile-dev-count">0</span>)</span>
+        </button>
+    </nav>
+
+    <!-- Modal: Remote Control -->
+    <div class="modal-backdrop" id="modal-control">
+        <div class="modal-box modal-box-control">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-gamepad" style="color: var(--accent-cyan);"></i> التحكم بالدراجة عن بُعد</h3>
+                <button class="modal-close" onclick="closeModal('modal-control')">&times;</button>
+            </div>
+            <div class="modal-body modal-body-control">
+                <div class="control-landscape-grid">
+                    <!-- Column 1: Primary Controls & Actions (الأوامر والتحكم) -->
+                    <div class="control-col-primary">
+                        <!-- Device Status Info Banner -->
+                        <div class="control-status-banner">
+                            <div class="control-device-info">
+                                <h4 id="ctrl-device-name">دراجة</h4>
+                                <div style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.15rem;">
+                                    <span id="ctrl-device-id" style="font-family: monospace;">6CC84044E15A</span>
+                                    <span id="ctrl-device-fw" class="fw-badge"
+                                        style="font-size: 0.65rem; font-weight: 700; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 4px; padding: 0.05rem 0.35rem;"
+                                        title="إصدار الفيرموير">v1.0.14</span>
+                                </div>
+                            </div>
+                            <div id="ctrl-conn-badge" class="control-state-pill"
+                                style="background: rgba(16, 185, 129, 0.15); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3);">
+                                <span class="pulse-dot" style="width: 7px; height: 7px;"></span> <span
+                                    id="ctrl-conn-text">متصلة الآن</span>
+                            </div>
+                        </div>
+
+                        <!-- Password Input Section -->
+                        <div class="form-group" style="margin-top: 0.1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label for="ctrl-password-input"
+                                    style="display: flex; align-items: center; gap: 0.35rem; font-weight: 700; font-size: 0.76rem;">
+                                    <i class="fa-solid fa-key" style="color: #fbbf24;"></i> كلمة مرور الجهاز:
+                                </label>
+                                <div style="display: flex; gap: 0.35rem;">
+                                    <button type="button" class="mini-btn"
+                                        style="font-size: 0.62rem; padding: 0.12rem 0.38rem; color: #fbbf24; border-color: rgba(251, 191, 36, 0.4);"
+                                        onclick="document.getElementById('ctrl-password-input').value='ZYQRA00#00R'"
+                                        title="استخدام باسوورد المطور الثابت">
+                                        <i class="fa-solid fa-shield"></i> ماستر ZYQRA
+                                    </button>
+                                    <button type="button" class="mini-btn"
+                                        style="font-size: 0.62rem; padding: 0.12rem 0.38rem;"
+                                        onclick="document.getElementById('ctrl-password-input').value='123456'"
+                                        title="استخدام الباسوورد الافتراضي">
+                                        123456
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="password-input-wrapper">
+                                <input type="password" class="form-control" id="ctrl-password-input" value="123456"
+                                    placeholder="أدخل كلمة مرور الدراجة..."
+                                    style="letter-spacing: 2px; padding: 0.45rem 0.75rem; font-size: 0.82rem;">
+                                <button type="button" class="password-toggle-btn" id="btn-toggle-pwd-vis"
+                                    title="إظهار / إخفاء كلمة المرور">
+                                    <i class="fa-solid fa-eye" id="pwd-eye-icon"></i>
+                                </button>
+                            </div>
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; margin-top: 0.15rem;">
+                                <label
+                                    style="font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+                                    <input type="checkbox" id="chk-save-pwd" checked
+                                        style="accent-color: var(--accent-cyan); cursor: pointer;">
+                                    حفظ كلمة المرور لهذه الدراجة (لتنفيذ الأوامر بنقرة واحدة)
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Two Big Action Buttons -->
+                        <div class="control-actions-grid">
+                            <button type="button" class="btn-control-action unlock" id="btn-cmd-unlock"
+                                onclick="executeDeviceCommand('UNLOCK')">
+                                <i class="fa-solid fa-lock-open"></i>
+                                <span class="action-title">فتح الدراجة (UNLOCK)</span>
+                                <span class="action-desc">إلغاء قفل الحماية وتفعيل السير</span>
+                            </button>
+                            <button type="button" class="btn-control-action lock" id="btn-cmd-lock"
+                                onclick="executeDeviceCommand('LOCK')">
+                                <i class="fa-solid fa-lock"></i>
+                                <span class="action-title">قفل الدراجة (LOCK)</span>
+                                <span class="action-desc">تفعيل الأمان وإيقاف الحركة</span>
+                            </button>
+                        </div>
+
+                        <!-- Secondary Quick Action Buttons: Start, Stop, Alarm, Starter -->
+                        <div class="control-subactions-grid">
+                            <button type="button" class="btn-subaction start" id="btn-cmd-start"
+                                onclick="executeDeviceCommand('START')" title="تشغيل كهرباء المحرك (Ignition ON)">
+                                <i class="fa-solid fa-bolt"></i>
+                                <span class="subaction-title">تشغيل المحرك</span>
+                                <span class="subaction-cmd">START</span>
+                            </button>
+                            <button type="button" class="btn-subaction stop" id="btn-cmd-stop"
+                                onclick="executeDeviceCommand('STOP')" title="إطفاء كهرباء المحرك فوراً (Ignition OFF)">
+                                <i class="fa-solid fa-power-off"></i>
+                                <span class="subaction-title">إيقاف المحرك</span>
+                                <span class="subaction-cmd">STOP</span>
+                            </button>
+                            <button type="button" class="btn-subaction alarm" id="btn-cmd-alarm"
+                                onclick="executeDeviceCommand('ALARM')" title="تشغيل / تبديل سرينة الإنذار">
+                                <i class="fa-solid fa-bell"></i>
+                                <span class="subaction-title">إنذار / سرينة</span>
+                                <span class="subaction-cmd">ALARM</span>
+                            </button>
+                            <button type="button" class="btn-subaction starter" id="btn-cmd-starter"
+                                onclick="executeDeviceCommand('STARTER_PULSE')"
+                                title="إرسال نبضة مارش لتشغيل الموتور (1 ثانية)">
+                                <i class="fa-solid fa-gauge-simple-high"></i>
+                                <span class="subaction-title">مارش (Start)</span>
+                                <span class="subaction-cmd">STARTER</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Live Telemetry, Diagnostics & Events (التشخيص والمتابعة الحية) -->
+                    <div class="control-col-diagnostics">
+                        <!-- Live Metrics Summary -->
+                        <div class="ctrl-metrics-grid">
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--text-dim);">حالة القفل</div>
+                                <div id="ctrl-lock-status"
+                                    style="font-size: 0.8rem; font-weight: 700; margin-top: 0.15rem; color: var(--accent-red);">
+                                    <i class="fa-solid fa-lock"></i> مقفول
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--text-dim);">المحرك</div>
+                                <div id="ctrl-engine-status"
+                                    style="font-size: 0.8rem; font-weight: 700; margin-top: 0.15rem; color: var(--text-muted);">
+                                    <i class="fa-solid fa-power-off"></i> مطفأ
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--text-dim);">البطارية</div>
+                                <div id="ctrl-battery-status"
+                                    style="font-size: 0.8rem; font-weight: 700; margin-top: 0.15rem; color: var(--accent-green); font-family: 'JetBrains Mono', monospace;">
+                                    <i class="fa-solid fa-car-battery"></i> 12.8V
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--text-dim);">الشبكة (SIM)</div>
+                                <div id="ctrl-signal-status"
+                                    style="font-size: 0.8rem; font-weight: 700; margin-top: 0.15rem; color: var(--accent-green);">
+                                    <i class="fa-solid fa-signal"></i> --
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Daily Stability & Disconnects Stats in Modal -->
+                        <div id="ctrl-daily-stats"
+                            style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.35rem 0.65rem; font-size: 0.72rem;">
+                            <span
+                                style="color: var(--text-dim); display: inline-flex; align-items: center; gap: 0.3rem;">
+                                <i class="fa-regular fa-calendar-check" style="color: var(--accent-blue);"></i> إحصائيات
+                                اليوم:
+                            </span>
+                            <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                <span id="ctrl-disconnects-val" style="color: var(--text-muted); font-weight: 600;">
+                                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 0.65rem;"></i> انقطاع:
+                                    <strong>0</strong>
+                                </span>
+                                <span style="color: rgba(255, 255, 255, 0.15);">|</span>
+                                <span id="ctrl-powersaving-val" style="color: var(--text-muted); font-weight: 600;">
+                                    <i class="fa-solid fa-leaf" style="font-size: 0.65rem;"></i> توفير:
+                                    <strong>0</strong>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Wake Reason Info Row in Modal -->
+                        <div id="ctrl-wake-row"
+                            style="display: none; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.32rem 0.65rem; font-size: 0.72rem;">
+                            <span
+                                style="color: var(--text-dim); display: inline-flex; align-items: center; gap: 0.3rem;">
+                                <i class="fa-solid fa-bell" style="color: #fbbf24;"></i> سبب الاستيقاظ الأخير:
+                            </span>
+                            <span id="ctrl-wake-val" style="color: #fbbf24; font-weight: 700;">--</span>
+                        </div>
+
+                        <!-- Remote Rescue & Diagnostics Tools: Ping & Reboot -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem;">
+                            <button type="button" class="btn-subaction" id="btn-cmd-ping"
+                                onclick="executeDeviceCommand('PING')"
+                                style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.28); color: #38bdf8; padding: 0.45rem 0.5rem; border-radius: 8px;"
+                                title="فحص سرعة استجابة الاتصال ووقت الرد بالملي ثانية">
+                                <i class="fa-solid fa-stopwatch" style="font-size: 0.95rem;"></i>
+                                <span class="subaction-title" style="font-size: 0.72rem; font-weight: 700;">فحص
+                                    الاستجابة (Ping)</span>
+                                <span class="subaction-cmd" style="font-size: 0.6rem; opacity: 0.85;">قياس زمن
+                                    الاستجابة</span>
+                            </button>
+                            <button type="button" class="btn-subaction" id="btn-cmd-reboot"
+                                onclick="executeDeviceCommand('REBOOT')"
+                                style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.28); color: #fbbf24; padding: 0.45rem 0.5rem; border-radius: 8px;"
+                                title="إعادة تشغيل الـ ESP32 والموديولات عن بُعد في حال تعليق الاتصال">
+                                <i class="fa-solid fa-arrows-rotate" style="font-size: 0.95rem;"></i>
+                                <span class="subaction-title" style="font-size: 0.72rem; font-weight: 700;">إعادة تشغيل
+                                    الجهاز</span>
+                                <span class="subaction-cmd" style="font-size: 0.6rem; opacity: 0.85;">Soft Reboot</span>
+                            </button>
+                        </div>
+
+                        <!-- Realtime Feedback Box -->
+                        <div class="control-feedback-box" id="ctrl-feedback">
+                            <i class="fa-solid fa-circle-notch fa-spin" id="ctrl-feedback-icon"
+                                style="margin-top: 2px; flex-shrink: 0;"></i>
+                            <div id="ctrl-feedback-text"
+                                style="display: flex; flex-direction: column; gap: 0.15rem; flex: 1; min-width: 0;">
+                                <span style="font-weight: 700; font-size: 0.78rem;">جارِ إرسال الأمر...</span>
+                            </div>
+                        </div>
+
+                        <!-- Live Device Events Log (12-Hour format) -->
+                        <div class="control-events-log"
+                            style="background: rgba(0,0,0,0.22); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 8px; padding: 0.45rem 0.6rem;">
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.3rem; padding-bottom: 0.25rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
+                                <span
+                                    style="font-size: 0.72rem; font-weight: 700; color: var(--text-main); display: inline-flex; align-items: center; gap: 0.3rem;">
+                                    <i class="fa-solid fa-timeline" style="color: var(--accent-cyan);"></i> سجل الأحداث
+                                    الحية السريع (12 ساعة)
+                                </span>
+                                <button type="button" class="mini-btn"
+                                    style="font-size: 0.6rem; padding: 0.1rem 0.4rem; color: var(--text-dim);"
+                                    onclick="clearDeviceEventsLog(App.controlActiveDeviceId)" title="مسح سجل الأحداث">
+                                    <i class="fa-solid fa-trash-can"></i> مسح
+                                </button>
+                            </div>
+                            <div id="ctrl-events-log-list"
+                                style="max-height: 110px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.25rem;">
+                                <!-- Events injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: space-between;">
+                <button type="button" class="mini-btn btn-delete"
+                    onclick="promptDeleteDevice(App.controlActiveDeviceId)"
+                    style="padding: 0.35rem 0.65rem; font-size: 0.72rem;">
+                    <i class="fa-solid fa-trash-can"></i> حذف هذا الجهاز نهائياً
+                </button>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span
+                        style="font-size: 0.72rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.35rem;">
+                        <i class="fa-solid fa-shield-halved" style="color: var(--accent-cyan);"></i> تشفير وأمان
+                        Firebase RTDB
+                    </span>
+                    <button class="btn-secondary" onclick="closeModal('modal-control')">إغلاق</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Rename Device -->
+    <div class="modal-backdrop" id="modal-rename">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-pen-to-square"></i> تعديل اسم الجهاز</h3>
+                <button class="modal-close" onclick="closeModal('modal-rename')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>معرف الجهاز (MAC / ID):</label>
+                    <input type="text" class="form-control" id="rename-device-id" readonly
+                        style="color: var(--text-dim);">
+                </div>
+                <div class="form-group">
+                    <label>الاسم المخصص (مثال: دراجة محمد، هوندا 150):</label>
+                    <input type="text" class="form-control" id="rename-device-name"
+                        placeholder="اكتب اسماً يسهل تذكره...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-rename')">إلغاء</button>
+                <button class="btn-primary" id="btn-save-rename">حفظ ومزامنة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add Device Identifier -->
+    <div class="modal-backdrop" id="modal-add-device">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-plus-circle"></i> إضافة أجهزة للتتبع</h3>
+                <button class="modal-close" onclick="closeModal('modal-add-device')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div
+                    style="background: rgba(0, 210, 255, 0.08); border: 1px solid rgba(0, 210, 255, 0.25); padding: 0.75rem; border-radius: 8px; font-size: 0.78rem; color: var(--accent-cyan); line-height: 1.5;">
+                    <i class="fa-solid fa-circle-info"></i>
+                    يمكنك إدخال معرف ماك واحد أو عدة معرفات مفصولة بفواصل أو مسافات، وسيتم بدء مراقبتها فورياً!
+                </div>
+                <div class="form-group">
+                    <label>معرفات الماك (MAC IDs):</label>
+                    <textarea class="form-control" id="add-mac-input" rows="3"
+                        placeholder="مثال: 6CC84044E15A, CCDBA7979B46"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>اسم الدراجة (اختياري - في حال إدخال جهاز واحد):</label>
+                    <input type="text" class="form-control" id="add-name-input" placeholder="مثال: دراجة أحمد">
+                </div>
+                <button type="button" class="mini-btn" onclick="openModal('modal-rules-help')"
+                    style="color: #fbbf24; border-color: rgba(245, 158, 11, 0.4); padding: 0.4rem 0.65rem;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> كيف أجعل كل الأجهزة تظهر تلقائياً دون إدخالها
+                    يدوياً؟
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-add-device')">إلغاء</button>
+                <button class="btn-primary" id="btn-confirm-add-device">إضافة ومراقبة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Delete Device Confirmation -->
+    <div class="modal-backdrop" id="modal-delete-device">
+        <div class="modal-box"
+            style="border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 16px 40px rgba(239, 68, 68, 0.2);">
+            <div class="modal-header"
+                style="background: rgba(239, 68, 68, 0.12); border-bottom-color: rgba(239, 68, 68, 0.25);">
+                <h3 style="color: #ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> تأكيد حذف الجهاز نهائياً
+                </h3>
+                <button class="modal-close" onclick="closeModal('modal-delete-device')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div
+                    style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.85rem; border-radius: 8px; font-size: 0.82rem; color: #fca5a5; line-height: 1.6;">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <strong>تحذير هام:</strong> هذه العملية لا يمكن التراجع عنها. سيتم حذف عقدة الجهاز بالكامل من قاعدة
+                    بيانات الفايربيس (Firebase) وإلغاء تتبعه ومسح مواقعه وأوامره من النظام.
+                </div>
+                <div class="form-group">
+                    <label>اسم الجهاز المراد حذفه:</label>
+                    <div id="delete-device-name-display"
+                        style="font-weight: 700; color: #fff; font-size: 1.05rem; padding: 0.35rem 0.5rem; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);">
+                        --</div>
+                </div>
+                <div class="form-group">
+                    <label>معرف الماك (MAC ID):</label>
+                    <div id="delete-device-mac-display"
+                        style="font-family: 'JetBrains Mono', monospace; color: var(--accent-cyan); font-weight: 700; font-size: 0.95rem; padding: 0.35rem 0.5rem; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);">
+                        --</div>
+                </div>
+                <div style="font-size: 0.76rem; color: var(--text-dim); line-height: 1.4;">
+                    <i class="fa-solid fa-info-circle"></i> استخدم هذا الخيار في حال تلف أو احتراق شريحة ESP واستبدالها
+                    لعميل، لإزالة المعرف القديم لتفريغ اللوحة واستقبال الجهاز الجديد.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-delete-device')">إلغاء</button>
+                <button class="btn-danger" id="btn-confirm-delete" onclick="executeDeleteDevice()">
+                    <i class="fa-solid fa-trash-can"></i> نعم، احذف الجهاز نهائياً
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Rules Help Guide -->
+    <div class="modal-backdrop" id="modal-rules-help">
+        <div class="modal-box" style="max-width: 520px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-shield-halved" style="color: #fbbf24;"></i> تفعيل إظهار جميع الأجهزة تلقائياً
+                </h3>
+                <button class="modal-close" onclick="closeModal('modal-rules-help')">&times;</button>
+            </div>
+            <div class="modal-body" style="font-size: 0.82rem; line-height: 1.6; gap: 0.85rem;">
+                <p>
+                    حالياً، قواعد الفايربيس تسمح فقط بقراءة الجهاز إذا كنت تعرف الماك بتاعه، لكنها تمنع طلب قائمة بجميع
+                    الأجهزة دفعة واحدة.
+                </p>
+                <div
+                    style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 0.75rem;">
+                    <strong>الحل في 3 خطوات بسيطة:</strong>
+                    <ol
+                        style="padding-right: 1.25rem; margin-top: 0.4rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                        <li>افتح صفحة قواعد الفايربيس: <a
+                                href="https://console.firebase.google.com/u/6/project/motolock-gps/database/motolock-gps-default-rtdb/rules"
+                                target="_blank" style="color: var(--accent-cyan); font-weight: 700;">اضغط هنا لفتح قواعد
+                                الفايربيس</a></li>
+                        <li>استبدل القواعد بالكود أدناه ثم اضغط <strong>Publish</strong>.</li>
+                        <li>قم بعمل ريفريش لصفحة الأدمن وستظهر كل الأجهزة المسجلة تلقائياً!</li>
+                    </ol>
+                </div>
+                <div style="position: relative;">
+                    <pre id="rules-code-block"
+                        style="background: #070c14; border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; overflow-x: auto; color: #38bdf8;">{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "devices": {
+      ".read": "auth != null",
+      "$deviceId": {
+        ".read": "auth != null",
+        ".write": "auth != null && $deviceId.matches(/^[0-9A-Fa-f]{12}$/)",
+        "commandQueue": { ".indexOn": ["timestamp"] },
+        "trips": { ".indexOn": ["startTime", "endTime"] },
+        "temp_trip": { ".indexOn": ["timestamp", "receivedAt"] }
+      }
+    }
+  }
+}</pre>
+                    <button class="mini-btn" onclick="copyRulesCode()"
+                        style="position: absolute; top: 0.5rem; left: 0.5rem;">
+                        <i class="fa-regular fa-copy"></i> <span id="copy-btn-text">نسخ الكود</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="closeModal('modal-rules-help')">فهمت، حسناً</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Firebase Config & Rules Helper -->
+    <div class="modal-backdrop" id="modal-config">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-gear"></i> إعدادات الاتصال والفايربيس</h3>
+                <button class="modal-close" onclick="closeModal('modal-config')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>رابط قاعدة بيانات Firebase (RTDB URL):</label>
+                    <input type="text" class="form-control" id="cfg-rtdb-url">
+                </div>
+                <div class="form-group">
+                    <label>معرف المشروع (Project ID):</label>
+                    <input type="text" class="form-control" id="cfg-project-id">
+                </div>
+                <div class="form-group">
+                    <label>مفتاح API Key:</label>
+                    <input type="text" class="form-control" id="cfg-api-key">
+                </div>
+                <div
+                    style="background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 8px; font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;">
+                    <i class="fa-solid fa-shield-halved" style="color: var(--accent-cyan);"></i>
+                    <strong>حل بطء Firebase Console:</strong>
+                    هذه الصفحة صُممت للاستماع المباشر لحالة الأجهزة دون تحميل آلاف نقاط الرحلات دفعة واحدة، مما يمنحك
+                    سرعة فائقة ولا يستهلك ذاكرة المتصفح.
+                </div>
+                <div
+                    style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); padding: 0.85rem; border-radius: 8px; font-size: 0.8rem; margin-top: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
+                        <div>
+                            <strong style="color: #f87171;"><i class="fa-solid fa-broom"></i> تنظيف العقد والأجهزة
+                                الوهمية:</strong>
+                            <p style="color: var(--text-muted); font-size: 0.73rem; margin: 0.25rem 0 0;">
+                                حذف العقد غير الصالحة مثل (command, commandQueue والأحرف العشوائية) مع الحفاظ التام على
+                                أجهزتك الحقيقية (12 خانة Hex).
+                            </p>
+                        </div>
+                        <button type="button" class="btn-primary" id="btn-clean-fake-nodes"
+                            style="background: #dc2626; border-color: #ef4444; white-space: nowrap; font-size: 0.78rem; padding: 0.45rem 0.8rem; flex-shrink: 0;">
+                            <i class="fa-solid fa-trash-can"></i> تنظيف الآن
+                        </button>
+                    </div>
+                </div>
+                <div
+                    style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); padding: 0.85rem; border-radius: 8px; font-size: 0.8rem; margin-top: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
+                        <div>
+                            <strong style="color: #fbbf24;"><i class="fa-solid fa-route"></i> تفريغ مسارات temp_trip
+                                لتوفير الباقة:</strong>
+                            <p style="color: var(--text-muted); font-size: 0.73rem; margin: 0.25rem 0 0;">
+                                حذف نقاط الرحلات المتراكمة في الفايربيس وتوفير باقة التنزيل (Download Bandwidth) فوراً
+                                بدون التأثير على حالة الأجهزة.
+                            </p>
+                        </div>
+                        <button type="button" class="btn-primary" id="btn-clean-temp-trips"
+                            style="background: #d97706; border-color: #f59e0b; white-space: nowrap; font-size: 0.78rem; padding: 0.45rem 0.8rem; flex-shrink: 0;">
+                            <i class="fa-solid fa-broom"></i> تفريغ الآن
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-config')">إغلاق</button>
+                <button class="btn-primary" id="btn-save-config">حفظ وإعادة الاتصال</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Firebase Usage & Billable Metrics -->
+    <div class="modal-backdrop" id="modal-usage">
+        <div class="modal-box" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-chart-line" style="color: #38bdf8;"></i> استهلاك وباقة الفايربيس (Usage &
+                    Quotas)</h3>
+                <button class="modal-close" onclick="closeModal('modal-usage')">&times;</button>
+            </div>
+            <div class="modal-body" style="gap: 0.85rem;">
+
+                <!-- Time Range Filter Pills (Same as Google Console) -->
+                <div
+                    style="display: flex; gap: 0.35rem; background: rgba(0,0,0,0.3); padding: 0.25rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <button type="button" class="usage-period-btn" id="ubtn-month" onclick="switchUsagePeriod('month')">
+                        <i class="fa-solid fa-calendar-days"></i> الشهر الحالي
+                    </button>
+                    <button type="button" class="usage-period-btn" id="ubtn-7d" onclick="switchUsagePeriod('7d')">
+                        <i class="fa-solid fa-calendar-week"></i> 7 أيام
+                    </button>
+                    <button type="button" class="usage-period-btn active" id="ubtn-24h"
+                        onclick="switchUsagePeriod('24h')">
+                        <i class="fa-solid fa-sun"></i> اليوم (24h)
+                    </button>
+                    <button type="button" class="usage-period-btn" id="ubtn-1h" onclick="switchUsagePeriod('1h')">
+                        <i class="fa-solid fa-clock"></i> آخر ساعة
+                    </button>
+                </div>
+
+                <!-- Info description banner -->
+                <div
+                    style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 0.65rem 0.75rem; font-size: 0.76rem; color: var(--text-muted); line-height: 1.5;">
+                    <div
+                        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem;">
+                        <strong style="color: #38bdf8; font-size: 0.82rem;" id="usage-period-title">
+                            <i class="fa-solid fa-filter"></i> اليوم (آخر 24 ساعة)
+                        </strong>
+                        <span
+                            style="font-size: 0.68rem; background: rgba(16, 185, 129, 0.2); color: var(--accent-green); padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700;"
+                            id="usage-badge">🟢 الباقة آمنة</span>
+                    </div>
+                    <span id="usage-period-desc">إجمالي الاستهلاك خلال آخر 24 ساعة فقط. مفيد لمراقبة التحسينات
+                        الجديدة.</span>
+                </div>
+
+                <!-- 3 Metric Cards Grid -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+                    <!-- Connections -->
+                    <div
+                        style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem 0.5rem; text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.25rem;">
+                            <i class="fa-solid fa-network-wired" style="color: var(--accent-cyan);"></i> المتصلون
+                        </div>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace;"
+                            id="usage-val-connections">
+                            10<span style="font-size: 0.75rem; color: var(--text-dim); font-weight: 500;">/100</span>
+                        </div>
+                        <div style="font-size: 0.62rem; color: var(--accent-green); margin-top: 0.2rem; font-weight: 600;"
+                            id="usage-sub-connections">
+                            10 of 100 max
+                        </div>
+                    </div>
+
+                    <!-- Storage -->
+                    <div
+                        style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem 0.5rem; text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.25rem;">
+                            <i class="fa-solid fa-database" style="color: #a78bfa;"></i> التخزين
+                        </div>
+                        <div style="font-size: 1.1rem; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace;"
+                            id="usage-val-storage">
+                            190.01<span style="font-size: 0.68rem; color: var(--text-dim);"> KB</span>
+                        </div>
+                        <div style="font-size: 0.62rem; color: var(--text-muted); margin-top: 0.2rem;"
+                            id="usage-sub-storage">
+                            من 1.0 GB مجاني
+                        </div>
+                    </div>
+
+                    <!-- Downloads -->
+                    <div
+                        style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem 0.5rem; text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.25rem;">
+                            <i class="fa-solid fa-download" style="color: #38bdf8;"></i> التنزيلات
+                        </div>
+                        <div style="font-size: 1.15rem; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace;"
+                            id="usage-val-downloads">
+                            1.88<span style="font-size: 0.72rem; color: var(--text-dim);"> GB</span>
+                        </div>
+                        <div style="font-size: 0.62rem; color: var(--text-muted); margin-top: 0.2rem;"
+                            id="usage-sub-downloads">
+                            من 10.0 GB مجاني (18.8%)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual edit drawer (toggleable) -->
+                <div id="usage-edit-drawer"
+                    style="display: none; background: rgba(0,0,0,0.3); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 0.75rem; margin-top: 0.1rem;">
+                    <div style="font-size: 0.78rem; font-weight: 700; color: #38bdf8; margin-bottom: 0.4rem;">
+                        <i class="fa-solid fa-pen-to-square"></i> تعديل أرقام الفترة الحالية يدوياً:
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;">
+                        <div>
+                            <label style="font-size: 0.65rem; color: var(--text-dim);">المتصلون:</label>
+                            <input type="text" id="edit-usage-conn" class="form-control"
+                                style="font-size: 0.75rem; padding: 0.25rem 0.4rem;" placeholder="مثال: 6">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.65rem; color: var(--text-dim);">التخزين:</label>
+                            <input type="text" id="edit-usage-storage" class="form-control"
+                                style="font-size: 0.75rem; padding: 0.25rem 0.4rem;" placeholder="مثال: 190.01 KB">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.65rem; color: var(--text-dim);">التنزيلات:</label>
+                            <input type="text" id="edit-usage-dl" class="form-control"
+                                style="font-size: 0.75rem; padding: 0.25rem 0.4rem;" placeholder="مثال: 5.26 MB">
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 0.4rem; margin-top: 0.5rem;">
+                        <button type="button" class="btn-secondary" style="font-size: 0.7rem; padding: 0.25rem 0.6rem;"
+                            onclick="toggleUsageEditForm(false)">إلغاء</button>
+                        <button type="button" class="btn-primary" style="font-size: 0.7rem; padding: 0.25rem 0.6rem;"
+                            onclick="saveCustomUsageMetrics()">حفظ وتطبيق</button>
+                    </div>
+                </div>
+
+                <!-- Google Console Direct Link Card -->
+                <div
+                    style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.65rem 0.75rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
+                    <div>
+                        <div
+                            style="font-weight: 700; font-size: 0.78rem; color: #fff; display: flex; align-items: center; gap: 0.4rem;">
+                            <i class="fa-brands fa-google" style="color: #ea4335;"></i> صفحة Firebase Usage المباشرة
+                        </div>
+                        <div style="font-size: 0.68rem; color: var(--text-dim); margin-top: 0.15rem;">
+                            الرسوم البيانية الرسمية ومعدل الاستهلاك اللحظي
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.35rem; align-items: center;">
+                        <button type="button" class="mini-btn"
+                            style="color: var(--accent-cyan); border-color: rgba(56, 189, 248, 0.35); padding: 0.3rem 0.5rem; font-size: 0.7rem;"
+                            onclick="toggleUsageEditForm()" title="تعديل الأرقام يدوياً">
+                            <i class="fa-solid fa-pen"></i> تعديل
+                        </button>
+                        <a href="https://console.firebase.google.com/u/6/project/motolock-gps/database/motolock-gps-default-rtdb/usage"
+                            target="_blank" class="btn-primary"
+                            style="background: #0284c7; border-color: #38bdf8; text-decoration: none; padding: 0.32rem 0.65rem; font-size: 0.72rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.3rem;">
+                            <span>فتح الكونسول</span> <i class="fa-solid fa-arrow-up-right-from-square"
+                                style="font-size: 0.62rem;"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: space-between;">
+                <span style="font-size: 0.7rem; color: var(--text-dim);" id="usage-last-updated-text">
+                    <i class="fa-solid fa-clock-rotate-left"></i> يتم التحديث تلقائياً
+                </span>
+                <button class="btn-secondary" onclick="closeModal('modal-usage')">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Broadcast & Announcements Manager -->
+    <div class="modal-backdrop" id="modal-broadcast">
+        <div class="modal-box" style="max-width: 680px; max-height: 90vh; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <h3>
+                    <i class="fa-solid fa-bullhorn" style="color: #f59e0b;"></i>
+                    إدارة الرسائل والإعلانات للمستخدمين
+                    <span id="ann-active-count-badge" class="mini-tag" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; margin-right: 0.5rem;">0 نشط</span>
+                </h3>
+                <button class="modal-close" onclick="closeModal('modal-broadcast')">&times;</button>
+            </div>
+            <div class="modal-body" style="gap: 0.85rem; overflow-y: auto; padding-right: 0.4rem;">
+                
+                <!-- Tab Buttons: New Announcement vs Existing Announcements -->
+                <div style="display: flex; gap: 0.4rem; background: rgba(0,0,0,0.3); padding: 0.25rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <button type="button" class="usage-period-btn active" id="tab-btn-new-ann" onclick="switchAnnTab('new')" style="flex: 1; text-align: center;">
+                        <i class="fa-solid fa-pen-nib"></i> إنشاء إعلان جديد
+                    </button>
+                    <button type="button" class="usage-period-btn" id="tab-btn-list-ann" onclick="switchAnnTab('list')" style="flex: 1; text-align: center;">
+                        <i class="fa-solid fa-list-check"></i> الإعلانات الحالية (<span id="tab-ann-count">0</span>)
+                    </button>
+                </div>
+
+                <!-- TAB 1: NEW ANNOUNCEMENT FORM -->
+                <div id="tab-content-new-ann" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    
+                    <!-- Title & Type -->
+                    <div style="display: grid; grid-template-columns: 2fr 1.1fr; gap: 0.6rem;">
+                        <div class="form-group" style="margin: 0;">
+                            <label><i class="fa-solid fa-heading" style="color: var(--accent-cyan);"></i> عنوان الرسالة (عربي) *</label>
+                            <input type="text" id="ann-title-ar" class="form-control" placeholder="مثال: ⚠️ تحديث هام لإصدار التطبيق وجهاز الدراجة">
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label><i class="fa-solid fa-tag" style="color: var(--accent-amber);"></i> نوع الإعلان</label>
+                            <select id="ann-type" class="form-control">
+                                <option value="update">🚀 تحديث تطبيق / جهاز</option>
+                                <option value="warning">⚠️ تنبيه أمني / تحذير</option>
+                                <option value="announcement" selected>📢 إعلان عام / ميزة جديدة</option>
+                                <option value="maintenance">🔧 صيانة مجدولة</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- English Title (Optional) -->
+                    <div class="form-group" style="margin: 0;">
+                        <label style="font-size: 0.72rem; color: var(--text-dim);"><i class="fa-solid fa-language"></i> العنوان بالإنجليزية (اختياري)</label>
+                        <input type="text" id="ann-title-en" class="form-control" placeholder="Example: ⚠️ Important App Update">
+                    </div>
+
+                    <!-- Message Body (Arabic) -->
+                    <div class="form-group" style="margin: 0;">
+                        <label><i class="fa-solid fa-align-right" style="color: var(--accent-cyan);"></i> نص الرسالة (عربي) *</label>
+                        <textarea id="ann-body-ar" class="form-control" rows="3" style="resize: vertical; min-height: 65px;" placeholder="اكتب تفاصيل الإعلان هنا... يظهر للمستخدم في شريط التنبيهات وصفحة الرسائل"></textarea>
+                    </div>
+
+                    <!-- Message Body (English - Optional) -->
+                    <div class="form-group" style="margin: 0;">
+                        <label style="font-size: 0.72rem; color: var(--text-dim);"><i class="fa-solid fa-language"></i> نص الرسالة بالإنجليزية (اختياري)</label>
+                        <textarea id="ann-body-en" class="form-control" rows="2" style="resize: vertical;" placeholder="Announcement details in English..."></textarea>
+                    </div>
+
+                    <!-- Target Audience & Expiration Duration -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
+                        <div class="form-group" style="margin: 0;">
+                            <label><i class="fa-solid fa-users-viewfinder" style="color: #38bdf8;"></i> الجمهور المستهدف</label>
+                            <select id="ann-target-mode" class="form-control" onchange="toggleTargetDeviceSelect()">
+                                <option value="all" selected>🌐 جميع المستخدمين (الكل - Broadcast)</option>
+                                <option value="specific">🎯 دراجة / جهاز محدد</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label><i class="fa-solid fa-hourglass-half" style="color: #eab308;"></i> مدة الصلاحية (تختفي بعدها)</label>
+                            <select id="ann-duration" class="form-control" onchange="toggleCustomExpiryInput()">
+                                <option value="86400000" selected>24 ساعة (يوم واحد)</option>
+                                <option value="172800000">48 ساعة (يومان)</option>
+                                <option value="259200000">3 أيام</option>
+                                <option value="604800000">7 أيام (أسبوع)</option>
+                                <option value="2592000000">30 يوماً (شهر)</option>
+                                <option value="permanent">دائمة (بدون انتهاء - حتى الحذف)</option>
+                                <option value="custom">تاريخ ووقت مخصص...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Row: Specific Device Checkboxes Multi-Select -->
+                    <div id="row-target-device" class="form-group" style="display: none; margin: 0;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem;">
+                            <label style="margin: 0; font-size: 0.78rem;">
+                                <i class="fa-solid fa-motorcycle" style="color: var(--accent-cyan);"></i>
+                                اختر الأجهزة المستهدفة (<span id="ann-selected-devices-count" style="color: var(--accent-cyan); font-weight: 700;">0 محدد</span>):
+                            </label>
+                            <div style="display: flex; gap: 0.4rem;">
+                                <button type="button" class="mini-btn" onclick="toggleAllDeviceCheckboxes(true)" style="padding: 2px 7px; font-size: 0.68rem; color: var(--accent-cyan); border-color: rgba(56,189,248,0.3);">تحديد الكل</button>
+                                <button type="button" class="mini-btn" onclick="toggleAllDeviceCheckboxes(false)" style="padding: 2px 7px; font-size: 0.68rem; color: var(--text-dim); border-color: var(--border-color);">إلغاء الكل</button>
+                            </div>
+                        </div>
+
+                        <!-- Search Bar for bikes -->
+                        <div style="position: relative; margin-bottom: 0.35rem;">
+                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 9px; top: 50%; transform: translateY(-50%); font-size: 0.72rem; color: var(--text-dim);"></i>
+                            <input type="text" id="ann-device-search-input" class="form-control" 
+                                   placeholder="ابحث باسم الدراجة أو الماك..." 
+                                   oninput="filterTargetDevicesCheckboxes()"
+                                   style="padding: 0.28rem 1.8rem 0.28rem 0.6rem; font-size: 0.74rem; border-radius: 6px; background: rgba(0,0,0,0.35);">
+                        </div>
+
+                        <div id="ann-device-checkboxes-container" style="max-height: 160px; overflow-y: auto; background: rgba(0,0,0,0.35); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.5rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                            <div style="font-size: 0.75rem; color: var(--text-dim); text-align: center; padding: 0.5rem;">جارِ تحميل الأجهزة...</div>
+                        </div>
+                    </div>
+
+                    <div id="row-custom-expiry" class="form-group" style="display: none; margin: 0;">
+                        <label><i class="fa-regular fa-calendar-xmark" style="color: #ef4444;"></i> تاريخ ووقت انتهاء الإعلان</label>
+                        <input type="datetime-local" id="ann-custom-expiry-dt" class="form-control">
+                    </div>
+
+                    <!-- Action URL (Optional) -->
+                    <div class="form-group" style="margin: 0;">
+                        <label style="font-size: 0.72rem; color: var(--text-dim);"><i class="fa-solid fa-link"></i> رابط إضافي / زر الإجراء (اختياري)</label>
+                        <input type="url" id="ann-action-url" class="form-control" placeholder="مثال: رابط Google Play أو فيديو توضيحي">
+                    </div>
+
+                    <!-- Push Notification Notice Box -->
+                    <div style="background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 0.65rem 0.8rem; font-size: 0.74rem; color: var(--text-muted); display: flex; align-items: flex-start; gap: 0.5rem;">
+                        <i class="fa-solid fa-circle-info" style="color: var(--accent-cyan); margin-top: 2px;"></i>
+                        <div>
+                            <span style="color: #fff; font-weight: 700;">كيف يصل الإشعار للمستخدمين والتطبيق مقفول؟</span>
+                            <div style="margin-top: 2px; line-height: 1.4;">
+                                الإعلان يُحفظ لحظياً في Firebase ويظهر لأي مستخدم يفتح التطبيق الآن أو مستقبلاً. لإرسال إشعار رنين خارجي (Push) فوراً على هواتف المستخدمين، أرسل رسالة من
+                                <a href="https://console.firebase.google.com/u/6/project/motolock-gps/notification" target="_blank" style="color: var(--accent-cyan); text-decoration: underline; font-weight: 600;">Firebase Cloud Messaging</a> لقناة <code>all_users</code>.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.25rem;">
+                        <button type="button" class="btn-primary" id="btn-submit-ann" onclick="publishAnnouncement()" style="padding: 0.5rem 1.25rem;">
+                            <i class="fa-solid fa-paper-plane"></i> نشر الإعلان في Firebase
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- TAB 2: EXISTING ANNOUNCEMENTS LIST -->
+                <div id="tab-content-list-ann" style="display: none; flex-direction: column; gap: 0.65rem;">
+                    <div id="ann-list-container" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <div style="text-align: center; padding: 2rem; color: var(--text-dim); font-size: 0.85rem;">
+                            <i class="fa-solid fa-spinner fa-spin"></i> جارِ تحميل الإعلانات...
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer" style="justify-content: space-between;">
+                <span style="font-size: 0.72rem; color: var(--text-dim);">
+                    <i class="fa-solid fa-shield-halved"></i> يتم مزامنة الرسائل لحظياً مع جميع مستخدمي MotoLock
+                </span>
+                <button class="btn-secondary" onclick="closeModal('modal-broadcast')">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK (v10.8.0) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>
